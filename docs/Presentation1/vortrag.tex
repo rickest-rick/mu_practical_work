@@ -23,4 +23,55 @@
 \tableofcontents[hidesubsections, hideothersubsections]
 \end{frame}
 
+\section{Adversarial Autoencoder (AAE)}
+
+\begin{frame}[t]{Probleme bei den Sensordaten}
+	\begin{itemize}
+		\item fehlende Sensordaten
+		\begin{itemize}
+			\item keine WLAN-Verbindung
+			\item Entscheidung, keine Smartwatch zu tragen
+			\item Verbot, Bewegungsdaten auszuwerten
+		\end{itemize}
+		\item unbalancierte Datenlage
+		\begin{itemize}
+			\item \enquote{at the beach} seltenere Aktivität als \enquote{standing}
+		\end{itemize}
+	\end{itemize}
+
+\textbf{Lösungsansatz:}
+\begin{itemize}
+	\item Adversarial Autoencoder \cite{sol18}
+	\begin{itemize}
+		\item Rekonstruktion fehlender Sensordaten
+		\item Generierung von realistischen synthetischen Daten
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Adversarial Autoencoder}
+	\begin{figure}
+		\centering
+		\includegraphics[scale=4.0]{aae}
+		\caption{Framework für Kontextklassifizierung mit fehlenden Sensordaten \cite{sol18}}
+	\end{figure}
+\end{frame}
+
+\begin{frame}[t]{Evaluierung}
+	\begin{itemize}
+		\item Klassifizierungsergebnisse vergleichbar mit leichteren Standardtechniken (Mean, Fill-1, PCA) $\Rightarrow$ liegt vermutlich an zu geringem Umfang der fehlenden Daten
+		\item eingebautes GAN kann komplette realistische Datensätze synthetisieren
+		\begin{itemize}
+			\item Training nur auf synthetischen Daten liefert fast so gute Ergebnisse wie Training auf echten Daten (0.715 zu 0.752)
+			\item Ergänzung von Daten für seltene Label könnte Klassifikation robuster machen
+		\end{itemize}
+		\item Möglichkeit sich mit interessanten Techniken (GAN, Autoencoder) auseinanderzusetzen
+	\end{itemize}
+\end{frame}
+
+\section*{Quellen}
+\begin{frame}[allowframebreaks,t]{\secname}
+	\printbibliography
+\end{frame}
+
 \end{document}
