@@ -73,7 +73,7 @@
 \begin{frame}[t]{Adversarial Autoencoder}
 	\begin{figure}
 		\centering
-		\includegraphics[scale=4.0]{aae}
+		\includegraphics[scale=4.0]{img/aae}
 		\caption{Framework für Kontextklassifizierung mit fehlenden Sensordaten \cite{sol18}}
 	\end{figure}
 \end{frame}
@@ -88,6 +88,40 @@
 		\end{itemize}
 		\item Möglichkeit sich mit interessanten Techniken (GAN, Autoencoder) auseinanderzusetzen
 	\end{itemize}
+\end{frame}
+
+\section{Rekurrierende Neuronale Netze}
+
+\begin{frame}[t]{Inoue, M., Inoue, S. \& Nishida  : Deep recurrent neural network for mobile human activity recognition with high throughput}
+\begin{itemize}
+	\item Nutzung von Rekurrierenden Neuronalen Netzen (RNN)
+	\item Datensatz: von HASC (hasc.jp) mit Aktivitäten wie ''stay'', ''walk'', ''jog'', ''skip'', ''stair up'', ''stair down'
+\end{itemize}
+\begin{center}
+	\includegraphics[width=0.5\textwidth]{img/Inoue1}
+
+	\footnote{image source: https://de.wikipedia.org/wiki/Rekurrentes\_neuronales\_Netz\#/media/File:Neuronal-Networks-Feedback.png}
+\end{center}
+
+\end{frame}
+
+\begin{frame}[t]{Inoue, M., Inoue, S. \& Nishida  : Deep recurrent neural network for mobile human activity recognition with high throughput}
+Vorzüge
+\begin{itemize}
+\item keine Features von vornherein benötigt
+\item wenige Knoten im neuronalen Netz
+\item gute Performance 
+	\begin{itemize} 
+	\item vorausgesetzt, die Feature-Zeit wird mit einberechnet
+	\item vorausgesetzt, die Datasets sind vergleichbar
+	\end{itemize}
+\end{itemize}
+
+\begin{center}
+\includegraphics[width=0.4\textwidth]{img/Inoue2}
+\includegraphics[width=0.4\textwidth]{img/Inoue3}
+\end{center}
+
 \end{frame}
 
 \section*{Quellen}
