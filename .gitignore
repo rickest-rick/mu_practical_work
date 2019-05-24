@@ -253,3 +253,5 @@ TSWLatexianTemp*
 !svm.sav
 !pca.sav
 !knn.sav
+
+data/
