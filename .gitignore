@@ -254,4 +254,6 @@ TSWLatexianTemp*
 !pca.sav
 !knn.sav
 
+# directories
 data/
+env/
