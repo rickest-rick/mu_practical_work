@@ -15,9 +15,10 @@ if __name__ == '__main__':
     features_df, labels_df = split_features_labels(user_data)
     features_df.reset_index(inplace=True)
 
-    # get uuid column and remove it from the labels
+    # get uuid column and remove them, the timestamps and the label_source from
+    # the labels
     uuid_df = features_df.iloc[:, 0].copy()
-    index_cols = features_df.columns[[0, 1]]
+    index_cols = features_df.columns[[0, 1, 2, -1]]
     features_df.drop(index_cols, axis=1, inplace=True)
 
     X = features_df.values
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     X_test_sc = scaler.transform(X_test_imp)
 
     param_dist = {'bootstrap': [True, False],
-                  'max_depth': [10],
+                  'max_depth': [10, 20, 30],
                   'max_features': ['auto', 'sqrt'],
                   'min_samples_leaf': [1, 2, 4],
                   'min_samples_split': [2, 5, 10],
@@ -44,12 +45,13 @@ if __name__ == '__main__':
                   }
 
     clf = RandomForestClassifier(class_weight="balanced")
-    random_search = RandomizedSearchCV(clf, param_dist, n_iter=3, cv=3,
+    random_search = RandomizedSearchCV(clf, param_dist, n_iter=15, cv=5,
                                        verbose=10, n_jobs=1,
                                        scoring='f1_weighted')
 
     random_search.fit(X_train_sc, y_train)
     final_clf = random_search.best_estimator_
+    print(final_clf)
 
     final_clf.fit(X_train_sc, y_train)
     preds = final_clf.predict(X_test_sc)
