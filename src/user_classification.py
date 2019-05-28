@@ -53,11 +53,8 @@ if __name__ == '__main__':
                                        scoring='f1_weighted')
 
     random_search.fit(X_train, y_train)
-    final_clf = random_search.best_estimator_
-    print(final_clf)
-
-    final_clf.fit(X_train, y_train)
-    preds = final_clf.predict(X_test)
+    print(random_search.best_estimator_)
+    preds = random_search.predict(X_test)
 
     score_f1 = f1_score(y_test, preds, average="weighted")
     print("F1 score: ", score_f1)
