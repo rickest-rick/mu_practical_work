@@ -18,6 +18,21 @@ def load_user_data(path=data_path):
     combined_user_frames = pd.concat(user_frames, keys=user_keys)
     return combined_user_frames
 
+def load_some_user_data(path=data_path):
+    """
+    Load the csv files of some (5) users and combine them in a single pandas data
+    frame.
+    :author: Daniel Beckmann
+    :param path: The directory of the csv files.
+    :return: The combined data frame.
+    """
+    user_keys = []
+    all_users = list_file_paths(path)
+    some_users = all_users[0:5]
+    user_frames = [process_user(f, user_keys) for f in some_users]
+    combined_user_frames = pd.concat(user_frames, keys=user_keys)
+    return combined_user_frames
+
 
 def process_user(csv_file, keys):
     """
@@ -56,3 +71,6 @@ def split_features_labels(frame):
     features = frame.drop(label_cols, axis=1)
     labels = frame[label_cols]
     return features, labels
+
+if __name__ == "__main__":
+    load_some_user_data()
