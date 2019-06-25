@@ -1,7 +1,7 @@
 import gc
 
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MultiLabelBinarizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import f1_score
@@ -63,7 +63,10 @@ if __name__ == '__main__':
                   'n_estimators': [30, 50, 100, 150]
                   }
 
-    clf = OneVsRestClassifier(xgb.XGBClassifier(objective="multi:softprob",num_class=51))
+    clf = OneVsRestClassifier(xgb.XGBClassifier(max_depth=4,verbosity=2))
+
+    mlb = MultiLabelBinarizer()
+    y_train = mlb.fit_transform(y_train)
     clf.fit(X_train,y_train)
 
     preds = clf.predict(X_test)
