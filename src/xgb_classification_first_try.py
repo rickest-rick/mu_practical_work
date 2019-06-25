@@ -4,7 +4,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, MultiLabelBinarizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, zero_one_loss
 from sklearn.pipeline import Pipeline
 from sklearn.multiclass import OneVsRestClassifier
 import xgboost as xgb
@@ -51,7 +51,6 @@ if __name__ == '__main__':
     X_test = preprocess_feature_pipeline.transform(X_test)
 
     y_train = preprocess_label_pipeline.fit_transform(y_train)
-    print(np.shape(y))
     y_test = preprocess_label_pipeline.transform(y_test)
 
     # 5-fold CV with random search of hyperparams for random forest classifier
@@ -63,13 +62,19 @@ if __name__ == '__main__':
                   'n_estimators': [30, 50, 100, 150]
                   }
 
-    clf = OneVsRestClassifier(xgb.XGBClassifier(max_depth=4,verbosity=2))
+    clf = OneVsRestClassifier(xgb.XGBClassifier(max_depth=4,verbosity=2,n_jobs=-1))
 
-    mlb = MultiLabelBinarizer()
-    y_train = mlb.fit_transform(y_train)
+    # mlb = MultiLabelBinarizer()
+    # y = mlb.fit_transform(y_train)
+    # print(np.shape(y))
     clf.fit(X_train,y_train)
 
     preds = clf.predict(X_test)
+    print(np.shape(preds))
+    print(np.shape(y_test))
+
+    score_zero_one = zero_one_loss(y_test, preds, normalize=True)
+    print("Zero-One-Loss: ", score_zero_one)
 
     score_f1 = f1_score(y_test, preds, average="weighted")
     print("F1 score: ", score_f1)
