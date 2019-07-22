@@ -18,6 +18,7 @@ def load_user_data(path=data_path):
     combined_user_frames = pd.concat(user_frames, keys=user_keys)
     return combined_user_frames
 
+
 def load_some_user_data(path=data_path):
     """
     Load the csv files of some (5) users and combine them in a single pandas data
@@ -71,6 +72,7 @@ def split_features_labels(frame):
     features = frame.drop(label_cols, axis=1)
     labels = frame[label_cols]
     return features, labels
+
 
 if __name__ == "__main__":
     load_some_user_data()

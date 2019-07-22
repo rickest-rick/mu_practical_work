@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import f1_score
 from sklearn.pipeline import Pipeline
 
-from src.data_handling import load_user_data, split_features_labels
+from data_handling import load_user_data, split_features_labels
 
 
 if __name__ == '__main__':

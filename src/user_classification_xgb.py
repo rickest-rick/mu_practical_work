@@ -8,7 +8,7 @@ from sklearn.metrics import f1_score,confusion_matrix
 from sklearn.pipeline import Pipeline
 import xgboost as xgb
 
-from src.data_handling import load_some_user_data, split_features_labels
+from data_handling import load_some_user_data, split_features_labels
 
 
 if __name__ == '__main__':
@@ -43,7 +43,6 @@ if __name__ == '__main__':
     clf.fit(X_train,y_train)
 
     preds = clf.predict(X_test)
-
 
     score_f1 = f1_score(y_test, preds, average="weighted")
     print("F1 score: ", score_f1)
