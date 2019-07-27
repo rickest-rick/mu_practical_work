@@ -1,12 +1,13 @@
 import gc
+import xgboost as xgb
 
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import f1_score,confusion_matrix
 from sklearn.pipeline import Pipeline
-import xgboost as xgb
+from scipy.stats import uniform, randint
+from joblib import dump, load
 
 from data_handling import load_some_user_data, split_features_labels
 
@@ -39,11 +40,25 @@ if __name__ == '__main__':
     X_train = preprocess_pipeline.fit_transform(X_train)
     X_test = preprocess_pipeline.transform(X_test)
 
-    clf = xgb.XGBClassifier(objective="multi:softprob")
-    clf.fit(X_train,y_train)
+    param_dist = {
+        "colsample_bytree": uniform(0.3, 0.7),
+        "gamma": uniform(0, 0.5),
+        "learning_rate": uniform(0.02, 0.3),
+        "max_depth": randint(2, 9),
+        "n_estimators": randint(100, 200),
+        "subsample": uniform(0.4, 0.6)
+    }
 
-    preds = clf.predict(X_test)
+    clf = xgb.XGBClassifier(objective="multi:softprob")
+    random_search = RandomizedSearchCV(clf, param_dist, n_iter=20, cv=5,
+                                       verbose=3, n_jobs=-1,
+                                       scoring='f1_weighted')
+    random_search.fit(X_train, y_train)
+    print(random_search.best_estimator_)
+    dump(random_search.best_estimator_, "user_class_xgb.joblib")
+
+    preds = random_search.predict(X_test)
 
     score_f1 = f1_score(y_test, preds, average="weighted")
     print("F1 score: ", score_f1)
-    print(confusion_matrix(y_test,preds))
+    print(confusion_matrix(y_test, preds))

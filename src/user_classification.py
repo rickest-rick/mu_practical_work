@@ -6,6 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import f1_score
 from sklearn.pipeline import Pipeline
+from joblib import dump, load
 
 from data_handling import load_user_data, split_features_labels
 
@@ -49,8 +50,9 @@ if __name__ == '__main__':
 
     clf = RandomForestClassifier(class_weight="balanced")
     random_search = RandomizedSearchCV(clf, param_dist, n_iter=20, cv=5,
-                                       verbose=10, n_jobs=3,
+                                       verbose=10, n_jobs=-1,
                                        scoring='f1_weighted')
+    dump(random_search, "user_class.joblib")
 
     random_search.fit(X_train, y_train)
     print(random_search.best_estimator_)
@@ -58,3 +60,4 @@ if __name__ == '__main__':
 
     score_f1 = f1_score(y_test, preds, average="weighted")
     print("F1 score: ", score_f1)
+
