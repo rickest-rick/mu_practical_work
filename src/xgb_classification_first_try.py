@@ -33,9 +33,11 @@ if __name__ == '__main__':
     # remove uuid column, the timestamps and the label_source from dataframe
     labels_df.drop(labels_df.columns[[0, 1]], axis=1, inplace=True)
     y = labels_df.values[:, 0:5]
+    label_names = list(labels_df.index)
     index_cols = features_df.columns[[0, 1, 2, -1]]
     features_df.drop(index_cols, axis=1, inplace=True)
     X = features_df.values
+    attribute_names = list(features_df.index)
     features_df = None
     gc.collect()
 
@@ -60,17 +62,17 @@ if __name__ == '__main__':
     if not load_model:
         # 5-fold CV with random search of hyperparams for xgboost classifier
         param_dist = {
-            "estimator__colsample_bytree": [0.8],
-            "estimator__gamma": [0],
-            "estimator__learning_rate": reciprocal(0.05, 0.3),
-            "estimator__max_depth": [4, 6, 8],
-            "estimator__n_estimators": [500],
-            "estimator__subsample": [0.8]
+            "estimator__colsample_bytree": [0.7],
+            "estimator__gamma": [0, 1],
+            "estimator__learning_rate": reciprocal(0.25, 0.3),
+            "estimator__max_depth": [6, 8],
+            "estimator__n_estimators": [2000],
+            "estimator__subsample": [0.6]
         }
         xgb_clf = xgb.XGBClassifier(objective="binary:logistic", nthread=1,
                                     tree_method="gpu_hist")
         ovr_clf = OneVsRestClassifier(xgb_clf)
-        random_search = RandomizedSearchCV(ovr_clf, param_dist, n_iter=10, cv=3,
+        random_search = RandomizedSearchCV(ovr_clf, param_dist, n_iter=1, cv=3,
                                            verbose=3, n_jobs=1,
                                            scoring=ba_scorer)
         # clf = OneVsRestClassifier(RandomForestClassifier(verbose=2, max_depth=30,
@@ -82,7 +84,7 @@ if __name__ == '__main__':
         random_search.fit(X_train, y_train)
         print(random_search.cv_results_)
         for estimator in random_search.best_estimator_.estimators_:
-            print("Best n_tree limit:", estimator.get_booster().best_ntree_limit)
+            print("Best n_tree limit:", estimator.get_booster().best_iteration)
         train_preds = random_search.predict(X_train)
         print("Balanced Accuracy Train:", balanced_accuracy_score(y_train, train_preds))
         print("F1-Score:", f1_score(y_train, train_preds, average="micro"))

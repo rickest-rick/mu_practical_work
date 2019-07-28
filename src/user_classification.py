@@ -24,6 +24,7 @@ if __name__ == '__main__':
     index_cols = features_df.columns[[0, 1, 2, -1]]
     features_df.drop(index_cols, axis=1, inplace=True)
     X = features_df.values
+    attribute_names = list(features_df.index)
     features_df = None
     gc.collect()
 
