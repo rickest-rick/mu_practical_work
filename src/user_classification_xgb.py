@@ -4,9 +4,9 @@ import xgboost as xgb
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import f1_score,confusion_matrix
+from sklearn.metrics import f1_score, confusion_matrix
 from sklearn.pipeline import Pipeline
-from scipy.stats import uniform, randint
+from scipy.stats import uniform, randint, reciprocal
 from joblib import dump, load
 
 from data_handling import load_some_user_data, split_features_labels
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     gc.collect()
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
-                                                        random_state=42)
+                                                        random_state=41)
 
     # preprocess the data by setting NaN values to the mean and standard scaling
     preprocess_pipeline = Pipeline([
@@ -43,15 +43,15 @@ if __name__ == '__main__':
     param_dist = {
         "colsample_bytree": uniform(0.3, 0.7),
         "gamma": uniform(0, 0.5),
-        "learning_rate": uniform(0.02, 0.3),
+        "learning_rate": reciprocal(0.05, 0.3),
         "max_depth": randint(2, 9),
         "n_estimators": randint(100, 200),
         "subsample": uniform(0.4, 0.6)
     }
 
-    clf = xgb.XGBClassifier(objective="multi:softprob")
+    clf = xgb.XGBClassifier(objective="multi:softprob", tree_method="gpu_hist")
     random_search = RandomizedSearchCV(clf, param_dist, n_iter=20, cv=5,
-                                       verbose=3, n_jobs=-1,
+                                       verbose=3, n_jobs=4,
                                        scoring='f1_weighted')
     random_search.fit(X_train, y_train)
     print(random_search.best_estimator_)

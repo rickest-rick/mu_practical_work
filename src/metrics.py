@@ -1,3 +1,5 @@
+import numpy as np
+
 from sklearn.metrics import recall_score
 from sklearn.metrics import multilabel_confusion_matrix
 
@@ -16,7 +18,7 @@ def balanced_accuracy_score(test_labels, preds):
 
     ml_conf_matrix = multilabel_confusion_matrix(test_labels, preds)
     # count true negatives and all negatives for each attribute
-    for i in range(ml_conf_matrix):
+    for i in range(np.shape(ml_conf_matrix)[0]):
         conf_matrix = ml_conf_matrix[i]
         true_neg += conf_matrix[0, 0]
         neg += conf_matrix[0, 0] + conf_matrix[0, 1]

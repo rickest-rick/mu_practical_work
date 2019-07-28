@@ -1,21 +1,24 @@
+import xgboost as xgb
+import pandas as pd
+import numpy as np
 import gc
 
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import *
 from sklearn.pipeline import Pipeline
 from sklearn.multiclass import OneVsRestClassifier
 from joblib import dump, load
-import xgboost as xgb
-import pandas as pd
-import numpy as np
+from scipy.stats import uniform, randint, reciprocal
 
 from data_handling import load_user_data, split_features_labels
+from metrics import balanced_accuracy_score
 
+ba_scorer = make_scorer(balanced_accuracy_score, greater_is_better=True)
 
 if __name__ == '__main__':
-    load_model = True
+    load_model = False
 
     pd.set_option('display.max_columns', None)
     pd.set_option('display.max_rows', None)
@@ -29,7 +32,7 @@ if __name__ == '__main__':
 
     # remove uuid column, the timestamps and the label_source from dataframe
     labels_df.drop(labels_df.columns[[0, 1]], axis=1, inplace=True)
-    y = labels_df.values
+    y = labels_df.values[:, 0:5]
     index_cols = features_df.columns[[0, 1, 2, -1]]
     features_df.drop(index_cols, axis=1, inplace=True)
     X = features_df.values
@@ -54,30 +57,42 @@ if __name__ == '__main__':
     y_train = preprocess_label_pipeline.fit_transform(y_train)
     y_test = preprocess_label_pipeline.transform(y_test)
 
-    # 5-fold CV with random search of hyperparams for random forest classifier
-    param_dist = {'bootstrap': [True, False],
-                  'max_depth': [20, 30, 40, None],
-                  'max_features': ['auto', 'sqrt'],
-                  'min_samples_leaf': [1, 2, 4],
-                  'min_samples_split': [2, 5, 10],
-                  'n_estimators': [30, 50, 100, 150]
-                  }
     if not load_model:
-        clf = OneVsRestClassifier(xgb.XGBClassifier(max_depth=15, verbosity=2, n_jobs=-1))
+        # 5-fold CV with random search of hyperparams for xgboost classifier
+        param_dist = {
+            "estimator__colsample_bytree": [0.8],
+            "estimator__gamma": [0],
+            "estimator__learning_rate": reciprocal(0.05, 0.3),
+            "estimator__max_depth": [4, 6, 8],
+            "estimator__n_estimators": [500],
+            "estimator__subsample": [0.8]
+        }
+        xgb_clf = xgb.XGBClassifier(objective="binary:logistic", nthread=1,
+                                    tree_method="gpu_hist")
+        ovr_clf = OneVsRestClassifier(xgb_clf)
+        random_search = RandomizedSearchCV(ovr_clf, param_dist, n_iter=10, cv=3,
+                                           verbose=3, n_jobs=1,
+                                           scoring=ba_scorer)
         # clf = OneVsRestClassifier(RandomForestClassifier(verbose=2, max_depth=30,
         #                                                 n_estimators=100, n_jobs=-1))
 
         # mlb = MultiLabelBinarizer()
         # y = mlb.fit_transform(y_train)
         # print(np.shape(y))
-        clf.fit(X_train, y_train)
-        dump(clf, 'RandomForest_1.joblib')
+        random_search.fit(X_train, y_train)
+        print(random_search.cv_results_)
+        for estimator in random_search.best_estimator_.estimators_:
+            print("Best n_tree limit:", estimator.get_booster().best_ntree_limit)
+        train_preds = random_search.predict(X_train)
+        print("Balanced Accuracy Train:", balanced_accuracy_score(y_train, train_preds))
+        print("F1-Score:", f1_score(y_train, train_preds, average="micro"))
+        dump(random_search.best_estimator_, 'RandomForest_1.joblib')
     else:
-        clf = load('RandomForest_1.joblib')
+        random_search = load('RandomForest_1.joblib')
 
-    preds = clf.predict(X_test)
-    print(np.shape(preds))
-    print(np.shape(y_test))
+    print(random_search.best_estimator_)
+
+    preds = random_search.predict(X_test)
 
     score_zero_one = zero_one_loss(y_test, preds, normalize=True)
     print("Zero-One-Loss: ", score_zero_one)
@@ -91,33 +106,4 @@ if __name__ == '__main__':
     score_recall = recall_score(y_test, preds, average="micro")
     print("Recall: ", score_recall)
 
-    matrices = multilabel_confusion_matrix(y_test, preds)
-    support = list()
-    specificity = list()
-    for i in range(np.shape(matrices)[0]):
-        m = matrices[i]
-        spec = float(m[0, 0])/(m[0, 1]+m[0, 0])
-        supp = np.count_nonzero(y_test[:i])
-        specificity.append(spec)
-        support.append(supp)
-
-    true_neg = neg = true_pos = 0
-
-    for i in range(np.shape(matrices)[0]):
-        m = matrices[i]
-        true_neg += m[0, 0]
-        neg += m[0, 1] + m[0, 0]
-
-    print("True Neg and Neg: {0} {1}".format(true_neg, neg))
-
-    score_specificity_2 = float(true_neg) / neg
-
-    score_specificity = float(sum([support[i]*specificity[i] for i in range(len(support))]))/sum(support)
-    print("Specificity: ", score_specificity)
-    print("Specificity 2: ", score_specificity_2)
-
-    score_balanced_accuracy = (score_specificity + score_recall) / 2
-    print("Balanced accuracy: ", score_balanced_accuracy)
-
-    score_balanced_accuracy_2 = (score_specificity_2 + score_recall) / 2
-    print("Balanced accuracy 2: ", score_balanced_accuracy_2)
+    print("Balanced accuracy: ", balanced_accuracy_score(y_test, preds))
