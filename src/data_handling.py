@@ -1,6 +1,8 @@
 import pandas as pd
+import numpy as np
 import os
 
+from sklearn.model_selection import GroupShuffleSplit
 
 data_path = "../data"
 
@@ -74,5 +76,21 @@ def split_features_labels(frame):
     return features, labels
 
 
+def user_train_test_split(X, y, test_size=0.2, random_state=2):
+    user_group = X[:, 0]
+    splitter = GroupShuffleSplit(n_splits=1, test_size=test_size,
+                                 random_state=random_state)
+    for ii, (tr, tt) in enumerate(splitter.split(X=X, groups=user_group)):
+        X_train = X[tr]
+        y_train = y[tr]
+        X_test = X[tt]
+        y_test = y[tt]
+    return X_train, X_test, y_train, y_test
+
+
 if __name__ == "__main__":
-    load_some_user_data()
+    data = load_some_user_data()
+    attr, labels = split_features_labels(data)
+    attr_values = attr.values
+    labels_values = labels.values
+    user_train_test_split(attr_values, labels_values)

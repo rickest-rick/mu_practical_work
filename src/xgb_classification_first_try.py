@@ -15,7 +15,6 @@ from scipy.stats import uniform, randint, reciprocal
 from data_handling import load_user_data, split_features_labels
 from metrics import balanced_accuracy_score
 
-ba_scorer = make_scorer(balanced_accuracy_score, greater_is_better=True)
 
 if __name__ == '__main__':
     load_model = False
@@ -60,41 +59,48 @@ if __name__ == '__main__':
     y_test = preprocess_label_pipeline.transform(y_test)
 
     if not load_model:
+        ba_scorer = make_scorer(balanced_accuracy_score, greater_is_better=True)
         # 5-fold CV with random search of hyperparams for xgboost classifier
         param_dist = {
-            "estimator__colsample_bytree": [0.7],
-            "estimator__gamma": [0, 1],
-            "estimator__learning_rate": reciprocal(0.25, 0.3),
-            "estimator__max_depth": [6, 8],
-            "estimator__n_estimators": [2000],
-            "estimator__subsample": [0.6]
+            "estimator__colsample_bytree": [0.68],
+            "estimator__gamma": [1],
+            "estimator__learning_rate": [0.1],
+            "estimator__max_depth": [8],
+            "estimator__n_estimators": [4000],
+            "estimator__subsample": [1.0],
+            "estimator__lambda": [0.5],
         }
         xgb_clf = xgb.XGBClassifier(objective="binary:logistic", nthread=1,
-                                    tree_method="gpu_hist")
+                                    tree_method="gpu_hist", n_iter_no_change=10,
+                                    colsample_bytree=0.68,
+                                    learning_rate=0.1,
+                                    max_depth=9,
+                                    gamma=1,
+                                    reg_lambda=2,
+                                    n_estimators=4000,
+                                    subsample=0.9,
+                                    verbosity=2)
         ovr_clf = OneVsRestClassifier(xgb_clf)
-        random_search = RandomizedSearchCV(ovr_clf, param_dist, n_iter=1, cv=3,
+        random_search = RandomizedSearchCV(ovr_clf, param_dist, n_iter=1, cv=2,
                                            verbose=3, n_jobs=1,
                                            scoring=ba_scorer)
-        # clf = OneVsRestClassifier(RandomForestClassifier(verbose=2, max_depth=30,
-        #                                                 n_estimators=100, n_jobs=-1))
-
-        # mlb = MultiLabelBinarizer()
-        # y = mlb.fit_transform(y_train)
-        # print(np.shape(y))
-        random_search.fit(X_train, y_train)
-        print(random_search.cv_results_)
-        for estimator in random_search.best_estimator_.estimators_:
+        # random_search.fit(X_train, y_train)
+        ovr_clf.fit(X_train, y_train)
+        #print(random_search.cv_results_)
+        #for estimator in random_search.best_estimator_.estimators_:
+        for estimator in ovr_clf.estimators_:
             print("Best n_tree limit:", estimator.get_booster().best_iteration)
-        train_preds = random_search.predict(X_train)
+        #train_preds = random_search.predict(X_train)
+        train_preds = ovr_clf.predict(X_train)
         print("Balanced Accuracy Train:", balanced_accuracy_score(y_train, train_preds))
         print("F1-Score:", f1_score(y_train, train_preds, average="micro"))
-        dump(random_search.best_estimator_, 'RandomForest_1.joblib')
+        #dump(random_search.best_estimator_, 'RandomForest_1.joblib')
     else:
         random_search = load('RandomForest_1.joblib')
 
-    print(random_search.best_estimator_)
+    # print(random_search.best_estimator_)
 
-    preds = random_search.predict(X_test)
+    preds = ovr_clf.predict(X_test)
 
     score_zero_one = zero_one_loss(y_test, preds, normalize=True)
     print("Zero-One-Loss: ", score_zero_one)
