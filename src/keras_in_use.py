@@ -22,7 +22,6 @@ import numpy as np
 import argparse
 import random
 import pickle
-import cv2
 import os
 
 # # construct the argument parse and parse the arguments
@@ -111,6 +110,8 @@ opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 # distribution
 model.compile(loss="binary_crossentropy", optimizer=opt,
               metrics=["accuracy"])
+
+model.summary()
 
 # train the network
 print("[INFO] training network...")

@@ -125,8 +125,7 @@ This function assumes the user's data file is present.
 '''
 
 
-def read_user_data(uuid):
-    user_data_file =  os.path.join(data_path, '%s.features_labels.csv' % uuid)
+def read_user_data(user_data_file):
 
     # Read the entire csv file of the user:
     with open(user_data_file, 'r') as fid:
