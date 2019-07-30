@@ -34,7 +34,66 @@
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[t]{Aktivitätenerkennung mit XGBoost}
+\begin{frame}[t]{Klassifizierung mit Tensorflow}
+	\begin{columns}
+		\begin{column}[t]{6cm}
+			\begin{itemize}
+				\item Erstellung eines ersten Netzes
+				\item Training auf dem gesamten Datensatz
+				\item Erste Versuche der Multi-Label-Klassifizierung
+			\end{itemize}
+		\end{column}
+		\begin{column}[t]{6cm}
+			\begin{center}
+				\includegraphics[width=.85\textwidth]{img/keras_network_summary.png}
+			\end{center}
+		\end{column}		
+	\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Klassifizierung mit Tensorflow - Erste Ergebnisse}
+	\begin{columns}
+		\begin{column}[t]{6cm}
+			\begin{center}
+			\includegraphics[width=1\textwidth]{img/keras_training_loss.png}
+			\end{center}
+		\end{column}
+		\begin{column}[t]{6cm}
+
+		\end{column}		
+	\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Klassifizierung mit Tensorflow - Erste Ergebnisse}
+	\begin{columns}
+		\begin{column}[t]{6cm}
+			\begin{center}
+				\includegraphics[width=1\textwidth]{img/keras_training_loss_invalid.png}
+			\end{center}
+		\end{column}
+		\begin{column}[t]{6cm}
+			\begin{itemize}
+				\item Manuelle Verifikation deutet wesentlich schlechtere Resultate an
+				\item Erste Klassifizierung möglich
+			\end{itemize}
+			\vspace*{20px}
+Probleme:
+			\begin{itemize}
+				\item Gewichtung der NaN-Labels 
+			\end{itemize}
+		\end{column}		
+	\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Klassifizierung mit Tensorflow - Nächste Schritte}
+	\begin{itemize}
+		\item Finden einer geeigneten Verlustfunktion
+		\item Multi-Label-Evaluation
+		\item Verwenden von Gewichten
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Klassifizierung mit XGBoost}
 	\begin{itemize}
 		\item Bibliothek für GPU-unterstützte und verteilte Berechnung von \emph{Gradient Boosted Trees}
 	\end{itemize}
@@ -74,6 +133,7 @@
 \end{frame}
 
 \begin{frame}[t]{NaN-Werte in den Labeln}
+<<<<<<< HEAD
 	\begin{itemize}
 		\item viele der Label des Datensatzes sind weder True noch False, sondern NaN (also fehlend)
 		\item wir setzen fehlende Label aktuell auf False $\rightarrow$ Problem wird durch einige falsche Label schwerer
@@ -87,6 +147,13 @@
 		\item andere Möglichkeit: zufällige Aufteilung aller Daten von allen Personen $\rightarrow$ deutlich leichteres Problem
 		\item Frage: welches Problem sollen wir genau lösen?
 	\end{itemize}
+=======
+	
+\end{frame}
+
+\begin{frame}[t]{}
+	
+>>>>>>> 6e9c2d069129740fcdd7aba79e0e76dd644d2a7a
 \end{frame}
 
 \section{Pläne für die Zukunft}
