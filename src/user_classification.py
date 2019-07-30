@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     clf = RandomForestClassifier(class_weight="balanced")
     random_search = RandomizedSearchCV(clf, param_dist, n_iter=20, cv=5,
-                                       verbose=10, n_jobs=3,
+                                       verbose=10, n_jobs=-1,
                                        scoring='f1_weighted')
 
     random_search.fit(X_train, y_train)
