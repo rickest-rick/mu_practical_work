@@ -14,6 +14,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import random
 import data_handling as dh
+import pickle
 
 # construct the argument parse and parse the arguments
 # ap = argparse.ArgumentParser()
@@ -128,6 +129,12 @@ H = model.fit(trainX, trainY,
 # save the model to disk
 print("[INFO] serializing network...")
 model.save("model")
+
+# save the labels
+print("[INFO] serializing label binarizer...")
+f = open("labels", "wb")
+f.write(pickle.dumps(label_names))
+f.close()
 
 # # plot the training loss and accuracy
 plt.style.use("ggplot")
