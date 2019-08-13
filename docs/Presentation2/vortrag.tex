@@ -1,0 +1,165 @@
+%!TEX TS-program = pdflatex
+\documentclass[10pt,%
+	wide,%
+	xcolor={x11names},%
+	hyperref={colorlinks},%
+	pantone312,%
+	handout,%
+	]{beamer}
+\input{configBeamer.tex}
+\author{Daniel Beckmann, Thomas Poschadel, Tony Prange, Joschka Strüber}
+\title{Behavioral Context Recognition}
+\subtitle{Praktikum Mustererkennung II}
+\date{\today}
+
+\begin{document}
+\setbeamertemplate{section in toc}[sections numbered]
+
+\begin{frame}[plain]
+  \maketitle
+\end{frame}
+
+\begin{frame}[t]{Aufbau}
+\tableofcontents[hidesubsections, hideothersubsections]
+\end{frame}
+
+\section{Was wir bisher gemacht haben}
+
+\begin{frame}[t]{Kennenlernen des Datensatzes und Benutzererkennung}
+	\begin{itemize}
+		\item Durcharbeiten des i-Python Notebooks von Vaizman
+		\item Auslesen der Daten aus den Dateien und Verwendung der UUID als Label
+		\item Benutzererkennung zunächst mit Random Forests, später mit XGBoost
+		\item Sehr gute Ergebnisse: F1-Score von 0,999 bis 1,0 
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Klassifizierung mit Tensorflow}
+	\begin{columns}
+		\begin{column}[t]{6cm}
+			\begin{itemize}
+				\item Erstellung eines ersten Netzes
+				\item Training auf dem gesamten Datensatz
+				\item Erste Versuche der Multi-Label-Klassifizierung
+			\end{itemize}
+		\end{column}
+		\begin{column}[t]{6cm}
+			\begin{center}
+				\includegraphics[width=.85\textwidth]{img/keras_network_summary.png}
+			\end{center}
+		\end{column}		
+	\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Klassifizierung mit Tensorflow - Erste Ergebnisse}
+	\begin{columns}
+		\begin{column}[t]{6cm}
+			\begin{center}
+			\includegraphics[width=1\textwidth]{img/keras_training_loss.png}
+			\end{center}
+		\end{column}
+		\begin{column}[t]{6cm}
+
+		\end{column}		
+	\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Klassifizierung mit Tensorflow - Erste Ergebnisse}
+	\begin{columns}
+		\begin{column}[t]{6cm}
+			\begin{center}
+				\includegraphics[width=1\textwidth]{img/keras_training_loss_invalid.png}
+			\end{center}
+		\end{column}
+		\begin{column}[t]{6cm}
+			\begin{itemize}
+				\item Manuelle Verifikation deutet wesentlich schlechtere Resultate an
+				\item Erste Klassifizierung möglich
+			\end{itemize}
+			\vspace*{20px}
+Probleme:
+			\begin{itemize}
+				\item Gewichtung der NaN-Labels 
+			\end{itemize}
+		\end{column}		
+	\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Klassifizierung mit Tensorflow - Nächste Schritte}
+	\begin{itemize}
+		\item Finden einer geeigneten Verlustfunktion
+		\item Multi-Label-Evaluation
+		\item Verwenden von Gewichten
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Klassifizierung mit XGBoost}
+	\begin{itemize}
+		\item Bibliothek für GPU-unterstützte und verteilte Berechnung von \emph{Gradient Boosted Trees}
+	\end{itemize}
+	Vorteile:
+	\begin{itemize}
+		\item liefert gute Ergebnisse für tabulare Daten
+		\item Scikit-learn API vorhanden $\rightarrow$ Verwendung der Scikit-learn Infrastruktur problemlos möglich, insbesondere \emph{OneVsRestClassifier}
+		\item gute Interpretierbarkeit $\rightarrow$ Bibliothek kann berechnete Bäume und \emph{Feature Importances} als Plots ausgeben
+	\end{itemize}
+	Nachteile:
+	\begin{itemize}
+		\item hoher Berechnungsaufwand, insbesondere für Multilabel-Klassifizierung (Training von 51 Modellen)
+		\item Hyperparametersuche schwierig
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Hyperparametertuning mit Bayesian Optimization}
+	\begin{itemize}
+		\item Training auf ganzem Datensatz dauert zu lange und ist auf GPU nicht möglich $\rightarrow$ für Hyperparametersuche Beschränkung auf jeweils fünf zufällig gewählte Attribute
+		\item Suche guter Startpunkte für Hyperparameter mit \emph{Randomized Search CV}
+		\item Verfeinerung der Parameter mit \emph{Bayesian Optimization}
+		\begin{itemize}
+			\item Maximierung einer unbekannten Funktion durch Interpolation dieser anhand bekannter Startwerte und statistisch sinnvoll gewählten weiteren Parametersätzen
+		\end{itemize}
+		\item Mögliches Problem: optimale Hyperparameter unterscheiden ggf. sich für verschiedene Label
+	\end{itemize}
+\end{frame}
+
+\section{Probleme und offene Fragen}
+
+\begin{frame}[t]{Learning Rate und N\_Estimators}
+	\begin{itemize}
+		\item letzte Boosting-Runde in der Regel nicht die beste $\rightarrow$ verwende \emph{Early Stopping}
+		\item Parameterempfehlung für \emph{Learning Rate}: $2 \text{ bis } 10 \div \operatorname{n\_estimators}$
+		\item Problem bei uns: beste Iteration ist immer die letzte, auch bei deutlich höheren Lernraten
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{NaN-Werte in den Labeln}
+	\begin{itemize}
+		\item viele der Label des Datensatzes sind weder True noch False, sondern NaN (also fehlend)
+		\item wir setzen fehlende Label aktuell auf False $\rightarrow$ Problem wird durch einige falsche Label schwerer
+		\item in Vaizman et al. (2017) wurden NaN-Label bei Training und Testen ignoriert - wir sollen vermutlich genauso vorgehen?
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Aufteilung Trainings- und Testdaten}
+	\begin{itemize}
+		\item Vaizman et al. teilen die Trainings- und Testdaten auf Basis der einzelnen Benutzer auf $\rightarrow$ beim Testen werden nur Daten von zuvor unbekannten Personen betrachtet
+		\item andere Möglichkeit: zufällige Aufteilung aller Daten von allen Personen $\rightarrow$ deutlich leichteres Problem
+		\item Frage: welche Aufgabe sollen wir genau lösen?
+	\end{itemize}
+\end{frame}
+
+\section{Pläne für die Zukunft}
+
+\begin{frame}[t]{Pläne und Ideen}
+	\begin{itemize}
+		\item Verwendung der bisherigen Classifier und spätere Entscheidung welcher besser funktioniert
+		\item Aufbereitung des Datensatzes
+		\begin{itemize}
+			\item \emph{Maximal Correlation Embeddings} [Li et al. 19], um fehlende Label in den Trainingsdaten zu ersetzen
+			\item Rekonstruktion fehlender Sensordaten mit einem \emph{Adversarial Autoencoder} [Saeed et al. 18]
+		\end{itemize}
+		\item Auslesen der \emph{Feature Importances} und Entscheidungsbäume pro Label bei XGBoost (jeweils 51 Stück)
+	\end{itemize}
+\end{frame}
+
+\end{document}
