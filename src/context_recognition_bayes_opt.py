@@ -7,6 +7,7 @@ from sklearn.metrics import *
 from sklearn.pipeline import Pipeline
 from sklearn.multiclass import OneVsRestClassifier
 from bayes_opt import BayesianOptimization
+from joblib import dump, load
 
 from data_handling import *
 from metrics import balanced_accuracy_score
@@ -18,7 +19,7 @@ def xgb_evaluate(max_depth, gamma, learning_rate):
                                        learning_rate=learning_rate,
                                        gamma=gamma,
                                        colsample_bytree=0.8,
-                                       n_estimators=1000,
+                                       n_estimators=500,
                                        objective="binary:logistic",
                                        nthread=-1,
                                        tree_method="gpu_hist",
@@ -37,8 +38,6 @@ def xgb_evaluate(max_depth, gamma, learning_rate):
 
 
 if __name__ == '__main__':
-    load_model = False
-
     # load data and reset index
     data = load_user_data()
     data.reset_index(inplace=True)
@@ -46,9 +45,9 @@ if __name__ == '__main__':
     attrs = list(X.index)
     labels = list(y.index)
     X = X.values
-    random_labels = np.random.randint(0, 50, 6)
+    random_labels = np.random.randint(0, 50, 30)
     y = y.values[:, random_labels]
-    print(np.shape(X), np.shape(y))
+    #y = y.values
 
     X_train, X_test, y_train, y_test = user_train_test_split(X, y,
                                                              test_size=0.2,
@@ -75,11 +74,47 @@ if __name__ == '__main__':
     y_train = preprocess_label_pipeline.fit_transform(y_train)
     y_test = preprocess_label_pipeline.transform(y_test)
 
-    xgb_bo = BayesianOptimization(xgb_evaluate, {"max_depth": (6, 10),
+    """
+    xgb_bo = BayesianOptimization(xgb_evaluate, {"max_depth": (5, 8),
                                                  "gamma": (0, 1),
-                                                 "learning_rate": (0.05, 0.3)})
-    xgb_bo.maximize(init_points=3, n_iter=5, acq='ei')
-    params = xgb_bo.res['max']['max_params']
-    params["max_depth"] = int(params["max_depth"])
+                                                 "learning_rate": (0.08, 0.25)})
+    xgb_bo.maximize(init_points=10, n_iter=20, acq='ei')
 
-    print(params)
+    print(xgb_bo.res)
+    """
+    xgb_classifier = xgb.XGBClassifier(max_depth=8,
+                                       subsample=0.8,
+                                       learning_rate=0.2,
+                                       gamma=1,
+                                       reg_lambda=2,
+                                       colsample_bytree=0.8,
+                                       n_estimators=100,
+                                       objective="binary:logistic",
+                                       nthread=-1,
+                                       tree_method="auto",
+                                       n_iter_no_change=5,
+                                       verbosity=1)
+    ovr_clf = OneVsRestClassifier(xgb_classifier)
+    ovr_clf.fit(X_train, y_train)
+    for estimator in ovr_clf.estimators_:
+        print("Best n_tree limit:", estimator.get_booster().best_iteration)
+
+    train_preds = ovr_clf.predict(X_train)
+    print("Balanced Accuracy Train:", balanced_accuracy_score(y_train, train_preds))
+    print("F1-Score:", f1_score(y_train, train_preds, average="micro"))
+    dump(ovr_clf, 'context_rec.joblib')
+    preds = ovr_clf.predict(X_test)
+
+    score_zero_one = zero_one_loss(y_test, preds, normalize=True)
+    print("Zero-One-Loss: ", score_zero_one)
+
+    score_hamming = hamming_loss(y_test, preds)
+    print("Hamming Loss: ", score_hamming)
+
+    score_f1 = f1_score(y_test, preds, average="micro")
+    print("F1 score: ", score_f1)
+
+    score_recall = recall_score(y_test, preds, average="micro")
+    print("Recall: ", score_recall)
+
+    print("Balanced accuracy: ", balanced_accuracy_score(y_test, preds))

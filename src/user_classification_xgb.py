@@ -49,7 +49,7 @@ if __name__ == '__main__':
         "subsample": uniform(0.4, 0.6)
     }
 
-    clf = xgb.XGBClassifier(objective="multi:softprob", tree_method="gpu_hist")
+    clf = xgb.XGBClassifier(objective="multi:softprob", tree_method="hist")
     random_search = RandomizedSearchCV(clf, param_dist, n_iter=20, cv=5,
                                        verbose=3, n_jobs=4,
                                        scoring='f1_weighted')

@@ -73,11 +73,11 @@ if __name__ == '__main__':
         xgb_clf = xgb.XGBClassifier(objective="binary:logistic", nthread=1,
                                     tree_method="gpu_hist", n_iter_no_change=10,
                                     colsample_bytree=0.68,
-                                    learning_rate=0.1,
+                                    learning_rate=0.05,
                                     max_depth=9,
-                                    gamma=1,
-                                    reg_lambda=2,
-                                    n_estimators=4000,
+                                    gamma=2,
+                                    reg_lambda=1,
+                                    n_estimators=500,
                                     subsample=0.9,
                                     verbosity=2)
         ovr_clf = OneVsRestClassifier(xgb_clf)
