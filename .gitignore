@@ -261,5 +261,9 @@ env/
 # trained models
 *.joblib
 
+# plots
+src/*.png
+
 # misc
 *.directory
+
