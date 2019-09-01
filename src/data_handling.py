@@ -1,3 +1,5 @@
+from builtins import print
+
 import pandas as pd
 import os
 
@@ -58,6 +60,19 @@ def split_features_labels(frame):
     return features, labels
 
 
+def read_all_user_data(path=data_path):
+    """
+    Reads all user data
+    :author: Thomas Poschadel
+    :param path: The directory of the csv files.
+    :return: The combined data.
+    """
+    user_keys = []
+    user_frames = [process_user(f, user_keys) for f in list_file_paths(path)]
+    combined_user_frames = pd.concat(user_frames)
+    return combined_user_frames
+
+
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
@@ -109,14 +124,14 @@ def parse_body_of_csv(csv_str, n_features):
     timestamps = full_table[:, 0].astype(int);
 
     # Read the sensor features:
-    X = full_table[:, 1:(n_features + 1)];
+    features = full_table[:, 1:(n_features + 1)];
 
     # Read the binary label values, and the 'missing label' indicators:
     trinary_labels_mat = full_table[:, (n_features + 1):-1];  # This should have values of either 0., 1. or NaN
-    M = np.isnan(trinary_labels_mat);  # M is the missing label matrix
-    Y = np.where(M, 0, trinary_labels_mat) > 0.;  # Y is the label matrix
+    missing_labels = np.isnan(trinary_labels_mat);  # M is the missing label matrix
+    labels = np.where(missing_labels, 0, trinary_labels_mat) > 0.;  # Y is the label matrix
 
-    return (X, Y, M, timestamps);
+    return (features, labels, missing_labels, timestamps);
 
 
 '''
@@ -134,7 +149,7 @@ def read_user_data(user_data_file):
 
     (feature_names, label_names) = parse_header_of_csv(csv_str);
     n_features = len(feature_names);
-    # ToDo: Fix this! the first paramter was a binary before, but this could no longer be handles in parse header of csv. THerefore
+    # ToDo: Fix this! the first paramter was a binary before, but this could no longer be handles in parse header of csv. Therefore
     #  here again the file path is given and the file loaded a second time. This might be bad for perfomance
     (X, Y, M, timestamps) = parse_body_of_csv(user_data_file, n_features);
 
