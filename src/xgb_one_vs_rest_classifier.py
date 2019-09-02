@@ -3,8 +3,9 @@ import numpy as np
 import threading
 
 from sklearn.base import BaseEstimator, ClassifierMixin
-
 from sklearn.impute import SimpleImputer
+from joblib import dump, load
+from math import log
 
 from data_handling import load_user_data, load_some_user_data, \
     split_features_labels, user_train_test_split
@@ -26,16 +27,10 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
 
         self.estimators = []
         for parameters in self.parameter_list:
-            # TODO set parameters from parameter list
-            clf = xgb.XGBClassifier(learning_rate=0.005,
-                                    n_estimators=500,
-                                    max_depth=8,
-                                    subsample=0.9,
-                                    colsample_bytree=0.9,
-                                    gamma=1,
-                                    objective="binary:logistic",
-                                    tree_method=self.tree_method,
-                                    n_jobs=self.n_jobs)
+            parameters["objective"] = "binary:logistic"
+            parameters["n_jobs"] = self.n_jobs
+            parameters["tree_method"] = self.tree_method
+            clf = xgb.XGBClassifier(**parameters)
             self.estimators.append(clf)
 
     def fit(self, X, y, pred_expansion=False):
@@ -50,8 +45,8 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         """
         n_labels = y.shape[1]
         if n_labels != len(self.parameter_list):
-            raise ValueError("Number of labels to predict ({0}) is not equal"
-                             " to the number of trained classifiers ({1})"
+            raise ValueError("Number of labels to predict ({0}) does not equal"
+                             " the number of trained classifiers ({1})"
                              .format(n_labels, len(self.parameter_list)))
 
         if pred_expansion:  # data set is modified, if pred_expansion
@@ -61,11 +56,12 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         # train a classifier for every label in y
         for label in range(n_labels):
             y_train = y[:, label]
-            fit_thread = threading.Thread(target=self.fit_label, args=(label,
-                                                                       X_train,
-                                                                       y_train))
-            fit_thread.start()
-            fit_thread.join()
+            #fit_thread = threading.Thread(target=self.fit_label, args=(label,
+            #                                                           X_train,
+            #                                                           y_train))
+            #fit_thread.start()
+            #fit_thread.join()
+            self.fit_label(label, X_train, y_train)
             if pred_expansion:
                 y_pred = self.estimators[label].predict(X_train)
                 X_train.append(y_pred)
@@ -83,7 +79,8 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
 
         for label in range(n_labels):
             y.append(self.estimators[label].predict(X))
-        return np.array(y).T
+        #return np.array(y).T
+        return np.array(y)
 
     def score(self, X, y, sample_weight=None):
         """
@@ -125,17 +122,19 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         pass
 
     def fit_label(self, label, X, y):
+        sum_pos = np.count_nonzero(y == 1.0)
+        sum_neg = np.count_nonzero(y == 0)
+        scale_pos_weight = log(sum_neg / sum_pos + 1, 10) if sum_pos != 0 else 1
         model = self.estimators[label]
+        # model.scale_pos_weight = scale_pos_weight
         model.fit(X, y)
-        print(model.n_estimators)
+
         # saving and loading model to release memory
-        model.save_model("tmp/xgb.model")
-        model_le = model._le
+        # model_le = model._le
+        dump(model, "tmp/xgb_model.joblib")
         del model
-        model = xgb.XGBClassifier()
-        model.load_model("tmp/xgb.model")
-        model._le = model_le
-        print(model.n_estimators)
+        model = load("tmp/xgb_model.joblib")
+        # model._le = model_le
         self.estimators[label] = model
 
 
@@ -167,11 +166,11 @@ if __name__ == "__main__":
 
     parameter_list = []
     params = {
-        "n_estimators": 10,
-        "learning_rate": 0.001,
+        "n_estimators": 200,
+        "learning_rate": 0.025,
         "max_depth": 8,
         "colsample_bytree": 0.9,
-        "gamma": 0.5,
+        "gamma": 2,
         "subsample": 0.9,
     }
     for label in range(y_train.shape[1]):
@@ -181,5 +180,7 @@ if __name__ == "__main__":
                                  tree_method="gpu_hist")
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
+    y_pred_bias = clf.predict(X_train)
 
-    print("Balanced accuracy: ", balanced_accuracy_score(y_test, y_pred))
+    print("Balanced accuracy: ", balanced_accuracy_score(y_test.T, y_pred))
+    print("Balanced accuracy bias:", balanced_accuracy_score(y_train.T, y_pred_bias))
