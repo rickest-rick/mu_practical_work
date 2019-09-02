@@ -56,11 +56,6 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         # train a classifier for every label in y
         for label in range(n_labels):
             y_train = y[:, label]
-            #fit_thread = threading.Thread(target=self.fit_label, args=(label,
-            #                                                           X_train,
-            #                                                           y_train))
-            #fit_thread.start()
-            #fit_thread.join()
             self.fit_label(label, X_train, y_train)
             if pred_expansion:
                 y_pred = self.estimators[label].predict(X_train)
