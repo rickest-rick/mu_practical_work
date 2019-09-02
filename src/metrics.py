@@ -30,6 +30,8 @@ def balanced_accuracy_score(y_true, y_pred):
         conf_matrix = confusion_matrix(label_true, label_pred)
         # count true negatives, true positives, all negatives and all positives
         # for each attribute
+        if conf_matrix.shape == (0, 0):  # empty confusion matrix
+            continue
         if conf_matrix.shape == (2, 2):  # not all positive or negative
             true_neg += conf_matrix[0, 0]
             true_pos += conf_matrix[1, 1]
@@ -42,10 +44,13 @@ def balanced_accuracy_score(y_true, y_pred):
             else:  # all positive
                 true_pos += conf_matrix[0, 0]
                 pos += conf_matrix[0, 0]
-
-    specificity = float(true_neg) / neg
-    recall = float(true_pos) / pos
-    print("P: {}, N: {}, TP: {}, TN: {}".format(pos, neg, true_pos, true_neg))
-    print("Spec: {0}, Recall: {1}".format(specificity, recall))
+    if neg != 0:
+        specificity = float(true_neg) / neg
+    else:
+        specificity = 1
+    if pos != 0:
+        recall = float(true_pos) / pos
+    else:
+        recall = 1
     return (recall + specificity) / 2
 

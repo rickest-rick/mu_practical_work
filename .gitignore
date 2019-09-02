@@ -257,6 +257,7 @@ TSWLatexianTemp*
 # directories
 data/
 env/
+src/tmp/
 
 # trained models
 *.joblib

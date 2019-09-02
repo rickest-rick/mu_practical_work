@@ -48,7 +48,8 @@ if __name__ == '__main__':
                             max_depth=8,
                             subsample=0.9,
                             gamma=0.05,
-                            objective="multi:softprob", tree_method="gpu_hist")
+                            objective="multi:softprob",
+                            tree_method="gpu_hist")
 
     clf.fit(X_train, y_train)
     xgb.plot_importance(clf, max_num_features=20)
