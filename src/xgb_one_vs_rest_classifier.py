@@ -59,21 +59,29 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             self.fit_label(label, X_train, y_train)
             if pred_expansion:
                 y_pred = self.estimators[label].predict(X_train)
-                X_train.append(y_pred)
+                np.append(X_train, y_pred)
         return self
 
-    def predict(self, X):
+    def predict(self, X, pred_expansion=False):
         """
 
         :author: Joschka Strüber
         :param X:
+        :param pred_expansion:
         :return:
         """
         n_labels = len(self.parameter_list)
-        y = []
+        if pred_expansion:  # data set is modified, if pred_expansion
+            X_test = np.copy(X)
+        else:
+            X_test = X
 
+        y = []
         for label in range(n_labels):
-            y.append(self.estimators[label].predict(X))
+            y_pred = self.estimators[label].predict(X_test)
+            if pred_expansion:
+                np.append(X_test, y_pred)
+            y.append(y_pred)
         #return np.array(y).T
         return np.array(y)
 
