@@ -33,7 +33,7 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             clf = xgb.XGBClassifier(**parameters)
             self.estimators.append(clf)
 
-    def fit(self, X, y, pred_expansion=False):
+    def fit(self, X, y, pred_expansion=False, scale_method=None):
         """
 
         :author; Joschka Strüber
@@ -43,6 +43,9 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             the labels that were trained so far.
         :return:
         """
+        if scale_method not in {None, "log", "full"}:
+            raise ValueError('Invalid scale method chosen: "{}"'.format(
+                scale_method))
         n_labels = y.shape[1]
         if n_labels != len(self.parameter_list):
             raise ValueError("Number of labels to predict ({0}) does not equal"
@@ -56,7 +59,7 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         # train a classifier for every label in y
         for label in range(n_labels):
             y_train = y[:, label]
-            self.fit_label(label, X_train, y_train)
+            self.fit_label(label, X_train, y_train, scale_method=scale_method)
             if pred_expansion:
                 y_pred = self.estimators[label].predict(X_train)
                 np.append(X_train, y_pred)
@@ -124,20 +127,27 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         """
         pass
 
-    def fit_label(self, label, X, y):
-        sum_pos = np.count_nonzero(y == 1.0)
-        sum_neg = np.count_nonzero(y == 0)
-        scale_pos_weight = log(sum_neg / sum_pos + 1, 10) if sum_pos != 0 else 1
+    def fit_label(self, label, X, y, scale_method=None):
+        if scale_method is None:
+            scale_pos_weight = 1
+        else:
+            sum_pos = np.count_nonzero(y == 1.0)
+            sum_neg = np.count_nonzero(y == 0)
+            neg_pos_ratio = sum_neg / sum_pos if sum_pos != 0 else 1
+            if scale_method == "log":
+                scale_pos_weight = log(neg_pos_ratio + 1, 10)
+            elif scale_method == "full":
+                scale_pos_weight = neg_pos_ratio
+            else:
+                assert False
         model = self.estimators[label]
-        # model.scale_pos_weight = scale_pos_weight
+        model.scale_pos_weight = scale_pos_weight
         model.fit(X, y)
 
         # saving and loading model to release memory
-        # model_le = model._le
         dump(model, "tmp/xgb_model.joblib")
         del model
         model = load("tmp/xgb_model.joblib")
-        # model._le = model_le
         self.estimators[label] = model
 
 
@@ -161,10 +171,7 @@ if __name__ == "__main__":
     y_train = np.delete(y_train, -1, 1)
     y_test = np.delete(y_test, -1, 1)
 
-    feature_imputer = SimpleImputer(strategy="mean")
     label_imputer = SimpleImputer(strategy="constant", fill_value=0.0)
-    X_train = feature_imputer.fit_transform(X_train)
-    X_test = feature_imputer.transform(X_test)
     y_train = label_imputer.fit_transform(y_train)
 
     parameter_list = []
@@ -173,7 +180,8 @@ if __name__ == "__main__":
         "learning_rate": 0.025,
         "max_depth": 8,
         "colsample_bytree": 0.9,
-        "gamma": 2,
+        "gamma": 5,
+        "reg_lambda": 5,
         "subsample": 0.9,
     }
     for label in range(y_train.shape[1]):
@@ -181,7 +189,7 @@ if __name__ == "__main__":
     clf = XgbOneVsRestClassifier(parameter_list=parameter_list,
                                  n_jobs=1,
                                  tree_method="gpu_hist")
-    clf.fit(X_train, y_train)
+    clf.fit(X_train, y_train, scale_method="log")
     y_pred = clf.predict(X_test)
     y_pred_bias = clf.predict(X_train)
 
