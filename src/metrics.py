@@ -18,9 +18,9 @@ def balanced_accuracy_score(y_true, y_pred):
     neg = 0
     pos = 0
 
-    for label in range(y_true.shape[0]):
-        label_true = y_true[label]
-        label_pred = y_pred[label]
+    for label_set in range(y_true.shape[0]):
+        label_true = y_true[label_set]
+        label_pred = y_pred[label_set]
 
         # remove NaN values
         is_NaN = np.isnan(label_true)
@@ -28,6 +28,8 @@ def balanced_accuracy_score(y_true, y_pred):
         label_pred = label_pred[~is_NaN]
 
         conf_matrix = confusion_matrix(label_true, label_pred)
+        # todo delete debug print
+        print(label_set, "\n", conf_matrix)
         # count true negatives, true positives, all negatives and all positives
         # for each attribute
         if conf_matrix.shape == (0, 0):  # empty confusion matrix
@@ -35,8 +37,12 @@ def balanced_accuracy_score(y_true, y_pred):
         if conf_matrix.shape == (2, 2):  # not all positive or negative
             true_neg += conf_matrix[0, 0]
             true_pos += conf_matrix[1, 1]
-            neg += conf_matrix[0, 0] + conf_matrix[0, 1]
-            pos += conf_matrix[1, 1] + conf_matrix[1, 0]
+            neg += conf_matrix[0, 0] + conf_matrix[1, 0]
+            pos += conf_matrix[1, 1] + conf_matrix[0, 1]
+            # todo delete debug print
+            #print(label_set)
+            #print(float(conf_matrix[0, 0]) / (conf_matrix[0, 0] + conf_matrix[1, 0]))
+            #print(float(conf_matrix[1, 1]) / (conf_matrix[1, 1] + conf_matrix[0, 1]))
         else:
             if label_true[0] == 0:  # all negative
                 true_neg += conf_matrix[0, 0]
@@ -52,5 +58,7 @@ def balanced_accuracy_score(y_true, y_pred):
         recall = float(true_pos) / pos
     else:
         recall = 1
+    print("Neg: {}, True Neg: {}".format(neg, true_neg))
+    print("Pos: {}, True Pos: {}".format(pos, true_pos))
     return (recall + specificity) / 2
 
