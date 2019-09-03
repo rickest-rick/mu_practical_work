@@ -29,7 +29,7 @@ def balanced_accuracy_score(y_true, y_pred):
 
         conf_matrix = confusion_matrix(label_true, label_pred)
         # todo delete debug print
-        print(label_set, "\n", conf_matrix)
+        # print(label_set, "\n", conf_matrix)
         # count true negatives, true positives, all negatives and all positives
         # for each attribute
         if conf_matrix.shape == (0, 0):  # empty confusion matrix

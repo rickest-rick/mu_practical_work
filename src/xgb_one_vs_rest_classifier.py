@@ -5,7 +5,7 @@ import threading
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.impute import SimpleImputer
 from joblib import dump, load
-from math import log, e
+from math import log, e, sqrt
 
 from data_handling import load_user_data, load_some_user_data, \
     split_features_labels, user_train_test_split
@@ -33,7 +33,8 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             clf = xgb.XGBClassifier(**parameters)
             self.estimators.append(clf)
 
-    def fit(self, X, y, pred_expansion=False, scale_method=None):
+    def fit(self, X, y, pred_expansion=False, scale_method="equal",
+            ignore_nan=False):
         """
 
         :author; Joschka Strüber
@@ -41,9 +42,11 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         :param y:
         :param pred_expansion: If True, expand the data set with predictions on
             the labels that were trained so far.
+        :param scale_method:
+        :param ignore_nan:
         :return:
         """
-        if scale_method not in {None, "log", "full"}:
+        if scale_method not in {"equal", "log", "full", "sqrt"}:
             raise ValueError('Invalid scale method chosen: "{}"'.format(
                 scale_method))
         n_labels = y.shape[1]
@@ -59,7 +62,13 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         # train a classifier for every label in y
         for label in range(n_labels):
             y_train = y[:, label]
+
+            # ignore features for which no prediction is available
+            if ignore_nan:
+                label_is_nan = np.isnan(y_train)
+                X_train = X_train[~label_is_nan]
             self.fit_label(label, X_train, y_train, scale_method=scale_method)
+            # augment training data set with prediction on labels seen so far
             if pred_expansion:
                 y_pred = self.estimators[label].predict(X_train)
                 np.append(X_train, y_pred)
@@ -85,7 +94,7 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             if pred_expansion:
                 np.append(X_test, y_pred)
             y.append(y_pred)
-        #return np.array(y).T
+        # return np.array(y).T
         return np.array(y)
 
     def score(self, X, y, sample_weight=None):
@@ -127,7 +136,7 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         """
         pass
 
-    def fit_label(self, label, X, y, scale_method="log"):
+    def fit_label(self, label, X, y, scale_method="equal"):
         """
         Method to encapsulate the training process of a single XGBoost
         Classifier.
@@ -135,17 +144,16 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             should be used as target.
         :param X: All features as numpy array.
         :param y: All target labels as numpy array.
-        :param scale_method: One of {None, "log", "full"}
-            "equal" -> No scaling, scale_pos_weight = 1
+        :param scale_method: One of {"equal", "log", "full"}; default: "equal"
+            "equal" -> No scaling, scale_pos_weight = 1. Can result in
+                unbalanced predictions for unbalanced target labels.
             "full" -> Full scaling, scale_pos_weight = sum(negative) /
-                sum(positive)
-            "log" -> Modify scaling value by ln(neg_pos_ratio + e) for values
-            above 1. This results in scale_pos_values closer to 1.
-            neg_pos_ratios below 1 (more positive than negative entries) result
-            in a scale_pos_weight = ln(neg_pos_ratio + e - 1), which is between
-            0.54 and 1.
-            In general, this method encourages the algorithm to select both
-            positive and negative labels in unbalanced scenarios.
+                sum(positive). Can result in unbalanced predictions but the
+                other way around compared to "equal" (e.g. a lot of false
+                positives, instead of a lot of false negatives).
+            "sqrt" -> Scale by sqrt(neg_pos_ratio). Behaves as "full" but the
+                square root normalizes the scale_pos_weight towards 1 ending
+                in less extreme results.
         :return: None
         """
         if scale_method == "equal":
@@ -154,14 +162,13 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             sum_pos = np.count_nonzero(y == 1.0)
             sum_neg = np.count_nonzero(y == 0)
             neg_pos_ratio = float(sum_neg) / sum_pos if sum_pos != 0 else 1
-            if scale_method == "log" and neg_pos_ratio > 1:
-                scale_pos_weight = log(neg_pos_ratio) + 1
-            elif scale_method == "log" and neg_pos_ratio <= 1:
-                scale_pos_weight = log(neg_pos_ratio + e - 1)
-            elif scale_method == "full":
+            if scale_method == "full":
                 scale_pos_weight = neg_pos_ratio
+            elif scale_method == "sqrt":
+                scale_pos_weight = sqrt(neg_pos_ratio)
             else:
                 assert False
+        print(label, scale_pos_weight)
         model = self.estimators[label]
         model.scale_pos_weight = scale_pos_weight
         model.fit(X, y)
@@ -198,12 +205,11 @@ if __name__ == "__main__":
 
     parameter_list = []
     params = {
-        "n_estimators": 400,
-        "learning_rate": 0.01,
+        "n_estimators": 100,
+        "learning_rate": 0.06,
         "max_depth": 6,
         "colsample_bytree": 0.9,
-        "gamma": 5,
-        "reg_lambda": 5,
+        "gamma": 1,
         "subsample": 0.9,
     }
     for label in range(y_train.shape[1]):
@@ -211,9 +217,11 @@ if __name__ == "__main__":
     clf = XgbOneVsRestClassifier(parameter_list=parameter_list,
                                  n_jobs=1,
                                  tree_method="gpu_hist")
-    clf.fit(X_train, y_train, scale_method="log")
-    y_pred = clf.predict(X_test)
-    y_pred_bias = clf.predict(X_train)
+    for scale_method in {"equal", "sqrt", "full"}:
+        clf.fit(X_train, y_train, scale_method=scale_method)
+        y_pred = clf.predict(X_test)
+        y_pred_bias = clf.predict(X_train)
 
-    print("Balanced accuracy: ", balanced_accuracy_score(y_test.T, y_pred))
-    print("Balanced accuracy bias:", balanced_accuracy_score(y_train.T, y_pred_bias))
+        print("Balanced accuracy: ", balanced_accuracy_score(y_test.T, y_pred))
+        print("Balanced accuracy bias:", balanced_accuracy_score(y_train.T,
+                                                                 y_pred_bias))
