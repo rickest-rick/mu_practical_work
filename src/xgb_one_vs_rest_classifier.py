@@ -176,9 +176,9 @@ if __name__ == "__main__":
 
     parameter_list = []
     params = {
-        "n_estimators": 200,
-        "learning_rate": 0.025,
-        "max_depth": 8,
+        "n_estimators": 400,
+        "learning_rate": 0.01,
+        "max_depth": 6,
         "colsample_bytree": 0.9,
         "gamma": 5,
         "reg_lambda": 5,
