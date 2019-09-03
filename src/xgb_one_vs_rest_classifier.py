@@ -5,7 +5,7 @@ import threading
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.impute import SimpleImputer
 from joblib import dump, load
-from math import log
+from math import log, e
 
 from data_handling import load_user_data, load_some_user_data, \
     split_features_labels, user_train_test_split
@@ -139,8 +139,13 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             "equal" -> No scaling, scale_pos_weight = 1
             "full" -> Full scaling, scale_pos_weight = sum(negative) /
                 sum(positive)
-            "log" -> Modify scaling value by log_10(neg_pos_ratio + 1) for
-                positive . Negative scale values
+            "log" -> Modify scaling value by ln(neg_pos_ratio + e) for values
+            above 1. This results in scale_pos_values closer to 1.
+            neg_pos_ratios below 1 (more positive than negative entries) result
+            in a scale_pos_weight = ln(neg_pos_ratio + e - 1), which is between
+            0.54 and 1.
+            In general, this method encourages the algorithm to select both
+            positive and negative labels in unbalanced scenarios.
         :return: None
         """
         if scale_method == "equal":
@@ -150,9 +155,9 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             sum_neg = np.count_nonzero(y == 0)
             neg_pos_ratio = float(sum_neg) / sum_pos if sum_pos != 0 else 1
             if scale_method == "log" and neg_pos_ratio > 1:
-                scale_pos_weight = log(neg_pos_ratio + 1, 10)
+                scale_pos_weight = log(neg_pos_ratio) + 1
             elif scale_method == "log" and neg_pos_ratio <= 1:
-                scale_pos_weight =
+                scale_pos_weight = log(neg_pos_ratio + e - 1)
             elif scale_method == "full":
                 scale_pos_weight = neg_pos_ratio
             else:
