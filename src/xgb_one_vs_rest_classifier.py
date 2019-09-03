@@ -127,15 +127,32 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         """
         pass
 
-    def fit_label(self, label, X, y, scale_method=None):
-        if scale_method is None:
+    def fit_label(self, label, X, y, scale_method="log"):
+        """
+        Method to encapsulate the training process of a single XGBoost
+        Classifier.
+        :param label: The label number as int. Shows which column of y
+            should be used as target.
+        :param X: All features as numpy array.
+        :param y: All target labels as numpy array.
+        :param scale_method: One of {None, "log", "full"}
+            "equal" -> No scaling, scale_pos_weight = 1
+            "full" -> Full scaling, scale_pos_weight = sum(negative) /
+                sum(positive)
+            "log" -> Modify scaling value by log_10(neg_pos_ratio + 1) for
+                positive . Negative scale values
+        :return: None
+        """
+        if scale_method == "equal":
             scale_pos_weight = 1
         else:
             sum_pos = np.count_nonzero(y == 1.0)
             sum_neg = np.count_nonzero(y == 0)
-            neg_pos_ratio = sum_neg / sum_pos if sum_pos != 0 else 1
-            if scale_method == "log":
+            neg_pos_ratio = float(sum_neg) / sum_pos if sum_pos != 0 else 1
+            if scale_method == "log" and neg_pos_ratio > 1:
                 scale_pos_weight = log(neg_pos_ratio + 1, 10)
+            elif scale_method == "log" and neg_pos_ratio <= 1:
+                scale_pos_weight =
             elif scale_method == "full":
                 scale_pos_weight = neg_pos_ratio
             else:
