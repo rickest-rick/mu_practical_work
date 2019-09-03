@@ -125,9 +125,19 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         pass
 
     def fit_label(self, label, X, y):
+        """
+        Method to encapsulate the training process of a single XGBoost
+        Classifier.
+        :param label: The label number as int. Shows which column of y
+            should be used as target.
+        :param X: All features as numpy array.
+        :param y: All target labels as numpy array.
+        :return: None
+        """
         model = self.estimators[label]
         model.fit(X, y)
         print(model.n_estimators)
+
         # saving and loading model to release memory
         model.save_model("tmp/xgb.model")
         model_le = model._le
