@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import os
 
+import fancyimpute
+
 from sklearn.model_selection import GroupShuffleSplit
 
 data_path = "../data"
@@ -96,6 +98,23 @@ def user_train_test_split(X, y, test_size=0.2, random_state=2):
         X_test = X[tt]
         y_test = y[tt]
     return X_train, X_test, y_train, y_test
+
+def impute_missing_labels(label_matrix):
+    """
+    Impute missing labels (NaN) by using fancyimpute by Alex Rubinsteyn (github.com/iskandr)
+    :author: Daniel Beckmann
+    :param label_matrix: pandas data frame containing the labels for each data sample
+    :return: imputed label matrix without NaN-values (as numpy array)
+    """
+    sparse_label_matrix = label_matrix.values
+
+    full_label_matrix = fancyimpute.SoftImpute(max_iters=500, min_value=0,max_value=1).fit_transform(sparse_label_matrix)
+
+    # threshold to convert imputed real values into binary ones. Threshold value is chosen empirically.
+    full_label_matrix = np.where(full_label_matrix < 10-2, full_label_matrix, 1)
+    full_label_matrix = np.where(full_label_matrix >= 10e-2, full_label_matrix, 0)
+
+    return full_label_matrix
 
 
 if __name__ == "__main__":
