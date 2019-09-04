@@ -1,8 +1,9 @@
 import xgboost as xgb
 import numpy as np
-import threading
 
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.utils.class_weight import compute_class_weight
+from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from joblib import dump, load
 from math import log, e, sqrt
@@ -65,8 +66,10 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
 
             # ignore features for which no prediction is available
             if ignore_nan:
+                X_train = X
                 label_is_nan = np.isnan(y_train)
                 X_train = X_train[~label_is_nan]
+                y_train = y_train[~label_is_nan]
             self.fit_label(label, X_train, y_train, scale_method=scale_method)
             # augment training data set with prediction on labels seen so far
             if pred_expansion:
@@ -159,6 +162,7 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         if scale_method == "equal":
             scale_pos_weight = 1
         else:
+            """
             sum_pos = np.count_nonzero(y == 1.0)
             sum_neg = np.count_nonzero(y == 0)
             neg_pos_ratio = float(sum_neg) / sum_pos if sum_pos != 0 else 1
@@ -168,7 +172,10 @@ class XgbOneVsRestClassifier(BaseEstimator, ClassifierMixin):
                 scale_pos_weight = sqrt(neg_pos_ratio)
             else:
                 assert False
-        print(label, scale_pos_weight)
+            """
+        class_weights = compute_class_weight('balanced', np.unique(y), y)
+        print(class_weights)
+        scale_pos_weight = class_weights[1]
         model = self.estimators[label]
         model.scale_pos_weight = scale_pos_weight
         model.fit(X, y)
@@ -191,8 +198,8 @@ if __name__ == "__main__":
     y = y.values
 
     X_train, X_test, y_train, y_test = user_train_test_split(X, y,
-                                                             test_size=0.2,
-                                                             random_state=42)
+                                                             test_size=0.4,
+                                                             random_state=1)
 
     # drop uuid column, the timestamps, and the label source
     X_train = np.delete(X_train, [0, 1, 2], 1)
@@ -200,16 +207,13 @@ if __name__ == "__main__":
     y_train = np.delete(y_train, -1, 1)
     y_test = np.delete(y_test, -1, 1)
 
-    label_imputer = SimpleImputer(strategy="constant", fill_value=0.0)
-    y_train = label_imputer.fit_transform(y_train)
-
     parameter_list = []
     params = {
         "n_estimators": 100,
-        "learning_rate": 0.06,
+        "learning_rate": 0.02,
         "max_depth": 6,
         "colsample_bytree": 0.9,
-        "gamma": 1,
+        "gamma": 2,
         "subsample": 0.9,
     }
     for label in range(y_train.shape[1]):
@@ -217,11 +221,21 @@ if __name__ == "__main__":
     clf = XgbOneVsRestClassifier(parameter_list=parameter_list,
                                  n_jobs=1,
                                  tree_method="gpu_hist")
-    for scale_method in {"equal", "sqrt", "full"}:
-        clf.fit(X_train, y_train, scale_method=scale_method)
-        y_pred = clf.predict(X_test)
-        y_pred_bias = clf.predict(X_train)
 
-        print("Balanced accuracy: ", balanced_accuracy_score(y_test.T, y_pred))
-        print("Balanced accuracy bias:", balanced_accuracy_score(y_train.T,
-                                                                 y_pred_bias))
+    label_imputer = SimpleImputer(strategy="most_frequent")
+    y_train = label_imputer.fit_transform(y_train)
+    clf.fit(X_train, y_train, scale_method="full", ignore_nan=False)
+    y_pred = clf.predict(X_test)
+    y_pred_bias = clf.predict(X_train)
+    for average in {"macro", "micro"}:
+        for zero_default in {1}:
+            print("full", False, average, zero_default)
+            print("Balanced accuracy: ", balanced_accuracy_score(y_test.T,
+                                                                 y_pred,
+                                                                 average,
+                                                                 zero_default))
+            print("Balanced accuracy bias:", balanced_accuracy_score(y_train.T,
+                                                                     y_pred_bias,
+                                                                     average,
+                                                                     zero_default))
+            print("---")

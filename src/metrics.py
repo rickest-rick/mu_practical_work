@@ -40,7 +40,7 @@ def balanced_accuracy_score_micro(y_true, y_pred, zero_default=1):
 
         conf_matrix = confusion_matrix(label_true, label_pred)
         # todo delete debug print
-        # print(label_set, "\n", conf_matrix)
+        print(label_set, "\n", conf_matrix)
         # count true negatives, true positives, all negatives and all positives
         # for each attribute
         if conf_matrix.shape == (0, 0):  # empty confusion matrix
@@ -130,8 +130,8 @@ def balanced_accuracy_score_macro(y_true, y_pred, zero_default=1):
     specificity = sum_specificity / n_labels
     recall = sum_recall / n_labels
 
-    print("Specificity: {}".format(specificity))
-    print("Recall: {}".format(recall))
+    print("Specificity: {:.3f}".format(specificity))
+    print("Recall: {:.3f}".format(recall))
     return (recall + specificity) / 2
 
 
