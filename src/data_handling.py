@@ -118,7 +118,7 @@ def impute_missing_labels(label_matrix):
     sparse_ratios = [np.average(sparse_label_matrix_imputed[:,x],0) for x in range(51)]
 
 
-    full_label_matrix = np.where(full_label_matrix < 10e-2, full_label_matrix, 1)
+    full_label_matrix = np.where(full_label_matrix < 10-2, full_label_matrix, 1)
     full_label_matrix = np.where(full_label_matrix >= 10e-2, full_label_matrix, 0)
 
     print("")
