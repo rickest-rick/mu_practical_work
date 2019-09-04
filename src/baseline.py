@@ -42,7 +42,10 @@ if __name__ == "__main__":
     label_imputer = SimpleImputer(strategy="constant", fill_value=0.0)
     y_train = label_imputer.fit_transform(y_train)
 
-    log_reg_clf = LogisticRegression(class_weight="balanced", solver="lbfgs")
+    log_reg_clf = LogisticRegression(solver="lbfgs",
+                                     C=0.02,
+                                     max_iter=500,
+                                     verbose=1)
     clf = OneVsRestClassifier(log_reg_clf, n_jobs=-1)
 
     clf.fit(X_train, y_train)
@@ -50,5 +53,5 @@ if __name__ == "__main__":
     y_pred = clf.predict(X_test)
     y_pred_bias = clf.predict(X_train)
 
-    print("Balanced accuracy: ", balanced_accuracy_score(y_test.T, y_pred))
-    print("Balanced accuracy bias:", balanced_accuracy_score(y_train.T, y_pred_bias))
+    print("Balanced accuracy: ", balanced_accuracy_score(y_test.T, y_pred.T))
+    print("Balanced accuracy bias:", balanced_accuracy_score(y_train.T, y_pred_bias.T))
