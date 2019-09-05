@@ -98,12 +98,10 @@ def balanced_accuracy_score_macro(y_true, y_pred, zero_default=1):
         conf_matrix = confusion_matrix(label_true, label_pred)
         # todo delete debug print
         print(label_set, "\n", conf_matrix)
-        # count true negatives, true positives, all negatives and all positives
-        # for each attribute
         if conf_matrix.shape == (0, 0):  # empty confusion matrix
-            continue
-
-        if conf_matrix.shape == (2, 2):  # not all positive or negative
+            specificity = 1
+            recall = 1
+        elif conf_matrix.shape == (2, 2):  # not all positive or negative
             true_neg = conf_matrix[0, 0]
             true_pos = conf_matrix[1, 1]
             neg = conf_matrix[0, 0] + conf_matrix[1, 0]

@@ -76,7 +76,7 @@ def split_features_labels(frame):
     return features, labels
 
 
-def user_train_test_split(X, y, test_size=0.2, random_state=42):
+def user_train_test_split(X, y, test_size=0.2, random_state=None):
     """
     Split a set of training and target data into training and test data sets
     based on grouping by uuids in the first column.
@@ -96,11 +96,3 @@ def user_train_test_split(X, y, test_size=0.2, random_state=42):
         X_test = X[tt]
         y_test = y[tt]
     return X_train, X_test, y_train, y_test
-
-
-if __name__ == "__main__":
-    data = load_some_user_data()
-    attr, labels = split_features_labels(data)
-    attr_values = attr.values
-    labels_values = labels.values
-    user_train_test_split(attr_values, labels_values)

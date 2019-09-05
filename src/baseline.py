@@ -70,17 +70,17 @@ if __name__ == "__main__":
     n_estimators = y_train.shape[1]
     log_reg_clf = LogisticRegression(solver="lbfgs",
                                      C=1,
-                                     max_iter=100,
+                                     max_iter=500,
                                      verbose=0,
-                                     tol=5e-3)
+                                     tol=5e-4)
     log_reg_ovr = FlexOneVsRestClassifier(clf=log_reg_clf,
                                           n_estimators=n_estimators)
 
     log_reg_bal_clf = LogisticRegression(solver="lbfgs",
-                                         C=0.1,
-                                         max_iter=100,
+                                         C=1,
+                                         max_iter=500,
                                          verbose=0,
-                                         tol=5e-3,
+                                         tol=5e-4,
                                          class_weight="balanced")
     log_reg_bal_ovr = FlexOneVsRestClassifier(clf=log_reg_bal_clf,
                                               n_estimators=n_estimators)

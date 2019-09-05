@@ -5,13 +5,14 @@ import os
 import time
 
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from joblib import dump, load
 from math import sqrt
 from copy import deepcopy
+from bayes_opt import BayesianOptimization
 
 from data_handling import load_user_data, load_some_user_data, \
     split_features_labels, user_train_test_split
@@ -124,18 +125,18 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         :param deep:
         :return:
         """
-        parameter_list = []
+        parameter_dict = {}
         for clf in self.classifiers:
-            parameter_list.append(clf.get_params(deep=deep))
-        return parameter_list
+            parameter_dict[clf] = clf.get_params(deep=deep)
+        return parameter_dict
 
     def set_params(self, **params):
         """
-
+        todo: comment
         :param params:
         :return:
         """
-        return
+
 
     def score(self, X, y, sample_weight=None):
         """
@@ -163,15 +164,40 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
                 count_correct += 1
         return float(count_correct) / n_pred
 
-    def tune_hyperparams(self, metric, **kwargs):
+    def tune_hyperparams(self, X, y, bounds, metric, init_points=10, n_iter=20,
+                         int_params=None):
         """
         todo: implement and comment
+        :param int_params:
         :author: Joschka Strüber
-        :metric:
-        :param kwargs:
+        :param X:
+        :param y:
+        :param bounds:
+        :param metric:
+        :param n_iter:
+        :param init_points:
         :return:
         """
-        return
+        for i in range(len(self.classifiers)):
+            bayes_opt = BayesianOptimization(self.get_evaluate(i, X, y, metric),
+                                             pbounds=bounds)
+
+    def get_evaluate(self, label_index, X, y, metric, int_params):
+        def evaluate(**kwargs):
+            for int_param in int_params:
+                kwargs[int_param] = int(kwargs[int_param])
+            clf = self.classifiers[label_index]
+            kf = KFold(n_splits=3, shuffle=True)
+            clf.set_params(**kwargs)
+            sum_scores = 0.0
+            for train_index, test_index in kf.split(X):
+                X_tr, X_te = X[train_index], X[test_index]
+                y_tr, y_te = y[train_index], y[test_index]
+                clf.fit(X_tr, y_tr)
+                y_pred = clf.predict(X_te)
+                sum_scores = metric(y_te, y_pred)
+            return sum_scores / 3
+        return evaluate
 
     def fit_label(self, label, X, y):
         """
@@ -222,8 +248,8 @@ if __name__ == "__main__":
                                                              test_size=0.2,
                                                              random_state=30)
     # drop uuid column, the timestamps, and the label source
-    X_train = np.delete(X_train, [0, 1, 2], 1)
-    X_test = np.delete(X_test, [0, 1, 2], 1)
+    X_train = np.delete(X_train, [0, 1, 2, X_train.shape[1] - 1], 1)
+    X_test = np.delete(X_test, [0, 1, 2, X_test.shape[1] - 1], 1)
 
     """
     clf = xgb.XGBClassifier(objective="binary:logistic",
@@ -238,23 +264,27 @@ if __name__ == "__main__":
     """
     clf = LogisticRegression(solver="lbfgs",
                              C=1,
-                             max_iter=100,
+                             max_iter=1000,
                              n_jobs=-1,
                              tol=5e-3)
     clf = FlexOneVsRestClassifier(clf, n_estimators=y_train.shape[1])
-    """
+
     # todo: remove test for perfect scale_pos_weight
     for label in range(y_train.shape[1]):
         sum_pos = np.count_nonzero(y_train[:, label] == 1.0)
         sum_neg = np.count_nonzero(y_train[:, label] == 0)
         neg_pos_ratio_train = float(sum_neg) / sum_pos if sum_pos != 0 else 1
 
-        clf.classifiers[label].scale_pos_weight = sqrt(neg_pos_ratio_train)
-        print(label, sum_pos + sum_neg, sqrt(neg_pos_ratio_train))
+        class_weights = {0: 1,
+                         1: neg_pos_ratio_train}
+        params = {"class_weights": class_weights}
+        clf.classifiers[label].set_params(**params)
+        #clf.classifiers[label].scale_pos_weight = sqrt(neg_pos_ratio_train)
+        #print(label, sum_pos + sum_neg, sqrt(neg_pos_ratio_train))
 
-    label_imputer = SimpleImputer(strategy="most_frequent")
-    y_train = label_imputer.fit_transform(y_train)
-    """
+    #label_imputer = SimpleImputer(strategy="most_frequent")
+    #y_train = label_imputer.fit_transform(y_train)
+
 
     preprocess = time.time()
     print("Preprocess: {}".format(preprocess - start))
