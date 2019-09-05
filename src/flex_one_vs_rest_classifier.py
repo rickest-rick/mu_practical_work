@@ -8,6 +8,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LogisticRegression
 from joblib import dump, load
 from math import sqrt
 from copy import deepcopy
@@ -20,11 +21,11 @@ from metrics import balanced_accuracy_score
 class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
     """
     The FlexOneVsRestClassifier is a Classifier to train, tune and evaluate
-    multiple classifiers in a multilabel classification scenario.
+    multiple classifiers in a multi-label classification scenario.
     It is only a thin wrapper to allow the usage of different kinds of
     classifiers or different sets of hyperparameters. For all further tasks, the
     underlying classifiers can be directly accessed.
-
+    TODO: implement parallelized version for train and test with joblib
     :author: Joschka Strüber
     """
 
@@ -49,7 +50,7 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             raise ValueError("Either choose a list of estimators or a single "
                              "estimator n_estimator times.")
 
-    def fit(self, X, y, pred_expansion=False, ignore_nan=False):
+    def fit(self, X, y, pred_expansion=False, ignore_nan=True):
         """
 
         :author: Joschka Strüber
@@ -57,8 +58,11 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         :param y:
         :param pred_expansion: If True, expand the data set with predictions on
             the labels that were trained so far.
-        :param ignore_nan:
-        :return:
+        :param ignore_nan: Boolan, default: True. Filter out all training
+            samples for which a target label is marked as NaN. This means, we
+            have potentially n_estimators different training sets X. One for
+            each classifier.
+        :return: None
         """
         n_labels = y.shape[1]
         if n_labels != len(self.classifiers):
@@ -80,6 +84,8 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
                 label_is_nan = np.isnan(y_train)
                 X_train = X_train[~label_is_nan]
                 y_train = y_train[~label_is_nan]
+                # todo remove debug print
+                print(label, X_train.shape)
 
             self.fit_label(label, X_train, y_train)
             # augment training data set with prediction on labels seen so far
@@ -111,26 +117,61 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         # return np.array(y).T
         return np.array(y)
 
-    def score(self, X, y, sample_weight=None):
+    def get_params(self, deep=True):
         """
-
+        todo: comment
         :author: Joschka Strüber
-        :param X:
-        :param y:
-        :param sample_weight:
+        :param deep:
         :return:
         """
-        pass
+        parameter_list = []
+        for clf in self.classifiers:
+            parameter_list.append(clf.get_params(deep=deep))
+        return parameter_list
+
+    def set_params(self, **params):
+        """
+
+        :param params:
+        :return:
+        """
+        return
+
+    def score(self, X, y, sample_weight=None):
+        """
+        Compute the mean accuracy on the given test data and labels. In this
+        multi-label classification case, this is the subset accuracy which is a
+        harsh metric since we require for each sample that  each label set be
+        correctly predicted.
+
+        :author: Joschka Strüber
+        :param X: numpy-array, shape=(n_features, n_samples) The test samples.
+        :param y: numpy-array, shape=(n_outputs, n samples) The true labels for
+            X. If values are np.nan, these are ignored counted as correctly
+            predicted.
+        :param sample_weight: aray-like, sample weights
+        :return: float, mean accuracy
+        """
+        y_pred = self.predict(X)
+        count_correct = 0
+        n_pred = y_pred.shape[1]
+        # test every prediction for subset equality
+        for pred_set in n_pred:
+            is_nan = np.isnan(y[pred_set])
+            y_pred[pred_set][is_nan] = np.nan
+            if np.allclose(y_pred[pred_set], y[pred_set], equal_nan=True):
+                count_correct += 1
+        return float(count_correct) / n_pred
 
     def tune_hyperparams(self, metric, **kwargs):
         """
-
+        todo: implement and comment
         :author: Joschka Strüber
         :metric:
         :param kwargs:
         :return:
         """
-        pass
+        return
 
     def fit_label(self, label, X, y):
         """
@@ -179,42 +220,46 @@ if __name__ == "__main__":
     """
     X_train, X_test, y_train, y_test = user_train_test_split(X, y,
                                                              test_size=0.2,
-                                                             random_state=2)
+                                                             random_state=30)
     # drop uuid column, the timestamps, and the label source
     X_train = np.delete(X_train, [0, 1, 2], 1)
     X_test = np.delete(X_test, [0, 1, 2], 1)
 
+    """
     clf = xgb.XGBClassifier(objective="binary:logistic",
                             n_jobs=-1,
                             tree_method="gpu_hist",
-                            n_estimators=20,
+                            n_estimators=200,
                             learning_rate=0.02,
-                            max_depth=6,
+                            max_depth=7,
                             colsample_bytree=0.8,
-                            gamma=0.5,
+                            gamma=1,
                             subsample=0.8)
+    """
+    clf = LogisticRegression(solver="lbfgs",
+                             C=1,
+                             max_iter=100,
+                             n_jobs=-1,
+                             tol=5e-3)
     clf = FlexOneVsRestClassifier(clf, n_estimators=y_train.shape[1])
-
+    """
     # todo: remove test for perfect scale_pos_weight
     for label in range(y_train.shape[1]):
         sum_pos = np.count_nonzero(y_train[:, label] == 1.0)
         sum_neg = np.count_nonzero(y_train[:, label] == 0)
         neg_pos_ratio_train = float(sum_neg) / sum_pos if sum_pos != 0 else 1
 
-        sum_pos = np.count_nonzero(y_test[:, label] == 1.0)
-        sum_neg = np.count_nonzero(y_test[:, label] == 0)
-        neg_pos_ratio_test = float(sum_neg) / sum_pos if sum_pos != 0 else 1
-
         clf.classifiers[label].scale_pos_weight = sqrt(neg_pos_ratio_train)
-        print(label, sqrt(neg_pos_ratio_train))
+        print(label, sum_pos + sum_neg, sqrt(neg_pos_ratio_train))
 
     label_imputer = SimpleImputer(strategy="most_frequent")
     y_train = label_imputer.fit_transform(y_train)
+    """
 
     preprocess = time.time()
     print("Preprocess: {}".format(preprocess - start))
 
-    clf.fit(X_train, y_train)
+    clf.fit(X_train, y_train, ignore_nan=True)
 
     fit_time = time.time()
     print("Fit time: {}".format(fit_time - preprocess))
