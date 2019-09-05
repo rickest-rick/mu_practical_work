@@ -10,8 +10,14 @@ def balanced_accuracy_score(y_true, y_pred, average="micro", zero_default=1):
     :author: Daniel Beckmann, Joschka Strüber
     :param test_labels: The true labels as a 2d array.
     :param preds: Predicted labels by a classifier as a 2d array.
-    :param average:
-    :param zero_default:
+    :param average: str, "micro" (default) or "macro"
+        "micro" -> compute the global recall and specificity by incorporating
+            the sum of all confusion matrices for every label
+        "macro" -> compute the global recall and specificty as the mean of the
+            individual recalls and specificities for every label
+    :param zero_default: number, 1 (default)
+        Which value should be used as default for the recall and specificity, if
+        the sum of positive or negative samples is 0.
     :return: The balanced accuracy as float.
     """
     if average == "micro":
@@ -91,7 +97,7 @@ def balanced_accuracy_score_macro(y_true, y_pred, zero_default=1):
 
         conf_matrix = confusion_matrix(label_true, label_pred)
         # todo delete debug print
-        # print(label_set, "\n", conf_matrix)
+        print(label_set, "\n", conf_matrix)
         # count true negatives, true positives, all negatives and all positives
         # for each attribute
         if conf_matrix.shape == (0, 0):  # empty confusion matrix
