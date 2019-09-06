@@ -1,0 +1,114 @@
+%------- Commands -----------------------------------------------------
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\F}{\mathbb{F}}
+
+\newcommand{\Aufg}{\stepcounter{Nummer}
+	\textbf{Aufgabe \arabic{Nummer}:}}
+\newcommand{\Lsg}{\textbf{L\"osungskommentar \arabic{Nummer}:}}
+%------- Sprache --------------------------------------------------
+
+% deutsche Silbentrennung
+\usepackage[english]{babel}
+\let\latinencoding\relax
+
+
+
+% eigene, zusätzliche Silbentrennung
+\usepackage{hyphsubst} %Manuelle Sil\-ben\-tren\-nung
+
+
+
+% Umlaute#
+\usepackage[utf8]{inputenc}
+ 
+  
+  
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{verbatim}  
+  
+
+%------- Formatierung --------------------------------------------------
+  
+% Seitenränder
+\usepackage{geometry}
+\geometry{a4paper, top= 25mm, bottom=20mm, left = 25mm, right = 25mm, footskip= 1cm}
+
+
+
+% Querformat auf einzelner Seite \begin{landscape}
+
+%\usepackage{lscape}
+
+
+% Zeilenabstand (Unterscheidet sich evtl von den Standard 1.5)
+%\usepackage{setspace}
+%\linespread{1.5}
+
+
+% no indent fürs Dokument.
+\setlength\parindent{0pt}
+
+
+
+% Seitenzahlen, hakt sich mit Kopfzeilen
+% \pagestyle{plain}
+% Späterer Beginn der Seitennummerierung: Kombinationen aus
+%\thispagestyle{empty} und \setcounter{page}{1}
+
+
+
+% Kopfzeilen
+
+
+
+%Größen von Chapter usw ändern
+%\makeatletter
+%\renewcommand*{\size@chapter}{\Large}
+%\renewcommand*{\size@section}{\large}
+%\makeatother
+
+
+%Kapitel ohne Nummer, aber im Inhaltsverzeichnis:
+%\chapter*{Literaturverzeichnis}\addcontentsline{toc}{chapter}{Literaturverzeichnis}
+
+
+
+%Fußnote \footnote{\label{foot:1}Korrekt gelesen!}
+
+%------- Grafiken --------------------------------------------------
+
+\usepackage{graphicx}
+%\includegraphics[width=0.5\textwidth]{images/img1} oder scale=1
+
+
+
+
+
+%------- Titelseite --------------------------------------------------
+
+\begin{comment}
+
+\begin{titlepage}
+    \begin{center}
+    \ \\ \vspace{30mm}
+    \large \textbf{\textsf{Theoriebasierte Praxisreflexion}} \\
+    \vspace{5mm}
+    \LARGE\textbf{\textsf{Humor im Unterricht}}\\
+    \vspace{1cm}
+    \normalsize
+    \today \\
+    \vspace{9cm}
+    \end{center}
+ \normalsize{Tony Prange\\Boeselagerstraße 69a\\48163 Münster\\Matrikelnummer: 398873\\Email: tony.prange@wwu.de\\Abgabetermin 1. September 2016}
+\end{titlepage}
+
+\newpage  \tableofcontents \thispagestyle{empty} 
+
+\end{comment}
