@@ -1,0 +1,240 @@
+\documentclass[a4paper,12pt]{scrartcl}
+
+
+\input{preamble}
+
+% Zeilenabstand (Unterscheidet sich evtl von den Standard 1.5)
+\usepackage{setspace}
+\linespread{1.5}
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{wrapfig}
+%\usepackage{caption}
+
+\usepackage{cancel}
+
+\usepackage{colortbl}
+\usepackage{xcolor}
+%\usepackage{hyperref}
+%\usepackage[all]{hypcap}
+\usepackage{float}
+
+%\usepackage{rotating}
+%\newcommand\tabrotate[1]{\begin{turn}{45}\rlap{#1}\end{turn}}
+
+\usepackage{pdfpages}
+\usepackage[headsepline]{scrpage2}
+\pagestyle{scrheadings}
+\clearscrheadfoot
+
+\ofoot{\pagemark}
+\ohead{\normalfont \headmark}
+\cfoot{\normalfont Mathematik \& Informatik}
+\automark{section}
+\newcommand{\gr}{\grqq{}}
+\newcommand{\gl}{\glqq}
+\newcommand{\vs}{\vspace{3pt}}
+\newcommand{\red}{{ \color{red} Quelle}} 
+
+\renewcaptionname{ngerman}{\figurename}{\small{Abb.}}
+\renewcaptionname{ngerman}{\tablename}{\small{Tab.}}
+\newcommand{\Val}{Valenz und Herausforderung}
+\begin{document}
+	
+	
+\begin{singlespace}
+\begin{titlepage}
+	\begin{center}
+		
+		\includegraphics[scale=0.6]{wwu}
+		
+		\large{\textbf{\textsf{Institut für Bildungswissenschaften}}\\ 
+			Sommersemester 2019} \\
+		\vspace{20mm}
+        \rule{.8\linewidth}{1pt}\\
+        \vspace{3mm}
+		\LARGE\textbf{\textsf{Umsetzung der Kouninschen Klassenführungsdimension \gl Valenz und Herausforderung\gr{} in meinem beruflichen Handeln}}\\
+		%\rule{.2\linewidth}{.5pt}\\
+		\rule{.8\linewidth}{1pt}\\
+
+		\vfill
+	\end{center}
+\begin{flushright}
+	\flushright
+
+		\begin{large}
+	\singlespacing 		
+		\begin{tabular}{rl}
+
+			eingereicht von: & \\
+			 & Matrikelnr.: \\
+			 & MEd für Gymnasien und Gesamtschulen\\
+			 Fächerkombination: & Mathematik \& Informatik\\
+			 \midrule
+			Dozentin: & Dr. Kristina Antonette Frey   \\
+			in:& Die weltberühmten  \\
+			 & Klassenführungsdimensionen Jacob Kounins\\
+			 & (066861)\\
+			Leistungsart: & Prüfungsleistung\\
+			Abgabefrist: & 01.09.2019
+
+		\end{tabular}
+		\end{large}	
+\end{flushright}
+	
+\flushleft
+\end{titlepage}
+
+\newpage  \tableofcontents \thispagestyle{empty} \vspace{15mm}
+\begin{center}
+	\parbox{.8\linewidth}{\begin{small}
+			{Beim Nachweis von Zitaten und Literatur wenden wie die von Unisa 
+				vorgeschriebene Harvard-Methode an und folge dabei den Regeln 
+				in: 
+				
+				Christof Sauer (Hg.) 2004. 
+				Form bewahren: Handbuch zur 
+				Harvard-Methode. 
+				(GBFE-Studienbrief 5). Lage: Gesellschaft für 
+				Bildung und Forschung in Europa e.V. 1. Auflage.} \\
+			
+			\end{small}}
+\end{center}
+
+\end{singlespace}
+\newpage
+\setcounter{page}{1}
+
+\section*{Abstract}
+
+\section{Introduction}
+Durch die Vernetzung unserer digitalen Geräte, die unseren Alltag prägen und mitgestalten, ist eine große Menge an Daten vorhanden. Die Verwendung solcher Daten und der damit verbundenen Informationen ist ein Kernelement der heutigen Digitalgesellschaft. Programme, die solche Daten verwerten können, um möglichst viele Informationen zu generieren, spielen in unserer modernen Gesellschaft eine große Rolle. Dies ist nicht nur auf der Ebene von kontextbezogene Werbung von großem Interesse, sondern auch im zur Verbesserung unseres Medizinwesens und unserer Verhaltensweisen. Beispielsweise optimieren schon heute viele Personen unter Zuhilfenahme digitaler Fitnesstracker, etc. ihren persönlichen Lebensstil. Auch das Herstellen eines gesunden Schlafrhythmus ist durch die Erkennung von Schlafphasen möglich. 
+
+Im Kontext des Gesundheitswesens ist diese Technologie besonders zentral, denn einerseits kann sie präventiv eingesetzt werden. Beispielsweise können Personen über ihre eigenen Gewohnheiten informiert und bezüglich ihrer Risiken sensibilisiert werden, was sie zu einem gesünderen Lebensstil bewegen kann, welcher wiederum von der Technologie unterstützt werden kann. Aus medizinischer Perspektive ermöglicht man eine Überprüfung darüber, wie und wie gesund eine Person lebt, um dadurch Krankheiten gezielter bekämpfen zu können. Hierfür ist es beispielsweise wichtig, aus verschiedensten Sensordaten Aktivitäten sicher ableiten zu können. 
+
+Die hier vorliegende Ausarbeitung entstand im Rahmen eines Informatikpraktikums in der Vorlesung Mustererkennung, geleitet von Prof. Dr. Xiaoyi Jiang und Sören Klemm mit dem Thema Behavioral context recognition in-the-wild from mobile sensors. Ziel des Projektes war es, auf der Basis des Extrasensory Datensatzes Multi-Label-Klassifizierung durchzuführen. Im Wesentlichen sollten dabei gesammelten Sensordaten Aktivitäten zugeordnet werden, in einer Zusatzaufgabe sollten die Benutzer anhand ihrer Daten erkannt werden können. 
+
+--------------------------
+
+Die besondere Herausforderung des Projektes bestand darin, dass einerseits die Methodik nicht vorgegeben war und andererseits Multi-Label-Klassifizierung mit einem Datensatz ausgeführt werden sollte, der viele missing labels beinhaltete. 
+
+
+\section{Vorstellung des Datensatzes}
+
+Der ExtraSensory Datensatz wurde in den Jahren 2015 und 2016 von Yonatan Vaizman and Katherine Ellis unter Aufsicht von Professor Gert Lanckriet erhoben. Er basiert auf den Sensordaten von Smartphones und Smartwatches, welche von 60 Teilnehmern in minütigem Takt produziert wurden. Das Besondere dieser Werte besteht darin, dass sie von normalen Alltagsgegenständen erzeugt wurden, mehrere Sensoren parallel verwendet wurden und die Daten in einem natürlichen und nicht gestellten Kontext entstanden. Die Sensoren umfassten unter anderen ein accelerometer, gyroscope, location und audio und wurden von beinahe allen Personen in einem Großteil der Aufnahmen verwendet.
+
+Die Zuordnung der Segmente zu Aktivitäten fand im Großteil durch die Benutzer selbst statt, sie besaßen dabei die Option auf vorgegebene Labels oder selbst erstellte für die Beschreibung zurückzugreifen. Im Endeffekt ergaben sich so 377,346 Datenpunkte, welche mit einem oder mehreren der finalen 51 Labels beschrieben wurden. Die Labels repräsentieren dabei Mannigfaltiges, wie etwa in class, singing, stairs (going up), stairs (going down) oder talking.
+
+Das bedeutet, dass zu jedem Datenpunkt ein Labelvektor mit 51 Einträgen existiert. Jeder Eintrag kann die Werte yes oder no beinhalten, muss aber keinen Wert besitzen, wenn die bewertende Person keine Informationen bezüglich des korrespondierenden Labels angab (NaN). Die folgende Betrachtung der Datenpunkte zeigt, dass in jedem Datenpunkt viele Labels unbetrachtet blieben:
+
+	\begin{figure}[h]
+		\begin{center}
+			\includegraphics[scale=.8]{images/boxplot_label.png}
+			\caption{XXXX}
+			\label{abb:boxplot_label}
+		\end{center}		
+	\end{figure}	
+
+Abbildung \ref{abb:boxplot_label} visualisiert die Verteilung der gesetzten Label-Werte als Box-Plot Diagramm. Zu erkennen ist, dass für die meisten Labels ein Großteil der Datenpunkte keinen Wert enthält - was die Klassifikation erschwert. Das heißt, es gibt für viele Labels eine große Anzahl von Datenpunkten, die erst einmal keine Information bezüglich des Labels beinhalten.
+
+Weiter ist zu sehen, dass im Median zu jedem Label nur 5,153 yes-Eintragungen existieren und lediglich für sehr wenige Labels überhaupt mehr als 10\% der Datenpunkte eine yes-Eintragung.  Es gibt also viele Label-Klassen, die ausgesprochen wenig Repräsentanten beinhalten. 
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[scale=.8]{images/hist.png}
+		\caption{XXXX}
+		\label{abb:histogramm_data}
+	\end{center}		
+\end{figure}
+
+Zuletzt ist zu erkennen, dass in allen Datenpunkten mindestens 44\% der 51 Labels nicht bewertet sind. Es gibt also keine Datenpunkte die zu allen Labels gleichzeitig Aussagen machen.
+
+
+\subsection{Stand der Technik}
+
+
+\section{Random Forests}
+
+\subsection{Theorie}
+\subsection{Praxis und Ergebnisse -> unzufrieden}
+
+\section{Gradient Boosting}
+\subsection{Theorie}
+
+Beim Gradient Boosting geht es darum, iterativ eine Menge von gradient trees zu erzeugen, die ein gegebenes Klassifikationsproblem möglichst effektiv lösen.
+
+Gradient trees sind im Wesentlichen decision trees, nur dass jedem Blatt des Baumes einen Wert, dessen Gewicht, $w_i$ zugewiesen wird. Folglich kann ein gradient tree mit $T$ Blättern und entsprechenden Gewichten $(w_1, .. ,w_T)$ als eine Funktion $f: \R^m \to \R$ aufgefasst werden. Jedem Datenpunkt $x \in \R^m$ wird unter $f$ das Gewicht des zu $x$ korrespondierenden Blattes zugeordnet $f(x) = w_{q(x)}$. $q: \R^m \to T$ ist dabei die Funktion, welche einem sample $x$ die Indexnummer des zu $x$ gehörigen Blattes zuweist. Weiter enthält $I_j := \{ i \mid q^{-1}(j)=x_i \}$ die Indizes derjenigen samples, welche auf das Blatt Nummer $j$ verweisen. Die Menge der gradient trees bezeichnen wir mit $\mathcal{F}$.
+
+ Ein tree ensemble model $\{f_1, .. ,f_K \mid f_i \in \mathcal{F}\}$ bestehend aus $K$ gradient trees wird nicht, wie von decision trees bekannt, durch Voting ausgewertet, sondern indem die Funktionswerte des samples $x$ der einzelnen gradient trees in der ensemble Funktion $\Phi = \sum f_k$ aufsummiert werden. Das predicted outcome $\hat{y}$ eines samples $x$ ergibt sich damit zu:
+ 
+ $$\hat{y} = \Phi(x) = \sum_{k=1}^{K} f_k(x)$$
+
+Ist weiter eine Menge $X= \{(x_1), .. ,(x_n)\} \subset R^{m} $ von $n$ Beispielen mit jeweils $m$ features und dem zugehörigen ground truths $\{y_1, .. ,y_n\}$ gegeben, so erhalten wir die regularization funktion:
+
+$$\mathcal{L} = \sum_{i=1}^{n} l(y_i, \Phi(x)) + \sum_{k=1}^{K}\Omega(f_k) \text{  wobei } \Omega(f_k) = \gamma T + \frac{1}{2}\lambda $$
+
+\subsection{Implementierungsdetails}
+-> Multilabel einzeln trainieren
+
+\subsection{eigene Variationen}
+-> Hyperparametern
+-> Geschwindigkeit (GPU)
+
+
+\section{Vorstellung Results}
+-> Metric
+
+\section{Bewertung der Results}
+
+\section{classification of users}
+
+\section{Auswertung}
+- Auswirkungen verschiedener Gewichte der Datenpunkte und sowas (Modifikationen an Input, etc)
+- NaN Handling
+- Findung der Parameter
+
+\section{Fazit}
+
+\newpage
+\section{Literaturverzeichnis}
+
+\hangindent+30pt \hangafter=1
+\textsc{Drüke-Noe, C.} 2014. \textit{Aufgabenkultur in Klassenarbeiten im Fach Mathematik – Empirische Untersuchungen in neunten und zehnten Klassen}. Wiesbaden:
+Springer Spektrum.
+
+
+
+
+
+
+
+
+
+\newpage
+\ohead{\normalfont Eigenständigkeitserklärung}
+\addcontentsline{toc}{section}{Eigenständigkeitserklärung} 
+\vspace*{1cm}
+\begin{center}
+	\Large \textbf{Anti-Plagiatserklärung}\\
+	
+	\large \textbf{Erklärung des Studierenden}
+\end{center}
+
+\normalsize
+\vspace{25mm}
+Hiermit versichere ich, dass ich die vorliegende Hausarbeit mit dem Namen \glqq {Umsetzung der Kouninschen Klassenführungsdimension \gl Valenz und Herausforderung\gr{} in meinem beruflichen Handeln\grqq{} selbstständig verfasst habe, und dass ich keine anderen Quellen und Hilfsmittel als die angegebenen benutzt habe und dass die Stellen der Arbeit, die anderen Werken – auch elektronischen Medien – dem Wortlaut oder Sinn nach entnommen wurden, auf jeden Fall unter Angabe der Quelle als Entlehnung kenntlich gemacht worden sind.\\
+	
+	
+	
+	
+	\begin{center}
+		\rule{6cm}{.5pt} \hspace{3cm} \rule{6cm}{.5pt}
+	\end{center}	
+	\vspace{-5mm}
+	\hspace*{25mm} Ort, Datum	\hspace{70mm} Tony Prange
+
+
+\end{document}

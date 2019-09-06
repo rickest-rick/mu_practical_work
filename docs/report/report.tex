@@ -1,0 +1,188 @@
+\documentclass[a4paper,12pt]{scrartcl}
+
+
+\input{preamble}
+
+% Zeilenabstand (Unterscheidet sich evtl von den Standard 1.5)
+\usepackage{setspace}
+\linespread{1.5}
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{wrapfig}
+%\usepackage{caption}
+
+\usepackage{cancel}
+
+\usepackage{colortbl}
+\usepackage{xcolor}
+%\usepackage{hyperref}
+%\usepackage[all]{hypcap}
+\usepackage{float}
+
+%\usepackage{rotating}
+%\newcommand\tabrotate[1]{\begin{turn}{45}\rlap{#1}\end{turn}}
+
+\usepackage{pdfpages}
+\usepackage[headsepline]{scrpage2}
+\pagestyle{scrheadings}
+\clearscrheadfoot
+
+\ofoot{\pagemark}
+\ohead{\normalfont \headmark}
+\cfoot{\normalfont Mathematik \& Informatik}
+\automark{section}
+\newcommand{\gr}{\grqq{}}
+\newcommand{\gl}{\glqq}
+\newcommand{\vs}{\vspace{3pt}}
+\newcommand{\red}{{ \color{red} Quelle}} 
+
+\renewcaptionname{ngerman}{\figurename}{\small{Abb.}}
+\renewcaptionname{ngerman}{\tablename}{\small{Tab.}}
+\newcommand{\Val}{Valenz und Herausforderung}
+\begin{document}
+	
+	
+\begin{singlespace}
+\begin{titlepage}
+	\begin{center}
+		
+		\includegraphics[scale=0.6]{wwu}
+		
+		\large{\textbf{\textsf{Institut für Bildungswissenschaften}}\\ 
+			Sommersemester 2019} \\
+		\vspace{20mm}
+        \rule{.8\linewidth}{1pt}\\
+        \vspace{3mm}
+		\LARGE\textbf{\textsf{Umsetzung der Kouninschen Klassenführungsdimension \gl Valenz und Herausforderung\gr{} in meinem beruflichen Handeln}}\\
+		%\rule{.2\linewidth}{.5pt}\\
+		\rule{.8\linewidth}{1pt}\\
+
+		\vfill
+	\end{center}
+\begin{flushright}
+	\flushright
+
+		\begin{large}
+	\singlespacing 		
+		\begin{tabular}{rl}
+
+			eingereicht von: & \\
+			 & Matrikelnr.: \\
+			 & MEd für Gymnasien und Gesamtschulen\\
+			 Fächerkombination: & Mathematik \& Informatik\\
+			 \midrule
+			Dozentin: & Dr. Kristina Antonette Frey   \\
+			in:& Die weltberühmten  \\
+			 & Klassenführungsdimensionen Jacob Kounins\\
+			 & (066861)\\
+			Leistungsart: & Prüfungsleistung\\
+			Abgabefrist: & 01.09.2019
+
+		\end{tabular}
+		\end{large}	
+\end{flushright}
+	
+\flushleft
+\end{titlepage}
+
+\newpage  \tableofcontents \thispagestyle{empty} \vspace{15mm}
+\begin{center}
+	\parbox{.8\linewidth}{\begin{small}
+			{Beim Nachweis von Zitaten und Literatur wenden wie die von Unisa 
+				vorgeschriebene Harvard-Methode an und folge dabei den Regeln 
+				in: 
+				
+				Christof Sauer (Hg.) 2004. 
+				Form bewahren: Handbuch zur 
+				Harvard-Methode. 
+				(GBFE-Studienbrief 5). Lage: Gesellschaft für 
+				Bildung und Forschung in Europa e.V. 1. Auflage.} \\
+			
+			\end{small}}
+\end{center}
+
+\end{singlespace}
+\newpage
+\setcounter{page}{1}
+
+\section*{Abstract}
+
+strg F deepL
+
+\section{Introduction}
+A large amount of data is available through the networking of our digital devices, which shape our everyday lives. The use of such data and the associated information is a core element of today's digital society. Programs that can use such data to generate as much information as possible play an important role at improving our daily lives. Those programs are of great interest, not only at the level of contextual advertising, but also in improving our medical care and our behaviors. For example, many people are already optimizing their personal lifestyles with the help of digital fitness trackers. Another application is the establishment of a healthy sleep rhythm by the recognition of sleep phases. 
+
+In the context of health care, this technology is particularly central because on the one hand it can be used preventively. For example, people can be informed about their personal habits and sensitized to their personal risks which arise with that lifestyle, which can lead them to a healthier lifestyle, which in turn again can be supported by technology. On the other hand there is the medical perspective, where it is possible to check how healthy a person lives in order to combat diseases more effectively. For example, it is important to be able to reliably derive activities from various sensor data. 
+
+The present report was written during a practical course in computer science in the lecture Pattern Recognition, led by Prof. Dr. Xiaoyi Jiang and Sören Klemm, with the topic \gl Behavioral context recognition in-the-wild from mobile sensors\gr (Quelle). The aim of the project was to perform multi-label classification on the basis of the Extrasensory data set. Essentially, collected sensor data should be assigned to activities, in an additional task the users should be recognized by their data. 
+
+
+
+\section{Datensatz vorstellen}
+
+\section{Random Forests}
+
+\section{Gradient Boosting}
+
+\subsection{What is Gradient Boosting}
+
+\subsection{Use of Gradient Boosting}
+
+\subsection{eigene Variationen}
+-> Hyperparametern
+-> Geschwindigkeit (GPU)
+
+
+\section{Vorstellung Results}
+-> Metric
+
+\section{Bewertung der Results}
+
+\section{classification of users}
+
+
+
+
+\newpage
+\section{Literaturverzeichnis}
+
+\hangindent+30pt \hangafter=1
+\textsc{Drüke-Noe, C.} 2014. \textit{Aufgabenkultur in Klassenarbeiten im Fach Mathematik – Empirische Untersuchungen in neunten und zehnten Klassen}. Wiesbaden:
+Springer Spektrum.
+
+
+
+
+
+
+
+
+
+\newpage
+\ohead{\normalfont Eigenständigkeitserklärung}
+\addcontentsline{toc}{section}{Eigenständigkeitserklärung} 
+\vspace*{1cm}
+\begin{center}
+	\Large \textbf{Anti-Plagiatserklärung}\\
+	
+	\large \textbf{Erklärung des Studierenden}
+\end{center}
+
+\normalsize
+\vspace{25mm}
+Hiermit versichere ich, dass ich die vorliegende Hausarbeit mit dem Namen \glqq {Umsetzung der Kouninschen Klassenführungsdimension \gl Valenz und Herausforderung\gr{} in meinem beruflichen Handeln\grqq{} selbstständig verfasst habe, und dass ich keine anderen Quellen und Hilfsmittel als die angegebenen benutzt habe und dass die Stellen der Arbeit, die anderen Werken – auch elektronischen Medien – dem Wortlaut oder Sinn nach entnommen wurden, auf jeden Fall unter Angabe der Quelle als Entlehnung kenntlich gemacht worden sind.\\
+	
+	
+	
+	
+	\begin{center}
+		\rule{6cm}{.5pt} \hspace{3cm} \rule{6cm}{.5pt}
+	\end{center}	
+	\vspace{-5mm}
+	\hspace*{25mm} Ort, Datum	\hspace{70mm} Tony Prange
+
+
+\end{document}
