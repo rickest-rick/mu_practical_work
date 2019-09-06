@@ -28,7 +28,7 @@ def balanced_accuracy_score(y_true, y_pred, average="micro", zero_default=1):
         raise ValueError('Invalid average method chosen: "{}"'.format(average))
 
 
-def balanced_accuracy_score_micro(y_true, y_pred, zero_default=1):
+def balanced_accuracy_score_micro(y_true, y_pred, zero_default=0.5):
     true_neg = 0
     true_pos = 0
     neg = 0
@@ -81,11 +81,12 @@ def balanced_accuracy_score_micro(y_true, y_pred, zero_default=1):
     return (recall + specificity) / 2
 
 
-def balanced_accuracy_score_macro(y_true, y_pred, zero_default=1):
+def balanced_accuracy_score_macro(y_true, y_pred):
     sum_specificity = 0.0
     sum_recall = 0.0
 
     n_labels = y_true.shape[0]
+    n_labels_nonempty = n_labels
     for label_set in range(n_labels):
         label_true = y_true[label_set]
         label_pred = y_pred[label_set]
@@ -99,8 +100,7 @@ def balanced_accuracy_score_macro(y_true, y_pred, zero_default=1):
         # todo delete debug print
         print(label_set, "\n", conf_matrix)
         if conf_matrix.shape == (0, 0):  # empty confusion matrix
-            specificity = 1
-            recall = 1
+            n_labels_nonempty -= 1
         elif conf_matrix.shape == (2, 2):  # not all positive or negative
             true_neg = conf_matrix[0, 0]
             true_pos = conf_matrix[1, 1]
@@ -109,20 +109,24 @@ def balanced_accuracy_score_macro(y_true, y_pred, zero_default=1):
 
             # compute the specificity and recall or set them to the default
             # value, if this is not possible
-            specificity = float(true_neg) / neg if neg != 0 else zero_default
-            recall = float(true_pos) / pos if pos != 0 else zero_default
+            if neg != 0 and pos != 0:
+                specificity = float(true_neg) / neg
+                recall = float(true_pos) / pos
+            else:
+                specificity = 0.5
+                recall = 0.5
         else:
             if label_true[0] == 0:  # all negative
                 true_neg = conf_matrix[0, 0]
                 neg = conf_matrix[0, 0]
 
                 specificity = float(true_neg) / neg
-                recall = zero_default
+                recall = 1
             else:  # all positive
                 true_pos = conf_matrix[0, 0]
                 pos = conf_matrix[0, 0]
 
-                specificity = zero_default
+                specificity = 1
                 recall = float(true_pos) / pos
         # todo delete debug print
         # print(label_set)
@@ -131,8 +135,8 @@ def balanced_accuracy_score_macro(y_true, y_pred, zero_default=1):
         sum_specificity += specificity
         sum_recall += recall
     # micro average is average of all specificity and recall values
-    specificity = sum_specificity / n_labels
-    recall = sum_recall / n_labels
+    specificity = sum_specificity / n_labels_nonempty
+    recall = sum_recall / n_labels_nonempty
 
     print("Specificity: {:.3f}".format(specificity))
     print("Recall: {:.3f}".format(recall))
