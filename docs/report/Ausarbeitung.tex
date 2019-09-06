@@ -199,11 +199,12 @@ Damit lässt sich (\ref{eq:LL1}) auch formulieren als:
 
 Um die Abhängigkeit von $l$ und $f_t$ zu trennen, wird die 1D-taylor series-expansion an der Stelle $(y_i,\hat{y}^{(t-1)})$ auf die Funktion $l$ und nur in der zweiten Koordinate ausgeführt. Obwohl es sich bei $l$ um eine 2D Funktion handelt, finden Änderungen im Kontext von $\LL$ nur in einer Koordinate statt, weshalb es berechtigt ist, sie als eine 1D-Funktion aufzufassen - etwa als $l(y_i,x) = l_{y_i}(x)$. Es ergibt sich:
 \begin{equation}
+\label{eq:taylor}
 l_{y_i}(\hat{y}^{(t-1)} + f_k(x_i)) = l_{y_i}(\hat{y}^{(t-1)}) + l_{y_i}^{'}(\hat{y}^{(t-1)}) \cdot f_k(x_i)
 + \newline \frac{1}{2} l_{y_i}^{''}(\hat{y}^{(t-1)}) \cdot f_k(x_i)^2 + R_\text{taylor}
 \end{equation}
 
-Im Folgenden sei der Lesbarkeit halber $g_i = l_{y_i}^{'}(\hat{y}^{(t-1))}) ) = \frac{\partial l}{\partial \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$ und $h_i = l_{y_i}^{''}(\hat{y}^{(t-1)}) ) = \frac{\partial l}{\partial^2 \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$. Bei den $g_i$ und $h_i$ handelt es sich um Konstanten, denn sowohl $y_i$ als auch $\hat{y}^{(t-1))}$ sind im aktuellen Iterationsschritt bekannt. Angewandt auf $\LL^{(t)}$ ergibt sich somit:
+Im Folgenden sei der Lesbarkeit halber $g_i = l_{y_i}^{'}(\hat{y}^{(t-1))}) ) = \frac{\partial l}{\partial \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$ und $h_i = l_{y_i}^{''}(\hat{y}^{(t-1)}) ) = \frac{\partial l}{\partial^2 \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$. Bei den $g_i$ und $h_i$ handelt es sich um Konstanten, denn sowohl $y_i$ als auch $\hat{y}^{(t-1))}$ sind im aktuellen Iterationsschritt bekannt. Wenden wir die Erkenntnisse aus Gleichung (\ref{eq:taylor}) auf $\LL^{(t)}$ an, ergibt sich somit:
 \begin{equation}
 	 \LL^{(t)} \approx \sum_{i=1}^{n} (l(y_i,\hat{y}^{(t-1)}) + g_if_t(x_i) + \frac{1}{2} h_i f_t(x_i)^2) + \Omega(f_t)
 \end{equation}
@@ -214,7 +215,7 @@ Da die konstanten Terme $l(y_i,\hat{y}^{(t-1)})$ nicht von $f_t$ abhängen, kön
 \tilde{\LL}^{(t)} = \sum_{i=1}^{n}( g_if_t(x_i) + \frac{1}{2} h_i f_t(x_i)^2) + \Omega(f_t)
 \end{equation}
 
-Dieser Term kann jetzt vereinfacht werden, indem man $\Omega(f_t) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^{T} w_j^2$ ausschreibt. Für eine Baumstruktur $q$ ergeben sich die verschiedenen $I_j$, welche verwendet werden können, um 
+Dieser Term kann jetzt vereinfacht werden, indem man $\Omega(f_t) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^{T} w_j^2$ ausschreibt. Für eine Baumstruktur $q$ ergeben sich die verschiedenen $I_j$, welche verwendet werden können, um die Summationsreihenfolge zu ändern. Dazu wird $f_t(x_i)$ als das korrespondierende Gewicht $w_j$ des neuen Baums $f_t$ ausgedrückt.
 
 
 \subsection{Implementierungsdetails}
