@@ -29,12 +29,10 @@ if __name__ == "__main__":
 
     X_train, X_test, y_train, y_test = user_train_test_split(X, y,
                                                              test_size=0.2,
-                                                             random_state=42)
+                                                             random_state=27)
     # drop uuid column, the timestamps, and the label source
     X_train = np.delete(X_train, [0, 1, 2], 1)
     X_test = np.delete(X_test, [0, 1, 2], 1)
-    y_train = np.delete(y_train, -1, 1)
-    y_test = np.delete(y_test, -1, 1)
 
     preprocess_pipeline = Pipeline([
         ('imputer', SimpleImputer(strategy="mean")),
@@ -69,7 +67,7 @@ if __name__ == "__main__":
     """
     n_estimators = y_train.shape[1]
     log_reg_clf = LogisticRegression(solver="lbfgs",
-                                     C=1,
+                                     C=0.1,
                                      max_iter=500,
                                      verbose=0,
                                      tol=5e-4)
@@ -77,7 +75,7 @@ if __name__ == "__main__":
                                           n_estimators=n_estimators)
 
     log_reg_bal_clf = LogisticRegression(solver="lbfgs",
-                                         C=1,
+                                         C=0.1,
                                          max_iter=500,
                                          verbose=0,
                                          tol=5e-4,
@@ -85,8 +83,8 @@ if __name__ == "__main__":
     log_reg_bal_ovr = FlexOneVsRestClassifier(clf=log_reg_bal_clf,
                                               n_estimators=n_estimators)
 
-    random_forest_clf = xgb.XGBRFClassifier(max_depth=20,
-                                            n_estimators=100,
+    random_forest_clf = xgb.XGBRFClassifier(max_depth=15,
+                                            n_estimators=200,
                                             tree_method="gpu_hist",
                                             objective="binary:logistic")
     random_forest_ovr = FlexOneVsRestClassifier(clf=random_forest_clf,
