@@ -38,10 +38,12 @@
 \newcommand{\gl}{\glqq}
 \newcommand{\vs}{\vspace{3pt}}
 \newcommand{\red}{{ \color{red} Quelle}} 
+\newcommand{\LL}{\ensuremath{\mathcal{L}}}
 
 \renewcaptionname{ngerman}{\figurename}{\small{Abb.}}
 \renewcaptionname{ngerman}{\tablename}{\small{Tab.}}
 \newcommand{\Val}{Valenz und Herausforderung}
+\newcommand{\norm}[1]{\left\| #1 \right\|}
 \begin{document}
 	
 	
@@ -164,6 +166,8 @@ Zuletzt ist zu erkennen, dass in allen Datenpunkten mindestens 44\% der 51 Label
 \section{Gradient Boosting}
 \subsection{Theorie}
 
+Der folgende Abschnitt orientiert sich an Chen, Guestrin (2016).
+
 Beim Gradient Boosting geht es darum, iterativ eine Menge von gradient trees zu erzeugen, die ein gegebenes Klassifikationsproblem möglichst effektiv lösen.
 
 Gradient trees sind im Wesentlichen decision trees, nur dass jedem Blatt des Baumes einen Wert, dessen Gewicht, $w_i$ zugewiesen wird. Folglich kann ein gradient tree mit $T$ Blättern und entsprechenden Gewichten $(w_1, .. ,w_T)$ als eine Funktion $f: \R^m \to \R$ aufgefasst werden. Jedem Datenpunkt $x \in \R^m$ wird unter $f$ das Gewicht des zu $x$ korrespondierenden Blattes zugeordnet $f(x) = w_{q(x)}$. $q: \R^m \to T$ ist dabei die Funktion, welche einem sample $x$ die Indexnummer des zu $x$ gehörigen Blattes zuweist. Weiter enthält $I_j := \{ i \mid q^{-1}(j)=x_i \}$ die Indizes derjenigen samples, welche auf das Blatt Nummer $j$ verweisen. Die Menge der gradient trees bezeichnen wir mit $\mathcal{F}$.
@@ -172,9 +176,47 @@ Gradient trees sind im Wesentlichen decision trees, nur dass jedem Blatt des Bau
  
  $$\hat{y} = \Phi(x) = \sum_{k=1}^{K} f_k(x)$$
 
-Ist weiter eine Menge $X= \{(x_1), .. ,(x_n)\} \subset R^{m} $ von $n$ Beispielen mit jeweils $m$ features und dem zugehörigen ground truths $\{y_1, .. ,y_n\}$ gegeben, so erhalten wir die regularization funktion:
+Ist weiter eine Menge $X= \{(x_1), .. ,(x_n)\} \subset R^{m} $ von $n$ Beispielen mit jeweils $m$ features und dem zugehörigen ground truths $\{y_1, .. ,y_n\}$ gegeben, so erhält man die regularization funktion:
 
-$$\mathcal{L} = \sum_{i=1}^{n} l(y_i, \Phi(x)) + \sum_{k=1}^{K}\Omega(f_k) \text{  wobei } \Omega(f_k) = \gamma T + \frac{1}{2}\lambda $$
+$$\mathcal{L} = \sum_{i=1}^{n} l(y_i, \Phi(x)) + \sum_{k=1}^{K}\Omega(f_k) \text{,  wobei } \Omega(f_k) = \gamma T + \frac{1}{2}\lambda \norm{w}_2^2$$
+
+Bei $l$ handelt es sich um die loss-function, eine konvexe und mindestens mehrfach differenzierbare Funktion. $\Omega$ ist in diesem Kontext ein Strafterm und überwacht innerhalb von $\LL$ die Struktur des Baumes. Die Wahl von $\gamma$ beeinflusst die Anzahl der zulässigen Blätter, $\lambda$ die Gewichte ebendieser. Somit ist $\Omega$ eine Vorbeugemaßnahme gegen overfitting. Infolgedessen präferiert das mit $\LL$ erschaffene Modell gradient trees, die von einfacher Gestalt sind.
+
+
+Das tatsächliche gradient tree boosting findet statt, indem iterativ neue Bäume dem Ensemble hinzugefügt werden. Im $t$-ten Iterationsschritt besteht das ensemble aus den in den vorigen Schritten erzeugten gradient trees $\{f_1, .. , f_{t-1}\}$. Ziel ist es, den neuen gradient tree $f_t$ so zu wählen, dass er das vorliegende model am meisten verbessert. Das ist genau dann der Fall, wenn
+\begin{equation}
+	\LL^{(t)} = \sum_{i=1}^{n} l(y_i, \Phi(x_i)) + \sum_{k=1}^{K}\Omega(f_k)
+	\label{eq:LL1}
+\end{equation}
+
+minimal ist. Da die $\Omega(f_k)$ für die Bäume $f_1, .. , f_{t-1}$ bereits feststehen, spielen sie in der Betrachtung keine Rolle. Weiter stehen von $\Phi(x_i) = f_1(x_i) + .. + f_{t-1}(x_i) + f_t(x_i)$ bereits die ersten $t-1$ Summanden fest. Diese Summe wird in dem Ausdruck $\hat{y}^{t-1}$ zusammengefasst und ist konstant, da sie das predicted outcome nach dem $t-1$-ten Iterationsschritt des ensembles wiedergibt.
+
+Damit lässt sich (\ref{eq:LL1}) auch formulieren als:
+\begin{equation}
+    \LL^{(t)} = \sum_{i=1}^{n} l(y_i, \hat{y}^{(t-1)} + f_k(x_i)) + \Omega(f_t)
+    \label{eq:LL2}
+\end{equation}
+
+Um die Abhängigkeit von $l$ und $f_t$ zu trennen, wird die 1D-taylor series-expansion an der Stelle $(y_i,\hat{y}^{(t-1)})$ auf die Funktion $l$ und nur in der zweiten Koordinate ausgeführt. Obwohl es sich bei $l$ um eine 2D Funktion handelt, finden Änderungen im Kontext von $\LL$ nur in einer Koordinate statt, weshalb es berechtigt ist, sie als eine 1D-Funktion aufzufassen - etwa als $l(y_i,x) = l_{y_i}(x)$. Es ergibt sich:
+\begin{equation}
+\label{eq:taylor}
+l_{y_i}(\hat{y}^{(t-1)} + f_k(x_i)) = l_{y_i}(\hat{y}^{(t-1)}) + l_{y_i}^{'}(\hat{y}^{(t-1)}) \cdot f_k(x_i)
++ \newline \frac{1}{2} l_{y_i}^{''}(\hat{y}^{(t-1)}) \cdot f_k(x_i)^2 + R_\text{taylor}
+\end{equation}
+
+Im Folgenden sei der Lesbarkeit halber $g_i = l_{y_i}^{'}(\hat{y}^{(t-1))}) ) = \frac{\partial l}{\partial \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$ und $h_i = l_{y_i}^{''}(\hat{y}^{(t-1)}) ) = \frac{\partial l}{\partial^2 \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$. Bei den $g_i$ und $h_i$ handelt es sich um Konstanten, denn sowohl $y_i$ als auch $\hat{y}^{(t-1))}$ sind im aktuellen Iterationsschritt bekannt. Wenden wir die Erkenntnisse aus Gleichung (\ref{eq:taylor}) auf $\LL^{(t)}$ an, ergibt sich somit:
+\begin{equation}
+	 \LL^{(t)} \approx \sum_{i=1}^{n} (l(y_i,\hat{y}^{(t-1)}) + g_if_t(x_i) + \frac{1}{2} h_i f_t(x_i)^2) + \Omega(f_t)
+\end{equation}
+
+Da die konstanten Terme $l(y_i,\hat{y}^{(t-1)})$ nicht von $f_t$ abhängen, können sie im Rahmen des Optimierungsproblems ignoriert werden und es ergibt sich das vereinfachte objective:
+
+\begin{equation}
+\tilde{\LL}^{(t)} = \sum_{i=1}^{n}( g_if_t(x_i) + \frac{1}{2} h_i f_t(x_i)^2) + \Omega(f_t)
+\end{equation}
+
+Dieser Term kann jetzt vereinfacht werden, indem man $\Omega(f_t) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^{T} w_j^2$ ausschreibt. Für eine Baumstruktur $q$ ergeben sich die verschiedenen $I_j$, welche verwendet werden können, um die Summationsreihenfolge zu ändern. Dazu wird $f_t(x_i)$ als das korrespondierende Gewicht $w_j$ des neuen Baums $f_t$ ausgedrückt.
+
 
 \subsection{Implementierungsdetails}
 -> Multilabel einzeln trainieren
