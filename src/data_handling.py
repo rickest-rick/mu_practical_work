@@ -96,3 +96,16 @@ def user_train_test_split(X, y, test_size=0.2, random_state=None):
         X_test = X[tt]
         y_test = y[tt]
     return X_train, X_test, y_train, y_test
+
+
+def convert_to_int(dictionary, int_keys):
+    """
+    # todo
+    :author: Joschka Strüber
+    :param dictionary:
+    :param int_keys:
+    :return:
+    """
+    for int_key in int_keys:
+        dictionary[int_key] = int(dictionary[int_key])
+    return dictionary
