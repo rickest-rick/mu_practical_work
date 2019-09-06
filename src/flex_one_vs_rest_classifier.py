@@ -179,8 +179,10 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         :return:
         """
         for i in range(len(self.classifiers)):
-            bayes_opt = BayesianOptimization(self.get_evaluate(i, X, y, metric),
+            bayes_opt = BayesianOptimization(self.get_evaluate(i, X, y, metric,
+                                                               int_params),
                                              pbounds=bounds)
+            bayes_opt.maximize(init_points=init_points, n_iter=n_iter)
 
     def get_evaluate(self, label_index, X, y, metric, int_params):
         def evaluate(**kwargs):
