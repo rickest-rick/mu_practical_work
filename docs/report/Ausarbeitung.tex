@@ -210,12 +210,34 @@ Im Folgenden sei der Lesbarkeit halber $g_i = l_{y_i}^{'}(\hat{y}^{(t-1))}) ) = 
 \end{equation}
 
 Da die konstanten Terme $l(y_i,\hat{y}^{(t-1)})$ nicht von $f_t$ abhängen, können sie im Rahmen des Optimierungsproblems ignoriert werden und es ergibt sich das vereinfachte objective:
-
-\begin{equation}
+\begin{equation} \label{eq:LLeinfach}
 \tilde{\LL}^{(t)} = \sum_{i=1}^{n}( g_if_t(x_i) + \frac{1}{2} h_i f_t(x_i)^2) + \Omega(f_t)
 \end{equation}
 
-Dieser Term kann jetzt vereinfacht werden, indem man $\Omega(f_t) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^{T} w_j^2$ ausschreibt. Für eine Baumstruktur $q$ ergeben sich die verschiedenen $I_j$, welche verwendet werden können, um die Summationsreihenfolge zu ändern. Dazu wird $f_t(x_i)$ als das korrespondierende Gewicht $w_j$ des neuen Baums $f_t$ ausgedrückt.
+Dieser Term kann jetzt vereinfacht werden, indem man $\Omega(f_t) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^{T} w_j^2$ ausschreibt. Für eine Baumstruktur $q$ ergeben sich die verschiedenen $I_j$, welche verwendet werden können, um die Summationsreihenfolge zu ändern. Dazu wird $f_t(x_i)$ als das korrespondierende Gewicht $w_j$ des neuen Baums $f_t$ ausgedrückt. Die Umsortierung erfolgt derart, dass nach den auftauchenden $w_j$ sortiert wird. Angewandt auf (\ref{eq:LLeinfach}) ergibt sich dann:
+\begin{equation} \label{eq:LL_umsortiert}
+	\tilde{\LL}^{(t)} = \sum_{j=1}^T\left( (\sum_{i \in I_j} g_i) w_j + \frac{1}{2} (\sum_{i \in I_j} h_i + \lambda)w_j^2 \right) + \gamma T
+\end{equation}
+
+Angemerkt werden muss, dass für diese Umsortierung und eine konkrete Auswertung des Terms der obigen Gleichung eine \textit{feste} Baumstruktur $q$ vorliegen muss. Das bedeutet, dass der Baum bis auf die Gewichte seiner Blätter bereits feststehen muss.
+
+Um die optimierten Gewichte $w^*_j$ für diese feste Struktur von $f_t$ zu finden, leitet man $\tilde{\LL}^{(t)}$ aus Gleichung (\ref{eq:LL_umsortiert}) in Richtung des entsprechenden $w_j$ ab und erhält:
+\begin{equation} \label{eq:LL_ableitung}
+	\frac{\partial \tilde{\LL}^{(t)}}{\partial w_j} = \sum_{i \in I_j} g_i + (\sum_{i \in I_j} h_i + \lambda)w_j
+\end{equation}
+
+Setzt man diese Gleichung gleich $0$ und stellt sie um nach $w_j$, ergibt sich als das optimale $w^*_j$, welches $\tilde{\LL}^{(t)}$ minimiert:
+\begin{equation}
+	w_j^* = - \frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}
+\end{equation}
+
+Unter Verwendung dieser optimalen $w_j^*$ ergibt sich eingesetzt in (\ref{eq:LL_umsortiert}) der Optimalwert von $\tilde{\LL}^{(t)}$ für die Baumstruktur $q$:
+
+\begin{equation}
+	\tilde{\LL}^{(t)} (q) = - \frac{1}{2} \sum_{j=1}^{T} \frac{(\sum_{i \in I_j} g_i)^2}{\sum_{i \in I_j} h_i + \lambda} + \gamma T
+\end{equation}
+
+Es ist also möglich, für eine gegebene Baumstruktur $q$ die für das ensemble besten Gewichte des neuen Baums $f_t$ zu berechnen. Weil es aber in der Realität nicht möglich ist, in jedem Iterationsschritt alle überhaupt möglichen Baumstrukturen zu bestimmen und bezüglich ihres Wertes $\tilde{\LL}^{(t)} (q)$ zu vergleichen, ..................................................
 
 
 \subsection{Implementierungsdetails}
