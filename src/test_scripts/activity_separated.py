@@ -94,15 +94,14 @@ if __name__ == "__main__":
         new_params[str(key)] = params[key]
     clf.set_params(**new_params)
 
-    bounds = {"colsample_bytree": (0.5, 1),
-              "scale_pos_weight": (0.5, 10)}
+    bounds = {"scale_pos_weight": (0.5, 8)}
 
     clf.tune_hyperparams(X=X_train,
                          y=y_train,
                          bounds=bounds,
                          metric=ba,
-                         init_points=8,
-                         n_iter=17,
+                         init_points=10,
+                         n_iter=15,
                          groups=uuid_groups)
 
     dump(clf.get_params(), "params_separated.joblib")
