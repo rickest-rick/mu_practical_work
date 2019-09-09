@@ -228,17 +228,34 @@ Um die optimierten Gewichte $w^*_j$ für diese feste Struktur von $f_t$ zu finde
 
 Setzt man diese Gleichung gleich $0$ und stellt sie um nach $w_j$, ergibt sich als das optimale $w^*_j$, welches $\tilde{\LL}^{(t)}$ minimiert:
 \begin{equation}
+	\label{eq:opt_w}
 	w_j^* = - \frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}
 \end{equation}
 
 Unter Verwendung dieser optimalen $w_j^*$ ergibt sich eingesetzt in (\ref{eq:LL_umsortiert}) der Optimalwert von $\tilde{\LL}^{(t)}$ für die Baumstruktur $q$:
 
-\begin{equation}
+\begin{equation} \label{eq:entropy}
 	\tilde{\LL}^{(t)} (q) = - \frac{1}{2} \sum_{j=1}^{T} \frac{(\sum_{i \in I_j} g_i)^2}{\sum_{i \in I_j} h_i + \lambda} + \gamma T
 \end{equation}
 
 Es ist also möglich, für eine gegebene Baumstruktur $q$ die für das ensemble besten Gewichte des neuen Baums $f_t$ zu berechnen. Weil es aber in der Realität nicht möglich ist, in jedem Iterationsschritt alle überhaupt möglichen Baumstrukturen zu bestimmen und bezüglich ihres Wertes $\tilde{\LL}^{(t)} (q)$ zu vergleichen, ..................................................
 
+% Label hinzufügen:
+% \label{eq:opt_w}
+% \label{eq:entropy}
+
+Es ist also möglich, für eine gegebene Baumstruktur $q$ die für das ensemble hilfreichsten Gewichte des neuen Baums $f_t$ unter Verwendung von (\ref{eq:opt_w}) zu berechnen. Weiter kann eine solche (optimierte) Baumstruktur $q$ mit (\ref{eq:entropy}) bewertet werden, diese Bewertung ist vergleichbar mit der Entropy von decision trees. 
+
+In der Realität müsste man nun alle möglichen Baumstrukturen, inklusive der verschiedenen feature-splits, abarbeiten, die optimierten $w^*_j$ und $\tilde{\LL}^{(t)} (q)$ berechnen und vergleichen. Weil das aber kaum realisierbar ist, wird der Baum $f_t$ im Iterationsschritt $t$ greedy konstruiert. Dafür werden iterativ branches dem Baum hinzugefügt, die durch das Aufspalten eines Blattes entstehen. Sind $I_l, I_r$ die Mengen der dem linken beziehungsweise rechten Blatt zugewiesenen Indexnummern und $I = I_l \dot\cup I_r$ die Indexmenge des ehemaligen Blattes. Die resultierende Verbesserung dieses splits ergibt sich nach (\ref{eq:entropy}) zu:
+\begin{equation}
+\begin{split}
+	\tilde{\LL}_\text{split} &= \tilde{\LL}^{(t)} (q_\text{alt})-\tilde{\LL}^{(t)} (q_\text{neu})\\
+	&= \left( - \frac{1}{2} \sum_{j=1}^{T} \frac{(\sum\limits_{i \in I_{j, \text{alt}}} g_i)^2}{\sum\limits_{i \in I_{j, \text{neu}}} h_i + \lambda} + \gamma T \right)- \left( - \frac{1}{2} \sum_{j=1}^{T+1} \frac{(\sum\limits_{i \in I_{j, \text{neu}}} g_i)^2}{\sum\limits_{i \in I_{j, \text{neu}}} h_i + \lambda} + \gamma (T+1) \right)\\	
+	&= \frac{1}{2} \left( \frac{(\sum_{i \in I_l} g_i)^2}{\sum_{i \in I_l} h_i + \lambda} + \frac{(\sum_{i \in I_r} g_i)^2}{\sum_{i \in I_r} h_i + \lambda} - \frac{(\sum_{i \in I} g_i)^2}{\sum_{i \in I} h_i + \lambda} \right) - \gamma 
+\end{split}
+\end{equation}
+
+Die zweite Gleichheit folgt daraus, dass sich die Indexmengen $I_j$ bis auf des aufgeteilen Blattes, also die Indexmengen $I, I_l$ und $I_r$, nicht unterscheiden und somit aufheben. 
 
 \subsection{Implementierungsdetails}
 -> Multilabel einzeln trainieren
