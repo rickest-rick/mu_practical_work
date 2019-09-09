@@ -190,6 +190,8 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             bayes_opt.maximize(init_points=init_points, n_iter=n_iter)
             if int_params is not None:
                 params = convert_to_int(bayes_opt.max['params'], int_params)
+            else:
+                params = bayes_opt.max['params']
             self.classifiers[i].set_params(**params)
 
     def get_evaluate(self, label_index, X, y, metric, int_params, groups):
@@ -198,7 +200,7 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
                 kwargs = convert_to_int(kwargs, int_params)
             clf = deepcopy(self.classifiers[label_index])
             if groups is None:
-                kfold = StratifiedKFold(n_splits=3)
+                kfold = StratifiedKFold(n_splits=3, random_state=42)
             else:
                 kfold = GroupKFold(n_splits=3)
             clf.set_params(**kwargs)
