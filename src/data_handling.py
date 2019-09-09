@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import os
 
 import fancyimpute
@@ -78,7 +77,7 @@ def split_features_labels(frame):
     return features, labels
 
 
-def user_train_test_split(X, y, test_size=0.2, random_state=2):
+def user_train_test_split(X, y, test_size=0.2, random_state=None):
     """
     Split a set of training and target data into training and test data sets
     based on grouping by uuids in the first column.
@@ -117,9 +116,14 @@ def impute_missing_labels(label_matrix):
     return full_label_matrix
 
 
-if __name__ == "__main__":
-    data = load_some_user_data()
-    attr, labels = split_features_labels(data)
-    attr_values = attr.values
-    labels_values = labels.values
-    user_train_test_split(attr_values, labels_values)
+def convert_to_int(dictionary, int_keys):
+    """
+    # todo
+    :author: Joschka Strüber
+    :param dictionary:
+    :param int_keys:
+    :return:
+    """
+    for int_key in int_keys:
+        dictionary[int_key] = int(dictionary[int_key])
+    return dictionary

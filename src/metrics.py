@@ -1,29 +1,147 @@
 import numpy as np
 
-from sklearn.metrics import recall_score
-from sklearn.metrics import multilabel_confusion_matrix
+from sklearn.metrics import confusion_matrix
 
 
-def balanced_accuracy_score(test_labels, preds):
+def balanced_accuracy_score(y_true, y_pred, average="micro", zero_default=1):
     """
-    Compute the balanced accuracy for a multilabel classification. The BA is
-    computed as (Recall + Specifity) / 2.
+    Compute the balanced accuracy for a binary multilabel classification. The BA
+    is computed as (Recall + Specifity) / 2. NaN values are ignored.
     :author: Daniel Beckmann, Joschka Strüber
     :param test_labels: The true labels as a 2d array.
     :param preds: Predicted labels by a classifier as a 2d array.
+    :param average: str, "micro" (default) or "macro"
+        "micro" -> compute the global recall and specificity by incorporating
+            the sum of all confusion matrices for every label
+        "macro" -> compute the global recall and specificty as the mean of the
+            individual recalls and specificities for every label
+    :param zero_default: number, 1 (default)
+        Which value should be used as default for the recall and specificity, if
+        the sum of positive or negative samples is 0.
     :return: The balanced accuracy as float.
     """
+    if y_true.ndim == 1:
+        is_NaN = np.isnan(y_true)
+        y_true = y_true[~is_NaN]
+        y_pred = y_pred[~is_NaN]
+        conf_matrix = confusion_matrix(y_true, y_pred)
+
+    if average == "micro":
+        return balanced_accuracy_score_micro(y_true, y_pred, zero_default)
+    elif average == "macro":
+        return balanced_accuracy_score_macro(y_true, y_pred)
+    else:
+        raise ValueError('Invalid average method chosen: "{}"'.format(average))
+
+
+def balanced_accuracy_score_micro(y_true, y_pred, zero_default=0.5):
     true_neg = 0
+    true_pos = 0
     neg = 0
+    pos = 0
 
-    ml_conf_matrix = multilabel_confusion_matrix(test_labels, preds)
-    # count true negatives and all negatives for each attribute
-    for i in range(np.shape(ml_conf_matrix)[0]):
-        conf_matrix = ml_conf_matrix[i]
-        true_neg += conf_matrix[0, 0]
-        neg += conf_matrix[0, 0] + conf_matrix[0, 1]
+    n_labels = y_true.shape[0]
+    for label_set in range(n_labels):
+        label_true = y_true[label_set]
+        label_pred = y_pred[label_set]
 
-    specificity = float(true_neg) / neg
-    recall = recall_score(test_labels, preds, average="micro")
+        # remove NaN values
+        is_NaN = np.isnan(label_true)
+        label_true = label_true[~is_NaN]
+        label_pred = label_pred[~is_NaN]
 
+        conf_matrix = confusion_matrix(label_true, label_pred)
+        # todo delete debug print
+        print(label_set, "\n", conf_matrix)
+        # count true negatives, true positives, all negatives and all positives
+        # for each attribute
+        if conf_matrix.shape == (0, 0):  # empty confusion matrix
+            continue
+
+        if conf_matrix.shape == (2, 2):  # not all positive or negative
+            true_neg += conf_matrix[0, 0]
+            true_pos += conf_matrix[1, 1]
+            neg += conf_matrix[0, 0] + conf_matrix[1, 0]
+            pos += conf_matrix[1, 1] + conf_matrix[0, 1]
+            # todo delete debug print
+            # print(label_set)
+            # print(float(conf_matrix[0, 0]) / (conf_matrix[0, 0] + conf_matrix[1, 0]))
+            # print(float(conf_matrix[1, 1]) / (conf_matrix[1, 1] + conf_matrix[0, 1]))
+        else:
+            if label_true[0] == 0:  # all negative
+                true_neg += conf_matrix[0, 0]
+                neg += conf_matrix[0, 0]
+            else:  # all positive
+                true_pos += conf_matrix[0, 0]
+                pos += conf_matrix[0, 0]
+    if neg != 0:
+        specificity = float(true_neg) / neg
+    else:
+        specificity = zero_default
+    if pos != 0:
+        recall = float(true_pos) / pos
+    else:
+        recall = zero_default
+    print("Neg: {}, True Neg: {}".format(neg, true_neg))
+    print("Pos: {}, True Pos: {}".format(pos, true_pos))
     return (recall + specificity) / 2
+
+
+def balanced_accuracy_score_macro(y_true, y_pred):
+    sum_balanced_accuracy = 0.0
+    n_labels = y_true.shape[0]
+    n_labels_nonempty = n_labels
+    for label_set in range(n_labels):
+        label_true = y_true[label_set]
+        label_pred = y_pred[label_set]
+
+        # remove NaN values
+        is_NaN = np.isnan(label_true)
+        label_true = label_true[~is_NaN]
+        label_pred = label_pred[~is_NaN]
+
+        conf_matrix = confusion_matrix(label_true, label_pred)
+        # todo delete debug print
+        print(label_set, "\n", conf_matrix)
+        if conf_matrix.shape == (0, 0):  # empty confusion matrix
+            n_labels_nonempty -= 1
+        else:
+            balanced_accuracy = single_balanced_accuracy_score(conf_matrix,
+                                                           first_true=y_true[0])
+            sum_balanced_accuracy += balanced_accuracy
+    # micro average is average of all specificity and recall values
+    balanced_accuracy = sum_balanced_accuracy / n_labels_nonempty
+
+    return balanced_accuracy
+
+
+def single_balanced_accuracy_score(conf_matrix, first_true=0):
+    # todo
+    if conf_matrix.shape == (2, 2):  # not all positive or negative
+        true_neg = conf_matrix[0, 0]
+        true_pos = conf_matrix[1, 1]
+        neg = conf_matrix[0, 0] + conf_matrix[1, 0]
+        pos = conf_matrix[1, 1] + conf_matrix[0, 1]
+
+        # compute the specificity and recall or set them to the default
+        # value, if this is not possible
+        if neg != 0 and pos != 0:
+            specificity = float(true_neg) / neg
+            recall = float(true_pos) / pos
+        else:
+            specificity = 0.5
+            recall = 0.5
+    else:
+        if first_true == 0:  # all negative
+            true_neg = conf_matrix[0, 0]
+            neg = conf_matrix[0, 0]
+
+            specificity = float(true_neg) / neg
+            recall = 1
+        else:  # all positive
+            true_pos = conf_matrix[0, 0]
+            pos = conf_matrix[0, 0]
+
+            specificity = 1
+            recall = float(true_pos) / pos
+    return (specificity + recall) / 2
