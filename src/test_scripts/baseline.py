@@ -19,7 +19,7 @@ from flex_one_vs_rest_classifier import FlexOneVsRestClassifier
 
 if __name__ == "__main__":
     # load data and reset index
-    data = load_user_data()
+    data = load_user_data("../../data")
     data.reset_index(inplace=True)
     X, y = split_features_labels(data)
     attrs = list(X.index)
