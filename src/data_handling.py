@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-
+import numpy as np
 import fancyimpute
 
 from sklearn.model_selection import GroupShuffleSplit
@@ -97,6 +97,7 @@ def user_train_test_split(X, y, test_size=0.2, random_state=None):
         X_test = X[tt]
         y_test = y[tt]
     return X_train, X_test, y_train, y_test
+
 
 def impute_missing_labels(label_matrix):
     """

@@ -88,12 +88,12 @@ if __name__ == "__main__":
 
     pred_time = time.time()
     print("Prediction time: {}".format(pred_time - fit_time))
-    print("Balanced accuracy: ", balanced_accuracy_score(y_test.T,
+    print("Balanced accuracy: ", balanced_accuracy_score(y_test,
                                                          y_pred,
                                                          average="macro",
                                                          zero_default=0))
 
-    print("Balanced accuracy bias:", balanced_accuracy_score(y_train.T,
+    print("Balanced accuracy bias:", balanced_accuracy_score(y_train,
                                                              y_pred_bias,
                                                              average="macro",
                                                              zero_default=0))
