@@ -1,5 +1,7 @@
 import tensorflow as tf
 
+from tensorflow import keras
+
 
 class GmcLoss(tf.keras.losses.Loss):
     """
@@ -21,26 +23,27 @@ class GmcLoss(tf.keras.losses.Loss):
         :param y_pred:
         :return: 1d tensor, GMC loss for every input
         """
-        # Compute masked binary crossentropy, setting the expected labels to the
-        # predictions where they are nan is the same as masking, because the
-        # log loss is zero where true and predicted label are the same.
-        is_not_nan = tf.logical_not(tf.math.is_nan(y_true))
-        y_true_clean = tf.where(is_not_nan, y_true, y_pred)
-        bce = tf.keras.losses.BinaryCrossentropy()
-        bce_loss = bce.call(y_true_clean, y_pred)
-
+        epsilon = tf.convert_to_tensor(keras.backend.epsilon(), y_pred.dtype)
+        y_pred = tf.clip_by_value(y_pred, epsilon, 1. - epsilon)
+        # compute crossentropy
+        bce = tf.math.negative(y_true * tf.math.log(y_pred + 
+                                                    keras.backend.epsilon()))
+        bce -= (1 - y_true) * tf.math.log(1 - y_pred + keras.backend.epsilon())
+        # mask nan_values with 0 and reduce to mean in each row
+        is_not_nan = tf.math.logical_not(tf.math.is_nan(bce))
+        nans_per_row = tf.math.count_nonzero(is_not_nan, axis=1, dtype=bce.dtype)
+        bce = tf.where(is_not_nan, bce, 0)
+        bce = tf.math.reduce_mean(bce, axis=1)
+        
         # compute gmc regularization term omega
         dot_matrix = tf.matmul(tf.transpose(y_pred), y_pred)
-        diag = - 0.5 * tf.linalg.diag_part(dot_matrix)
+        diag = tf.divide(tf.linalg.diag_part(dot_matrix), -2)
         dot_matrix = tf.linalg.set_diag(dot_matrix, diag)
-        #todo: change coexist factor back
         dot_matrix = tf.math.multiply(self.coexist_counts, dot_matrix)
-        #coexist_counts = get_coexist_counts(y_true)
-        #dot_matrix = tf.math.multiply(coexist_counts, dot_matrix)
         pred_count = tf.dtypes.cast(tf.shape(y_pred)[0], dtype=dot_matrix.dtype)
-        omega = - tf.divide(tf.reduce_sum(dot_matrix), pred_count)
-
-        return bce_loss + self.alpha * omega
+        omega = tf.divide(tf.reduce_sum(dot_matrix), pred_count)
+        
+        return bce - self.alpha * omega
 
     def get_config(self):
         base_config = super().get_config()
@@ -55,6 +58,7 @@ def get_coexist_counts(y):
     :param y: Labels as 1d or 2d tensor.
     :return:
     """
+    y = y + keras.backend.epsilon()
     is_not_nan = tf.math.logical_not(tf.math.is_nan(y))
     y_clean = tf.where(is_not_nan, y, 0)
     return tf.matmul(tf.transpose(y_clean), y_clean)
