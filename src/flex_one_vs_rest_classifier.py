@@ -107,8 +107,7 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             if pred_expansion:
                 np.append(X_test, y_pred)
             y.append(y_pred)
-        # return np.array(y).T
-        return np.array(y)
+        return np.array(y).T
 
     def get_params(self, deep=True):
         """

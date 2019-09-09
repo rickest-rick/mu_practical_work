@@ -180,7 +180,7 @@ if __name__ == "__main__":
                                                             average="macro",
                                                             zero_default=0))
 
-    svc_clf = LinearSVC(tol=1e-3)
+    svc_clf = LinearSVC(tol=3e-3)
     clf = FlexOneVsRestClassifier(svc_clf, n_estimators=y_train.shape[1])
     bounds = {"C": (0.01, 5)}
     clf.tune_hyperparams(X=X_train_clean,
