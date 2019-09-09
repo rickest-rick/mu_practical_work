@@ -3,241 +3,100 @@
 
 \input{preamble_en}
 
-% Zeilenabstand (Unterscheidet sich evtl von den Standard 1.5)
-\usepackage{setspace}
-\linespread{1.5}
-
-\usepackage{fontspec}
-%\setmainfont{Times New Roman}
-\usepackage{booktabs}
-\usepackage{multirow}
-\usepackage{wrapfig}
-%\usepackage{caption}
-
-\usepackage{cancel}
-
-\usepackage{colortbl}
-\usepackage{xcolor}
-%\usepackage{hyperref}
-%\usepackage[all]{hypcap}
-\usepackage{float}
-
-%\usepackage{rotating}
-%\newcommand\tabrotate[1]{\begin{turn}{45}\rlap{#1}\end{turn}}
-
-\usepackage{pdfpages}
-\usepackage[headsepline]{scrpage2}
-\pagestyle{scrheadings}
-\clearscrheadfoot
-
-\ofoot{\pagemark}
-\ohead{\normalfont \headmark}
-%\cfoot{\normalfont Mathematik \& Informatik}
-\automark{section}
-\newcommand{\gr}{\grqq{}}
-\newcommand{\gl}{\glqq}
-\newcommand{\vs}{\vspace{3pt}}
-\newcommand{\red}{{ \color{red} Quelle}} 
-\newcommand{\LL}{\ensuremath{\mathcal{L}}}
-
-\renewcaptionname{english}{\figurename}{\small{Fig.}}
-\renewcaptionname{english}{\tablename}{\small{Tab.}}
-\newcommand{\norm}[1]{\left\| #1 \right\|}
 \begin{document}
 	
 	
-\begin{singlespace}
-\begin{titlepage}
-	\begin{center}
-		
-		\includegraphics[scale=0.6]{wwu}
-		
-		\large{\textbf{\textsf{Faculty of Mathematics and Computer Science}}\\ 
-			Summer Semester 2019} \\
-		\vspace{20mm}
-        \rule{.8\linewidth}{1pt}\\
-        \vspace{3mm}
-		\LARGE\textbf{\textsf{Behavioral Context Recognition In-The-Wild from Mobile Sensors}}\\
-		%\rule{.2\linewidth}{.5pt}\\
-		\rule{.8\linewidth}{1pt}\\
-
-		\vfill
-	\end{center}
-\begin{flushright}
-	\flushright
-
-		\begin{large}
-	\singlespacing 		
-		\begin{tabular}{rl}
-
-			Authors: & Daniel Beckmann \\ & Joschka Strüber \\& Tony Prange \\& Thomas Poschadel \\
-			 \midrule
-			Lecturers: & Prof. Xiaoyu Jiang \\
-					& Sören Klemm \\
-			Class:& Pattern Recognition and Machine Learning \\
-			Submission deadline: & 13.09.2019
-
-		\end{tabular}
-		\end{large}	
-\end{flushright}
-	
-\flushleft
-\end{titlepage}
-
-\newpage  \tableofcontents \thispagestyle{empty} \vspace{15mm}
-\begin{center}
-	\parbox{.8\linewidth}{\begin{small}
-			{Beim Nachweis von Zitaten und Literatur wenden wie die von Unisa 
-				vorgeschriebene Harvard-Methode an und folge dabei den Regeln 
-				in: 
+	\begin{singlespace}
+		\begin{titlepage}
+			\begin{center}
 				
-				Christof Sauer (Hg.) 2004. 
-				Form bewahren: Handbuch zur 
-				Harvard-Methode. 
-				(GBFE-Studienbrief 5). Lage: Gesellschaft für 
-				Bildung und Forschung in Europa e.V. 1. Auflage.} \\
+				\includegraphics[scale=0.6]{wwu}
+				
+				\large{\textbf{\textsf{Faculty of Mathematics and Computer Science}}\\ 
+					Summer Semester 2019} \\
+				\vspace{20mm}
+				\rule{.8\linewidth}{1pt}\\
+				\vspace{3mm}
+				\LARGE\textbf{\textsf{Behavioral Context Recognition In-The-Wild from Mobile Sensors}}\\
+				%\rule{.2\linewidth}{.5pt}\\
+				\rule{.8\linewidth}{1pt}\\
+				
+				\vfill
+			\end{center}
+			\begin{flushright}
+				\flushright
+				
+				\begin{large}
+					\singlespacing 		
+					\begin{tabular}{rl}
+						
+						Authors: & Daniel Beckmann \\ & Joschka Strüber \\& Tony Prange \\& Thomas Poschadel \\
+						\midrule
+						Lecturers: & Prof. Xiaoyu Jiang \\
+						& Sören Klemm \\
+						Class:& Pattern Recognition and Machine Learning \\
+						Submission deadline: & 13.09.2019
+						
+					\end{tabular}
+				\end{large}	
+			\end{flushright}
 			
+			\flushleft
+		\end{titlepage}
+		
+		\newpage  \tableofcontents \thispagestyle{empty} \vspace{15mm}
+		\begin{center}
+			\parbox{.8\linewidth}{\begin{small}
+					{Beim Nachweis von Zitaten und Literatur wenden wie die von Unisa 
+						vorgeschriebene Harvard-Methode an und folge dabei den Regeln 
+						in: 
+						
+						Christof Sauer (Hg.) 2004. 
+						Form bewahren: Handbuch zur 
+						Harvard-Methode. 
+						(GBFE-Studienbrief 5). Lage: Gesellschaft für 
+						Bildung und Forschung in Europa e.V. 1. Auflage.} \\
+					
 			\end{small}}
-\end{center}
+		\end{center}
+		
+	\end{singlespace}
 
-\end{singlespace}
 \newpage
 \setcounter{page}{1}
 
-\section*{Abstract}
+\input{abstract}
 
-strg F deepL
+\input{introduction}
 
-\section{Introduction}
-A large amount of data is available through the networking of our digital devices, which shape our everyday lives. The use of such data and the associated information is a core element of today's digital society. Programs that can use such data to generate as much information as possible play an important role at improving our daily lives. Those programs are of great interest, not only at the level of contextual advertising, but also in improving our medical care and our behaviors. For example, many people are already optimizing their personal lifestyles with the help of digital devices like smartphone and fitness trackers. Another application is the establishment of a healthy sleep rhythm by the recognition of sleep phases. 
+\input{dataset}
 
-In the context of health care, this technology is of particular interest because on the one hand it can be used preventive. For example, people can be informed about their personal habits and sensitized to their personal risks which arise with their specific lifestyle in order to lead them to a healthier lifestyle, which in turn can be supported by technology again. On the other hand there is the medical perspective, where it is possible to check how healthy a person lives in order to combat diseases more effectively. In conclusion, deriving activities from various sensor data is important for many companies or health organizations, but also for the end user.
+\input{state_of_the_art}
 
-The present report was written during a practical course in computer science in the lecture Pattern Recognition, led by Prof. Dr. Xiaoyi Jiang and Sören Klemm, with the topic \gl Behavioral context recognition in-the-wild from mobile sensors\gr (Quelle). The aim of the project was to perform multi-label classification on the basis of the Extrasensory data set. Essentially, collected sensor data should be assigned to activities, in an additional task the users should be recognized by their data. 
+\section{Applied Theory}
 
-The particular challenge of the project was that on the one hand the methodology was not specified and on the other hand multi-label classification was to be carried out with a data set containing many missing labels. 
+\input{random_forests}
 
-\section{Introduction of The ExtraSensory Dataset}
+\input{gradient_boosting}
 
-The ExtraSensory data set was collected in 2015 and 2016 by Yonatan Vaizman and Katherine Ellis under the supervision of Professor Gert Lanckriet. It is based on sensor data from smartphones and smartwatches produced by 60 participants in intervals of one minute. In contrast to many other data sets, the data was generated by normal everyday devices using multiple sensors were in parallel. Furthermore, the participants behavior was not scripted like in many other case studies and they were allowed to behave in an natural way. The sensors included an accelerometer, gyroscope, location and audio sensor and were used by almost everyone in most of the recordings. Additionally some participants used smart watches or fitness tracker which provided an addition watch accelerometer.
+\input{xgboost}
 
-The assignment of the data points to activities was mostly done by the users themselves, who had the option to use predefined labels or create their own. In a preprocessing step these label were reduced to a set of 51 labels by combining similar label. The result were 377,346 data points, which were described with one or more of the 51 final labels. The label represent various information about the location, the context and the activity of a user. some examples are 'in class', 'singing', 'stairs (going up)', 'stairs (going down)', 'with friends' or 'talking'.
+\input{bayes}
 
-This means that for each data point a label vector of length 51 exists. Each entry can contain the values true, false or NaN, where NaN represents missing information on this label. The following examination of the data points shows that many labels remained unobserved in each data point:
+\input{logistic_regression}
 
-\begin{figure}[H]
-	\begin{center}
-		\includegraphics[scale=.8]{images/boxplot_label.png}
-		\caption{A box-plot showing the distribution of the absolute count of a given value (false, true or NaN) over the different labels. The yellow line represents the median, the rectangle the 25\% percentile, the line the 75\% percentile and the dotes are outliers.}
-		\label{abb:boxplot_label}
-	\end{center}		
-\end{figure}	
+\input{svm}
 
-Figure \ref{abb:boxplot_label} visualizes the distribution for each label and a specific value (false, ture or NaN) as a box-plot diagram. Looking at the median for NaN, it can be seen that for most labels the majority of data points do not contain a value - which increases the difficulty of classification. This means that for many labels there is a large number of data points that do not contain any information about the label.
+\input{correlations}
 
-Furthermore, it can be seen that the median labels with the value true is just 5,153 and that only very few labels at all are labeled as true for more than 10\% of the data points. So there are many label classes which contain very few positive representatives. 
+\input{bayesian_optimization}
 
-\begin{figure}[H]
-	\begin{center}
-		\includegraphics[scale=.8]{images/hist.png}
-		\caption{Histogram of absolute counts of percentage of NaN values for each data point. The data is distributed into 50 bins. Each bin has the size of 2 \% of the labels.}
-		\label{abb:histogramm_data}
-	\end{center}		
-\end{figure}
+\input{missing_labels}
 
-Finally, it can be seen that in all data points at least 44\% of the 51 labels are not evaluated. Thus, there are no data points that make statements about all labels at the same time.
-
-\section{Random Forests}
-
-\section{Gradient Boosting}
-\subsection{Theory}
-
-The following section is based on Chen, Guestrin (2016).
-
-Gradient boosting is about iteratively generating a set of gradient trees that solve a given classification problem as effectively as possible.
-
-Gradient trees are essentially decision trees, except that each leaf of the tree has a value whose weight is assigned to $w_i$. Consequently, a gradient tree with $T$ leaves and corresponding weights $(w_1, ... ,w_T)$ can be understood as a function $f: \R^m \to \R$ . Each data point $x \in \R^m$ is assigned the weight of the leaf corresponding to $x$ by $f$ via $f(x) = w_{q(x)}$. The function $q: \R^m \to T$ assigns a sample $x$ to the index number of the leaf belonging to $x$. Furthermore $I_j := \{ i \mid q^{-1}(j)=x_i \}$ contains the indices of those samples which refer to the leaf number $j$. The set of all gradient trees is called $\mathcal{F}$.
-
-A tree ensemble model $\{f_1, ... ,f_K \mid f_i \in \mathcal{F}\}$ consisting of $K$ gradient trees is not evaluated by voting, as known from decision trees, but by adding the function values of the sample $x$ of the single gradient trees in the ensemble function $\Phi = \sum f_k$. The predicted outcome $\hat{y}$ of a sample $x$ results from this:
-
-$$\hat{y} = \Phi(x) = \sum_{k=1}^{K} f_k(x)$$
-
-Given a sample set $X= \{x_1, ..., x_n\} \subset \R^{m} $ of $n$ samples each with $m$ features and the corresponding ground truths $\{y_1, ... ,y_n\}$, the resulting regularization function is found in:
-	
-$$\mathcal{L} = \sum_{i=1}^{n} l(y_i, \Phi(x)) + \sum_{k=1}^{K}\Omega(f_k) \text{,  where } \Omega(f_k) = \gamma T + \frac{1}{2}\lambda \norm{w}_2^2$$
-
-$l$ is the loss-function, a convex and several times differentiable function. $\Omega$ is a penalizing term in this context and monitors the structure of the tree within $\LL$. The choice of $\gamma$ influences the number of permissible leaves and $\lambda$ influences their weights. Thus $\Omega$ is a preventive measure against overfitting. Consequently, the model created with $\LL$ prefers gradient trees of simple shape.
-
-The actual gradient tree boosting takes place by iteratively adding new trees to the ensemble. In the $t$-th iteration step, the ensemble consists of the gradient trees $\{f_1, ... , f_{t-1}\}$ created in the previous steps. The goal is to select the new gradient tree $f_t$ so that it improves the current model the most. This is the case if and only if 
-\begin{equation}
-\LL^{(t)} = \sum_{i=1}^{n} l(y_i, \Phi(x_i)) + \sum_{k=1}^{K}\Omega(f_k)
-\label{eq:LL1}
-\end{equation}
-is minimized.
-Since the $\Omega(f_k)$ for the trees $f_1, ... f_{t-1}$ are already fixed, they play no role in the consideration. Further established are the first $t-1$ terms of the sum $\Phi(x_i) = f_1(x_i) + ... + f_{t-1}(x_i) + f_t(x_i)$. This sum is constant and is aggregated in the expression $\hat{y}^{t-1}$, because it represents the predicted outcome after the $t-1$-th iteration step of the ensemble.
-
-With this (\ref{eq:LL1}) can also be formulated as:
-\begin{equation}
-\LL^{(t)} = \sum_{i=1}^{n} l(y_i, \hat{y}^{(t-1)} + f_k(x_i)) + \Omega(f_t)
-\label{eq:LL2}
-\end{equation}
-
-To separate the dependence of $l$ and $f_t$, the 1D-taylor series expansion is executed at the location $(y_i,\hat{y}^{(t-1)})$ on the function $l$ and only in the second coordinate. Although $l$ is a 2D function, changes in the context of $\LL$ only take place in one coordinate, which is why it is allowed to interpret it as a 1D function - like $l(y_i,x) = l_{y_i}(x)$. It results:
-\begin{equation}
-\label{eq:taylor}
-l_{y_i}(\hat{y}^{(t-1)} + f_k(x_i)) = l_{y_i}(\hat{y}^{(t-1)}) + l_{y_i}^{'}(\hat{y}^{(t-1)}) \cdot f_k(x_i)
-+ \newline \frac{1}{2} l_{y_i}^{''}(\hat{y}^{(t-1)}) \cdot f_k(x_i)^2 + R_\text{taylor}
-\end{equation}
-
-For readability's sake we write $g_i = l_{y_i}^{'}(\hat{y}^{(t-1))}) ) = \frac{\partial l}{\partial \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$ and $h_i = l_{y_i}^{''}(\hat{y}^{(t-1)}) ) = \frac{\partial l}{\partial^2 \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$. The $g_i$ and $h_i$ are constants, because both $y_i$ and $\hat{y}^{(t-1))}$ are known in the current iteration step. If we apply the findings from equation (\ref{eq:taylor}) to $\LL^{(t)}$, we get the result:
-\begin{equation}
-\LL^{(t)} \approx \sum_{i=1}^{n} (l(y_i,\hat{y}^{(t-1)}) + g_if_t(x_i) + \frac{1}{2} h_i f_t(x_i)^2) + \Omega(f_t)
-\end{equation}
-
-Since the constant terms $l(y_i,\hat{y}^{(t-1)})$ do not depend on $f_t$, they can be ignored in the optimization problem and the result is the simplified objective:
-\begin{equation} \label{eq:LLeinfach}
-\tilde{\LL}^{(t)} = \sum_{i=1}^{n}( g_if_t(x_i) + \frac{1}{2} h_i f_t(x_i)^2) + \Omega(f_t)
-\end{equation}
-
-This term can now be simplified by writing out $\Omega(f_t) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^{T} w_j^2$. For a given tree structure $q$ we get the different $I_j$ which can be used to change the summation order. For this, $f_t(x_i)$ is expressed as the corresponding weight $w_j$ of the new tree $f_t$. The rearrangement is done by sorting by the appearing $w_j$. Applied to (\ref{eq:LLeinfach}) this results in:
-\begin{equation} \label{eq:LL_umsortiert}
-\tilde{\LL}^{(t)} = \sum_{j=1}^T\left( (\sum_{i \in I_j} g_i) w_j + \frac{1}{2} (\sum_{i \in I_j} h_i + \lambda)w_j^2 \right) + \gamma T
-\end{equation}
-
-It should be noted that for this rearrangement and a concrete evaluation of the term of the above equation a \textit{fixed} tree structure $q$ must be provided. This means that the tree must already be fixed except for the weights of its leaves.
-
-To find the optimized weights $w^*_j$ for this fixed structure of $f_t$, derive $\tilde{\LL}^{(t)}$ from equation (\ref{eq:LL_umsortiert}) in the direction of the corresponding $w_j$ and it yields:
-\begin{equation} \label{eq:LL_ableitung}
-\frac{\partial \tilde{\LL}^{(t)}}{\partial w_j} = \sum_{i \in I_j} g_i + (\sum_{i \in I_j} h_i + \lambda)w_j
-\end{equation}
-
-By setting this equation to $0$ and solving it for $w_j$, the optimal $w^*_j$ is gained, which minimize $\tilde{\LL}^{(t)}$:
-\begin{equation}
-w_j^* = - \frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}
-\end{equation}
-
-Using this optimal $w_j^*$ in (\ref{eq:LL_umsorted}) results in the optimal value of $\tilde{\LL}^{(t)}$ for the tree structure $q$:
-\begin{equation}
-\tilde{\LL}^{(t)} (q) = - \frac{1}{2} \sum_{j=1}^{T} \frac{(\sum_{i \in I_j} g_i)^2}{\sum_{i \in I_j} h_i + \lambda} + \gamma T
-\end{equation}
-
-So it is possible to calculate the best weights of the new tree $f_t$ for the ensemble for a given tree structure $q$. Since in reality it is not possible to determine all possible tree structures in each iteration step and to calculate them with respect to their value $\tilde{\LL}^{(t)} (q)$ .....
-
-
-
-\subsection{What is Gradient Boosting}
-
-\subsection{Use of Gradient Boosting}
-
-\subsection{eigene Variationen}
--> Hyperparametern
--> Geschwindigkeit (GPU)
-
-
-\section{Vorstellung Results}
+\section{implementation}
 -> Metric
 
-\section{Bewertung der Results}
+\section{discussion}
 
 \section{classification of users}
 
