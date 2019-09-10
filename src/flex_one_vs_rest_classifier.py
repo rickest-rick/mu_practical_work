@@ -22,7 +22,7 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
     It is only a thin wrapper to allow the usage of different kinds of
     classifiers or different sets of hyperparameters. For all further tasks, the
     underlying classifiers can be directly accessed.
-    TODO: implement parallelized version for train and test with joblib
+    TODO: implement parallelized version for train. tune and test with joblib
     :author: Joschka Strüber
     """
 
@@ -39,7 +39,9 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         :classifiers: [], a list of classifiers with a fit and predict method.
         """
         if classifiers is not None and clf is None and n_estimators is None:
-            self.classifiers = classifiers
+            self.classifiers = []
+            for i in range(len(classifiers)):
+                self.classifiers.append(deepcopy(classifiers[i]))
         elif clf is not None and n_estimators > 0:
             self.classifiers = []
             for i in range(n_estimators):
@@ -53,17 +55,21 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
     @ignore_warnings(category=ConvergenceWarning)
     def fit(self, X, y, pred_expansion=False, ignore_nan=True):
         """
+        Fit the model according to the given training data.
 
         :author: Joschka Strüber
-        :param X:
-        :param y:
-        :param pred_expansion: If True, expand the data set with predictions on
-            the labels that were trained so far.
-        :param ignore_nan: Boolan, default: True. Filter out all training
+        :param X: array, shape = [n_samples, n_features]
+            Training vector, where n_samples in the number of samples and
+            n_features is the number of features.
+        :param y:  array, shape = [n_samples]
+            Target vector relative to X
+        :param pred_expansion: Boolean, if True, expand the data set with
+            predictions on the labels that were trained so far.
+        :param ignore_nan: Boolean, default: True. Filter out all training
             samples for which a target label is marked as NaN. This means, we
             have potentially n_estimators different training sets X. One for
             each classifier.
-        :return: None
+        :return: self : object
         """
         n_labels = y.shape[1]
         if n_labels != len(self.classifiers):
@@ -95,11 +101,14 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
 
     def predict(self, X, pred_expansion=False):
         """
+        Predict class labels for samples in X.
 
         :author: Joschka Strüber
-        :param X:
-        :param pred_expansion:
-        :return:
+        :param X:  array, shape = [n_samples, n_features]
+            Samples.
+        :param pred_expansion: Boolean, if True, expand the data set with
+            predictions on the labels that were trained so far.
+        :return: C: array, shape = [n_samples]
         """
         n_labels = len(self.classifiers)
         if pred_expansion:  # data set is modified, if pred_expansion
@@ -117,10 +126,12 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
 
     def get_params(self, deep=True):
         """
-        todo: comment
+        Get parameters for this estimator.
+
         :author: Joschka Strüber
-        :param deep:
-        :return:
+        :param deep: boolean, optional
+        :return: params : mapping of string to any
+            Parameter names mapped to their values.
         """
         param_dict = {}
         for label in range(len(self.classifiers)):
@@ -130,9 +141,11 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
 
     def set_params(self, **params):
         """
-        todo: comment
+        Set the parameters of this estimator.
+
+        :author: Joschka Strüber
         :param params:
-        :return:
+        :return: self
         """
         for label in params:
             self.classifiers[int(label)].set_params(**params[label])
@@ -145,12 +158,14 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         correctly predicted.
 
         :author: Joschka Strüber
-        :param X: numpy-array, shape=(n_features, n_samples) The test samples.
-        :param y: numpy-array, shape=(n_outputs, n samples) The true labels for
-            X. If values are np.nan, these are ignored counted as correctly
-            predicted.
-        :param sample_weight: aray-like, sample weights
-        :return: float, mean accuracy
+        :param X: array, shape = [n_samples, n_features]
+            The test samples.
+        :param y: array, shape = [n_samples, n_output]
+            The true labels for X. If values are np.nan, these are ignored
+            counted as correctly predicted.
+        :param sample_weight: array, shape = [n_samples]
+            sample weights
+        :return: mean accuracy. float
         """
         y_pred = self.predict(X)
         count_correct = 0
