@@ -1,1 +1,45 @@
 \section{Handling Missing Labels}
+One of the great challenges of the data set is the large number of missing labels. For each of the 51 labels, at least 43\% of the samples lack an assignment (see REFERENCE). In order to maximize the amount of samples for each label, it would be advantageous to obtain all missing values and thus completing the label matrix. One simple approach is to fill in the missing labels with fixed values or using the mean of the other values known for this label. In the following, two more advanced approaches are presented that perform a general matrix completion.
+
+\begin{subsection}{Soft-Impute}
+	In order to fill a thin matrix $X$ with unknown values, it is assumed that a low-rank representation $Z$ of $X$ exists. Iterative algorithms now search for such a representation in the form of the following optimization problem:
+	
+	\begin{align} \label{eq:low-rank-opt}
+	\text{minimize } &\mathit{rank}(Z) \\
+	\text{subject to } &\sum_{(i,j)\in \Omega} (X_{ij} - Z_{ij})^2 \leq \delta
+	\end{align}
+	Here $\Omega$ denotes the set of all indices for which $X$ contains values. The regularization parameter $\delta$ determines the maximum deviation of the generated matrix $Z$ from the original one by means of the sum-of-squares error. To calculate the values in $Z$, an SVD is performed and the new values for $Z$ are calculated with the help of this SVD and regard to the constraints to be optimized.\par
+	The original optimization problem (\ref{eq:low-rank-opt}) is considered in Soft Impute in a slightly modified form. The rank of the matrix $Z$ is replaced by the nuclear norm, which is defined as the sum of the singular values of a matrix. \cite{mazumder2010spectral}
+	
+	\begin{align} \label{eq:low-rank-soft-opt}
+	\text{minimize } & \| Z \|_* \\
+	\text{subject to } &\sum_{(i,j)\in \Omega} (X_{ij} - Z_{ij})^2 \leq \delta
+	\end{align}
+	
+	Since the algorithm is especially designed to handle large matrices with up to millions of rows and columns, this method converges pretty quickly (around 2 - 5 minutes) on our label matrix, which only contains about 300000 rows with 51 entries each. 
+\end{subsection}
+
+\begin{subsection}{Iterative Impute}
+	Another approach is to handle features as functions of other features. More precisely, if a feature (label in our context) has missing values, the known ones are interpreted as the output of a function, that takes all the other existing features from the corresponding sample as input. \par
+	Iterative Impute now tries to estimate these functions in a round-robin fashion. Each round, one feature (e.g. label) with missing values is selected, for which an estimating function is then calculated. This is done by training a regressor with our selected feature as the target, and all the other features as input data. The missing values for our feature are then calculated by the trained regressor. The whole process for all features is then repeated for a given number of iterations. For each feature in each round a regressor needs to be trained. Naturally, this method does require substantially more time to converge than Soft Impute, up to 1 hour on our data set. \par
+	
+	For this algorithm, we used the experimental implementation provided by Scikit-Learn\footnote{\href{https://scikit-learn.org/stable/}{https://scikit-learn.org}}, which is based upon a work on imputation algorithms in R. \cite{buuren2010mice}
+\end{subsection}
+
+\begin{subsection}{Experimental Results}
+	Since both algorithms are not speficially designed to fill in missing labels for classification problems - unlike algorithm such as matrix co-completion (\cite{Xu18}) - our expectations regarding an improvement in classification of activities were limited. Despite that, some of the labels seem to be naturally correlated, such as \emph{sleeping} and \emph{lying down}. Using this information to identify such a low-rank representation of our label matrix seemed somewhat promising. Actually, Soft Impute did find a representation of lower rank, around rank 45-47, depending on which portion of the data set was used to train. The following table shows the experimental results for both label imputing strategies. We used 5-fold cross validation with the same splits for every strategy, including no imputation. We used XGBoost as a classifier with hyperparameters found by Bayesian Optimization:
+	
+	\begin{center}
+		\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}|  }
+			\hline
+			\multicolumn{6}{|c|}{Balanced Accuracy on each split for different imputing strategies} \\
+			\hline
+			& 1st run &2nd run &3rd run& 4th run & 5th run & avg\\
+			\hline
+			No imputation   & AF    &AFG&   004&&&\\
+			Soft imputation&   AX  & ALA   &248&&&\\
+			Iterative imputation&AL & ALB&  008&&&\\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{subsection}
