@@ -1,6 +1,5 @@
 import xgboost as xgb
 import numpy as np
-import time
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
@@ -88,7 +87,18 @@ if __name__ == "__main__":
         ('clf', lr_ovr_clf)
     ])
 
-    clfs = [gnb_ovr_pipeline,
+    svm_clf = LinearSVC()
+    svm_ovr_clf = FlexOneVsRestClassifier(clf=svm_clf, n_estimators=n_labels)
+    param_dict = load("params_separated_svc.joblib")
+    svm_ovr_clf.set_params(**param_dict)
+    svm_ovr_pipeline = Pipeline([
+        ('imputer', SimpleImputer(strategy="mean")),
+        ('std_scaler', StandardScaler()),
+        ('clf', svm_ovr_clf)
+    ])
+
+    clfs = [svm_ovr_pipeline,
+            gnb_ovr_pipeline,
             xgb_ovr_clf,
             rf_ovr_clf,
             lr_ovr_pipeline]
