@@ -24,7 +24,8 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
     :author: Joschka Strüber
     """
 
-    def __init__(self, clf=None, n_estimators=None, classifiers=None):
+    def __init__(self, clf=None, n_estimators=None, classifiers=None,
+                 feature_names=None, label_names=None):
         """
         This constructor expects either a list of classifiers or a single
         classifier and a number of times it should be deep copied.
@@ -44,6 +45,8 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         else:
             raise ValueError("Either choose a list of estimators or a single "
                              "estimator n_estimator times.")
+        self.feature_names = feature_names
+        self.label_names = label_names
 
     def fit(self, X, y, pred_expansion=False, ignore_nan=True):
         """
@@ -154,7 +157,8 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             is_nan = np.isnan(y[pred_set])
             y_pred[pred_set][is_nan] = np.nan
             if np.allclose(y_pred[pred_set], y[pred_set], equal_nan=True):
-                count_correct += 1
+                count_correct += 1 if sample_weight is None else \
+                    sample_weight[pred_set]
         return float(count_correct) / n_pred
 
     def tune_hyperparams(self, X, y, bounds, metric, init_points=10, n_iter=20,
