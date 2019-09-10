@@ -1,1 +1,10 @@
 \subsection{XGBoost}
+
+According to the theory of gradient boosting, every implementation of gradient boosting has to deal with the problem that all possible splits have to be sensibly reduced and evaluated with a useful systematic  efficiently.
+
+Compared to other tree boosting systems like scikit-learn, XGBoost uses the exact greedy, approximate global and local algorithms of split-finding, and further improves its performance by additional measures against overfitting, out-of-core, sparsity aware and parallel, which led to our decision to use XGBoost.
+
+The greedy algorithm iterates over all possible splits of a current leaves, evaluating (\ref{eq:LRsplit}) and picking the split with the best result. As mentioned above this process is not very fast. The solution given by XGBoost consists in two different approximate algorithms.
+
+Additionally XGBoost uses two strategies besides the term $\Omega$ to avoid overfitting: shrinkage and feature subsampling. With shrinkage, each tree, or more precisely its weights, is given a factor according, which is taken into account when the ensemble is evaluated. Essentially there is the possibility to shrink all previous trees, i.e. to add a factor to $\sum\limits_{k=1}^n f_k(x)$, or to add a factor to the new tree $f_t$. Both versions have the same effect by either shrinking the existing forest or increasing the size of the new tree. Similar to the learning rate in other contexts, shrinkage allows to vary the effect of future trees on the ensemble. Feature subsampling is the same strategy known from random forests.
+
