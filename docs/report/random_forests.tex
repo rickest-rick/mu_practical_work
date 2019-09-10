@@ -1,3 +1,5 @@
 \subsection{Random Forests}
 
-feature subsampling erklären
+A random forest is a classification method in which an ensemble of decision trees is created which are not correlated if possible. The underlying strategy, as with any ensemble classificator, is to create a stronger learner from weak learners. This is why the uncorrelatedness of the individual decision trees plays an important role, because the addition of a correlating tree hardly improves classification results in general. In the context of random forests, procedures exist to ensure low levels of correlations. One of these methods is found in feature subsampling, in which the different trees of the ensemble are trained each only using different/ randomized subsets of all available features. The evaluation of the ensemble usually takes place through a voting mechanism.
+
+\textcolor{red}{Vorlesung referenzieren: Kapitel 12 und 13}
