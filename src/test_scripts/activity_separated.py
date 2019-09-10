@@ -23,8 +23,8 @@ if __name__ == "__main__":
     data = load_user_data("../../data")
     data.reset_index(inplace=True)
     X, y = split_features_labels(data)
-    attrs = list(X.index)
-    labels = list(y.index)
+    attrs = X.columns
+    labels = y.columns
     X = X.values
     y = y.values
 
@@ -50,7 +50,6 @@ if __name__ == "__main__":
     X_train_clean = preprocess_pipeline.fit_transform(X_train)
     X_test_clean = preprocess_pipeline.transform(X_test)
 
-    """
     clf = xgb.XGBClassifier(objective="binary:logistic",
                             n_jobs=-1,
                             tree_method="gpu_hist",
@@ -77,17 +76,13 @@ if __name__ == "__main__":
         clf.classifiers[label].set_params(**params)
         
         # clf.classifiers[label].scale_pos_weight = sqrt(neg_pos_ratio_train)
-        #print(label, sum_pos + sum_neg, sqrt(neg_pos_ratio_train))
-    
 
     # save the parameter bounds and a list of parameters that must be integers
-    """
 
     def ba(y_true, y_pred):
         conf_matrix = confusion_matrix(y_true, y_pred)
         return single_balanced_accuracy_score(conf_matrix)
 
-    """
     bounds = {"max_depth": (6, 8.5),
               "learning_rate": (0.01, 0.5),
               "gamma": (0, 10)}
@@ -119,7 +114,6 @@ if __name__ == "__main__":
                          init_points=10,
                          n_iter=15,
                          groups=uuid_groups)
-    """
 
     nb_clf = GaussianNB()
     clf = FlexOneVsRestClassifier(nb_clf, n_estimators=y_train.shape[1])
