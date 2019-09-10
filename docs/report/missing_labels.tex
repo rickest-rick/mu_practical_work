@@ -33,15 +33,10 @@ One of the great challenges of the data set is the large number of missing label
 	Since both algorithms are not speficially designed to fill in missing labels for classification problems - unlike algorithm such as matrix co-completion (\cite{Xu18}) - our expectations regarding an improvement in classification of activities were limited. Despite that, some of the labels seem to be naturally correlated, such as \emph{sleeping} and \emph{lying down}. Using this information to identify such a low-rank representation of our label matrix seemed somewhat promising. Actually, Soft Impute did find a representation of lower rank, around rank 45-47, depending on which portion of the data set was used to train. The following table shows the experimental results for both label imputing strategies. We used 5-fold cross validation with the same splits for every strategy, including no imputation. We used XGBoost as a classifier with hyperparameters found by Bayesian Optimization:
 	
 	\begin{center}
-		\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}|p{3cm}|  }
 			\hline
-			\multicolumn{6}{|c|}{Balanced Accuracy on each split for different imputing strategies} \\
 			\hline
 			& 1st run &2nd run &3rd run& 4th run & 5th run & avg\\
 			\hline
-			No imputation   & AF    &AFG&   004&&&\\
-			Soft imputation&   AX  & ALA   &248&&&\\
-			Iterative imputation&AL & ALB&  008&&&\\
 			\hline
 		\end{tabular}
 	\end{center}
