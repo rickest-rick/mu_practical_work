@@ -3,14 +3,14 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 
 
-def balanced_accuracy_score(y_true, y_pred, average="micro", zero_default=1):
+def balanced_accuracy_score(y_true, y_pred, average="macro", zero_default=1):
     """
     Compute the balanced accuracy for a binary multilabel classification. The BA
     is computed as (Recall + Specifity) / 2. NaN values are ignored.
     :author: Daniel Beckmann, Joschka Strüber
     :param test_labels: The true labels as a 2d array.
     :param preds: Predicted labels by a classifier as a 2d array.
-    :param average: str, "micro" (default) or "macro"
+    :param average: str, "macro" (default) or "micro"
         "micro" -> compute the global recall and specificity by incorporating
             the sum of all confusion matrices for every label
         "macro" -> compute the global recall and specificty as the mean of the
