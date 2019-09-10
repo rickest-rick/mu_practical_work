@@ -79,10 +79,6 @@ if __name__ == "__main__":
 
     # save the parameter bounds and a list of parameters that must be integers
 
-    def ba(y_true, y_pred):
-        conf_matrix = confusion_matrix(y_true, y_pred)
-        return single_balanced_accuracy_score(conf_matrix)
-
     bounds = {"max_depth": (6, 8.5),
               "learning_rate": (0.01, 0.5),
               "gamma": (0, 10)}
@@ -91,7 +87,7 @@ if __name__ == "__main__":
     clf.tune_hyperparams(X=X_train,
                          y=y_train,
                          bounds=bounds,
-                         metric=ba,
+                         metric=single_balanced_accuracy_score,
                          init_points=6,
                          n_iter=9,
                          int_params=int_params,
@@ -110,7 +106,7 @@ if __name__ == "__main__":
     clf.tune_hyperparams(X=X_train,
                          y=y_train,
                          bounds=bounds,
-                         metric=ba,
+                         metric=single_balanced_accuracy_score,
                          init_points=10,
                          n_iter=15,
                          groups=uuid_groups)
@@ -132,7 +128,7 @@ if __name__ == "__main__":
     clf.tune_hyperparams(X=X_train_clean,
                          y=y_train,
                          bounds=bounds,
-                         metric=ba,
+                         metric=single_balanced_accuracy_score,
                          init_points=6,
                          n_iter=9,
                          groups=uuid_groups)
@@ -158,7 +154,7 @@ if __name__ == "__main__":
     clf.tune_hyperparams(X=X_train,
                          y=y_train,
                          bounds=bounds,
-                         metric=ba,
+                         metric=single_balanced_accuracy_score,
                          init_points=6,
                          n_iter=9,
                          int_params=["max_depth"],
@@ -180,7 +176,7 @@ if __name__ == "__main__":
     clf.tune_hyperparams(X=X_train_clean,
                          y=y_train,
                          bounds=bounds,
-                         metric=ba,
+                         metric=single_balanced_accuracy_score,
                          init_points=6,
                          n_iter=9,
                          groups=uuid_groups)
