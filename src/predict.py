@@ -15,18 +15,14 @@ if __name__ == "__main__":
     # read and process training data
     data = load_user_data(data_path)
     data.reset_index(inplace=True)
-    X, y = split_features_labels(data)
-    attr_names = X.columns
-    label_names = y.columns
-    X = X.values
-    y = y.values
+    label_names = data.columns
+    X = data.values
 
     # drop uuid column, the timestamps and the label source
     X = np.delete(X, [0, 1, 2, X.shape[1] - 1], 1)
 
     clf = load(classifier_path)
     y_pred = clf.predict(X)
-    print(balanced_accuracy_score(y, y_pred, average="macro"))
 
     df = pd.DataFrame(y_pred, columns=label_names)
     df.to_csv(output_path)
