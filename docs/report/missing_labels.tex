@@ -1,23 +1,20 @@
 \section{Handling Missing Labels}
-One of the great challenges of the data set is the large number of missing labels. For each of the 51 labels, at least 43\% of the samples lack an assignment \textcolor{red}{(see REFERENCE)}. In order to maximize the amount of samples for each label, it would be advantageous to obtain all missing values and thus completing the label matrix. Simple approaches consist of filling in the missing labels with fixed values or using the mean of the known values for this label. In the following, two more advanced approaches are presented that perform a general matrix completion.
+One of the great challenges of the data set is the large number of missing labels. For each of the 51 labels, at least 43\% of the samples lack an assignment (see REFERENCE). In order to maximize the amount of samples for each label, it would be advantageous to obtain all missing values and thus completing the label matrix. One simple approach is to fill in the missing labels with fixed values or using the mean of the other values known for this label. In the following, two more advanced approaches are presented that perform a general matrix completion.
 
 \begin{subsection}{Soft-Impute}
-	In order to fill a sparce matrix $X$ with unknown values, it is assumed that a low-rank representation $Z$ of $X$ exists. Iterative algorithms now search for such a representation in the form of the following optimization problem:	
-	\begin{equation}
-	\begin{split}
-	    \label{eq:low-rank-opt}
-	    \text{minimize } &\operatorname{rank}(Z) \\
-	    \text{subject to } &\sum_{(i,j)\in \Omega} (X_{ij} - Z_{ij})^2 \leq \delta
-	\end{split}
-	\end{equation}
+	In order to fill a thin matrix $X$ with unknown values, it is assumed that a low-rank representation $Z$ of $X$ exists. Iterative algorithms now search for such a representation in the form of the following optimization problem:
+	
+	\begin{align} \label{eq:low-rank-opt}
+	\text{minimize } &\mathit{rank}(Z) \\
+	\text{subject to } &\sum_{(i,j)\in \Omega} (X_{ij} - Z_{ij})^2 \leq \delta
+	\end{align}
 	Here $\Omega$ denotes the set of all indices for which $X$ contains values. The regularization parameter $\delta$ determines the maximum deviation of the generated matrix $Z$ from the original one by means of the sum-of-squares error. To calculate the values in $Z$, an SVD is performed and the new values for $Z$ are calculated with the help of this SVD and regard to the constraints to be optimized.\par
 	The original optimization problem (\ref{eq:low-rank-opt}) is considered in Soft Impute in a slightly modified form. The rank of the matrix $Z$ is replaced by the nuclear norm, which is defined as the sum of the singular values of a matrix. \cite{mazumder2010spectral}
-	\begin{equation}
-    \begin{split} \label{eq:low-rank-soft-opt}
+	
+	\begin{align} \label{eq:low-rank-soft-opt}
 	\text{minimize } & \| Z \|_* \\
 	\text{subject to } &\sum_{(i,j)\in \Omega} (X_{ij} - Z_{ij})^2 \leq \delta
-	\end{split}
-	\end{equation}
+	\end{align}
 	
 	Since the algorithm is especially designed to handle large matrices with up to millions of rows and columns, this method converges pretty quickly (around 2 - 5 minutes) on our label matrix, which only contains about 300000 rows with 51 entries each. 
 \end{subsection}
@@ -33,11 +30,18 @@ One of the great challenges of the data set is the large number of missing label
 	Since both algorithms are not speficially designed to fill in missing labels for classification problems - unlike algorithm such as matrix co-completion (\cite{Xu18}) - our expectations regarding an improvement in classification of activities were limited. Despite that, some of the labels seem to be naturally correlated, such as \emph{sleeping} and \emph{lying down}. Using this information to identify such a low-rank representation of our label matrix seemed somewhat promising. Actually, Soft Impute did find a representation of lower rank, around rank 45-47, depending on which portion of the data set was used to train. The following table shows the experimental results for both label imputing strategies. We used 5-fold cross validation with the same splits for every strategy, including no imputation. We used XGBoost as a classifier with hyperparameters found by Bayesian Optimization:
 	
 	\begin{center}
+		\begin{tabular}{ |c||c|c|c|c|c|c|  }
 			\hline
+			\multicolumn{7}{|c|}{Balanced Accuracy on each split for different imputing strategies} \\
 			\hline
 			& 1st run &2nd run &3rd run& 4th run & 5th run & avg\\
 			\hline
+			No imputation&0.6524&0.6452&0.6801&0.6751&0.6704&\textbf{0.6646}\\
+			Soft imputation&0.6300&0.6445&0.6496&0.6291&0.6364&\textbf{0.6380}\\
+			Iterative imputation&0.6317&0.6423&0.6601&0.6289&0.6426&\textbf{0.6411}\\
 			\hline
 		\end{tabular}
 	\end{center}
+	Our experiments show that imputing the label matrix with algorithms based on normal matrix completion do not improve the classification results. A reason for this could be that found correlations between labels may only exist when the label matrix is considered independently. A more sophisticated approach would be to search for correlations which are based on the feature matrix as well. \par
+	We decided not to use a label imputation algorithm. Instead, each classifier is only given those samples from the dataset, for which its corresponding label is set.
 \end{subsection}
