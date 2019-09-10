@@ -1,20 +1,23 @@
 \section{Handling Missing Labels}
-One of the great challenges of the data set is the large number of missing labels. For each of the 51 labels, at least 43\% of the samples lack an assignment (see REFERENCE). In order to maximize the amount of samples for each label, it would be advantageous to obtain all missing values and thus completing the label matrix. One simple approach is to fill in the missing labels with fixed values or using the mean of the other values known for this label. In the following, two more advanced approaches are presented that perform a general matrix completion.
+One of the great challenges of the data set is the large number of missing labels. For each of the 51 labels, at least 43\% of the samples lack an assignment \textcolor{red}{(see REFERENCE)}. In order to maximize the amount of samples for each label, it would be advantageous to obtain all missing values and thus completing the label matrix. Simple approaches consist of filling in the missing labels with fixed values or using the mean of the known values for this label. In the following, two more advanced approaches are presented that perform a general matrix completion.
 
 \begin{subsection}{Soft-Impute}
-	In order to fill a thin matrix $X$ with unknown values, it is assumed that a low-rank representation $Z$ of $X$ exists. Iterative algorithms now search for such a representation in the form of the following optimization problem:
-	
-	\begin{align} \label{eq:low-rank-opt}
-	\text{minimize } &\mathit{rank}(Z) \\
-	\text{subject to } &\sum_{(i,j)\in \Omega} (X_{ij} - Z_{ij})^2 \leq \delta
-	\end{align}
+	In order to fill a sparce matrix $X$ with unknown values, it is assumed that a low-rank representation $Z$ of $X$ exists. Iterative algorithms now search for such a representation in the form of the following optimization problem:	
+	\begin{equation}
+	\begin{split}
+	    \label{eq:low-rank-opt}
+	    \text{minimize } &\operatorname{rank}(Z) \\
+	    \text{subject to } &\sum_{(i,j)\in \Omega} (X_{ij} - Z_{ij})^2 \leq \delta
+	\end{split}
+	\end{equation}
 	Here $\Omega$ denotes the set of all indices for which $X$ contains values. The regularization parameter $\delta$ determines the maximum deviation of the generated matrix $Z$ from the original one by means of the sum-of-squares error. To calculate the values in $Z$, an SVD is performed and the new values for $Z$ are calculated with the help of this SVD and regard to the constraints to be optimized.\par
 	The original optimization problem (\ref{eq:low-rank-opt}) is considered in Soft Impute in a slightly modified form. The rank of the matrix $Z$ is replaced by the nuclear norm, which is defined as the sum of the singular values of a matrix. \cite{mazumder2010spectral}
-	
-	\begin{align} \label{eq:low-rank-soft-opt}
+	\begin{equation}
+    \begin{split} \label{eq:low-rank-soft-opt}
 	\text{minimize } & \| Z \|_* \\
 	\text{subject to } &\sum_{(i,j)\in \Omega} (X_{ij} - Z_{ij})^2 \leq \delta
-	\end{align}
+	\end{split}
+	\end{equation}
 	
 	Since the algorithm is especially designed to handle large matrices with up to millions of rows and columns, this method converges pretty quickly (around 2 - 5 minutes) on our label matrix, which only contains about 300000 rows with 51 entries each. 
 \end{subsection}
