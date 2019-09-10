@@ -6,7 +6,6 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import confusion_matrix
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
@@ -62,9 +61,7 @@ if __name__ == "__main__":
 
     clf = FlexOneVsRestClassifier(clf, n_estimators=y_train.shape[1])
 
-
     # todo: remove test for perfect scale_pos_weight
-    
     for label in range(y_train.shape[1]):
         sum_pos = np.count_nonzero(y_train[:, label] == 1.0)
         sum_neg = np.count_nonzero(y_train[:, label] == 0)
