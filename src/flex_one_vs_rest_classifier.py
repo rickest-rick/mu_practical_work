@@ -5,6 +5,8 @@ import gc
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import StratifiedKFold, GroupKFold
+from sklearn.utils.testing import ignore_warnings
+from sklearn.exceptions import ConvergenceWarning
 from joblib import dump, load
 from copy import deepcopy
 from bayes_opt import BayesianOptimization
@@ -48,6 +50,7 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         self.feature_names = feature_names
         self.label_names = label_names
 
+    @ignore_warnings(category=ConvergenceWarning)
     def fit(self, X, y, pred_expansion=False, ignore_nan=True):
         """
 
