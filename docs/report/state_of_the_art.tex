@@ -1,1 +1,15 @@
-\subsection{State of the Art}
+\section{State of the Art}
+Multiple works are dedicated to the topic of human context recognition. Which results in a variety of different approaches to solve this problem. However, data collecting was not easy in the past and often needed multiple obstructive sensors tied to the body and utilized scripting of complex activities to gather labels. A overview of some data sets and utilized techniques can be found in \cite{Ramasamy18} and \cite{Lara13}\. With increasing accuracy of modern smartphones sensors and utilization of smart watches more natural data could be collected. This increases the dificulty of classification, but increases the potential utilization of the context recognition to real use case scenario. One of he challenges is the influence on the classification results by using different hardware \cite{Stisen15} and also the the potential incompleteness of available sensors. A simple example for this could be a missing smart watch for some users. Due to this the task of human context recognition in-the-wild is a complex classification problem and challenging to get high accuracy results. 
+ 
+The authors of the used data set in this report provided a baseline system using logistic regression as a linear classifier for each sensor and ensemble methods to combine the results \cite{Vaizman17}. This initial baseline was later improved by using a feed-forward neural network. To handle the issues of unbalanced and incomplete labeling in this data set a instance weighting was used in the training process. Thereby the influence of not labeled instances were set to zero and the unbalanced labels were weighted by there inverse frequency in order to increase their influence on the final result. The best reported result was a network with two hidden layer, were each layer had 16 dimension. The balanced accuracy was 77.3 \% \cite{Vaizman18}. 
+
+Deep neural networks highly depend on the quality and amount of training data, but in real world zenarios there is always the possibility of missing sensor data. To address this problem different approaches were made. One approach was to train separate neural networks for the different sensors and then combine their output in shared layers on an additional network. Resulting in a ensemble network with higher tolerance towards missing sensor data and comparable results as reported by Vaizman et al. \cite{Saeed18}. Other approaches used an auto encoder do synthesize realistic samples and thereby effectively calculating realistic complete sample data and using this data to train a fully-connected classification network. Using this technique the usable sample data amount was increased and missing sensor data could be handled without reducing classification accuracy to much compared to data of higher quality \cite{Saeed18-2}. Especially this technique also allows dealing with missing labeling problem.
+
+
+//ToDo:
+To deal with the missing label problem it is possible to use
+Matrix compleation (wikipedia),
+dimension reduction PCA (quellen )
+or maximal correlation embedding \cite{Li19}. Le et al. achieved this by reducing the cardinality of the last hidden layer of a neural network. 
+
+A recent paper proposed the XGBoost can outoperform many other classifiers \cite{Zhang19}
