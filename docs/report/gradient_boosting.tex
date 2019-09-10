@@ -39,7 +39,7 @@ l_{y_i}(\hat{y}^{(t-1)} + f_k(x_i)) = l_{y_i}(\hat{y}^{(t-1)}) + l_{y_i}^{'}(\ha
 \end{equation}
 
 For readability's sake we write $g_i = l_{y_i}^{'}(\hat{y}^{(t-1))}) ) = \frac{\partial l}{\partial \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$ and $h_i = l_{y_i}^{''}(\hat{y}^{(t-1)}) ) = \frac{\partial l}{\partial^2 \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$. The $g_i$ and $h_i$ are constants, because both $y_i$ and $\hat{y}^{(t-1))}$ are known in the current iteration step. If we apply the findings from equation (\ref{eq:taylor}) to $\LL^{(t)}$, we get the result:
-\begin{equation}
+\begin{equation} \label{eq:shortL}
 \LL^{(t)} \approx \sum_{i=1}^{n} (l(y_i,\hat{y}^{(t-1)}) + g_if_t(x_i) + \frac{1}{2} h_i f_t(x_i)^2) + \Omega(f_t)
 \end{equation}
 

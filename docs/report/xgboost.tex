@@ -2,9 +2,41 @@
 
 According to the theory of gradient boosting, every implementation of gradient boosting has to deal with the problem that all possible splits have to be sensibly reduced and evaluated with a useful systematic  efficiently.
 
-Compared to other tree boosting systems like scikit-learn, XGBoost uses the exact greedy, approximate global and local algorithms of split-finding, and further improves its performance by additional measures against overfitting, out-of-core, sparsity aware and parallel, which led to our decision to use XGBoost.
+Compared to other tree boosting systems like scikit-learn, XGBoost supports the exact greedy algorithm, approximate global and local algorithms of split-finding which means that we had the option using all three, is a fitting situation should arise. Furthermore XGBoost includes several additional measures against overfitting and efficiency considerations like \textcolor{red}{out-of-core, sparsity aware and parallel}.  All this led to our decision to use XGBoost.
 
-The greedy algorithm iterates over all possible splits of a current leaves, evaluating (\ref{eq:LRsplit}) and picking the split with the best result. As mentioned above this process is not very fast. The solution given by XGBoost consists in two different approximate algorithms.
+\subsubsection{XGBoost: Sparcity-Awareness}
 
-Additionally XGBoost uses two strategies besides the term $\Omega$ to avoid overfitting: shrinkage and feature subsampling. With shrinkage, each tree, or more precisely its weights, is given a factor according, which is taken into account when the ensemble is evaluated. Essentially there is the possibility to shrink all previous trees, i.e. to add a factor to $\sum\limits_{k=1}^n f_k(x)$, or to add a factor to the new tree $f_t$. Both versions have the same effect by either shrinking the existing forest or increasing the size of the new tree. Similar to the learning rate in other contexts, shrinkage allows to vary the effect of future trees on the ensemble. Feature subsampling is the same strategy known from random forests.
+Especially the sparcity-awareness of XGBoost played a huge role in our choice, since the underlying dataset itself is consisting of mostly missing data - as mentioned before.
+
+To deal with missing entries, XGBoost assigns a default branch to each tree node. This default branch is used by samples that do not have an assigned value at the corresponding location. The default branch is learned by a dedicated algorithm during the process itself. A score is assigned to each possible branch, based on the samples that possess a corresponding feature value and pass through the branch.
+
+This is an obvious improvement over the procedure of simply setting all missing values to a certain, fixed value in advance.
+
+\subsubsection{XGBoost: greedy and approximate algorithm}
+The greedy algorithm iterates over all possible splits of a current leaves, evaluating equation (\ref{eq:LRsplit}) and picking the split with the best result. As mentioned above this process is not very efficient. The solution given by XGBoost consists in two different approximate algorithms: the local and the global one.
+
+\newcommand{\rnk}{\operatorname{rank}}
+At the center of both algorithms resides the idea that not all feature-values should be tested as possible feature-splits. Instead, the algorithms look for a set of representatives on the basis of which the continuous features are divided into buckets. This is achieved as follows: For the feature vector $x_i$, $x_i,k$ denotes the value of the $k$-th feature, and $h_i$ and $g_i$ indicate the values corresponding to $x_i$ introduced in the equation (\ref{eq:shortL}).
+A ranking-function $\rnk_k : \R\to \R_{\geq 0}$ can be established:
+
+\begin{equation} \label{eq:ranking}
+	\rnk_k(\zeta) = \frac{\sum\limits_{i: x_{i,k} < \zeta} h_i}{\sum\limits_{i=1}^n h_i}
+\end{equation}
+
+where $n$ represents the number of total samples. $\rnk_k(\zeta)$ indicates the weight of samples that have a feature-value smaller than $\zeta$. In this context, $h_i$ is a proper weight, since equation $\ref{eq:shortL}$ can be transformed into weighted square loss with weights $h_i$ by putting $h_i$ outside the brackeds and completing the square with $\frac{g_i}{h_i}$.
+
+For a fixed $\epsilon$, the representatives of the $k$-th feature $\{r_{k,1}, ... .r_{k,m}\}$, with $r_{k,1} = \min x_{i,k}$ and $r_{k,1} = \max x_{i,k}$, are found using the following property:
+
+\begin{equation}
+	\mid \rnk_k(r_{k,i}) - \rnk_k(r_{k,i+1}) \mid < \epsilon
+\end{equation}
+
+This means that the representatives $r_{i,k}$ decompose the feature-values $x_{i,k}$ of the $k$-th feature in such a way that there is approximately the same weight (a weight smaller than $\epsilon$) between two adjacent representatives.
+
+A good choice of $\epsilon$ is decisive for the resulting performance, since it controls the finding of representatives. In the further course, the resulting intervals between representatives are used, which can mean a big leap in efficiency regarding the greedy method.
+
+The difference between the global and local variant of the algorithm resides in the fact that in the global version the candidates are created only once at the beginning of the construction of the tree, in the local version these are determined again after each iteration under consideration of the feature choices made.
+
+\subsubsection{XGBoost: Avoiding overfitting}
+Besides the term $\Omega$ XGBoost uses two main strategies to avoid overfitting: shrinkage and feature subsampling. With shrinkage, each tree, or more precisely its weights, is given a factor according, which is taken into account when the ensemble is evaluated. Essentially there is the possibility to shrink all previous trees, i.e. to add a factor to $\sum\limits_{k=1}^n f_k(x)$, or to add a factor to the new tree $f_t$. Both versions have the same effect by either shrinking the existing forest or increasing the size of the new tree. Similar to the learning rate in other contexts, shrinkage allows to vary the effect of future trees on the ensemble. Feature subsampling is the same strategy known from random forests.
 
