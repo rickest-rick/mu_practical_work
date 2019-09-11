@@ -17,6 +17,19 @@ Another interesting task to consider when working with data sets containing info
 
 \begin{subsection}{Experimental Results}
 	The following table illustrates the results of a 5-fold cross validation on the XGB-Classifier with the found hyperparameters:
+	\begin{table}[H]
+		\begin{center}
+			\begin{tabular}{ c|c|c|c|c|c  }
+				\toprule
+				1st run &2nd run &3rd run& 4th run & 5th run & avg\\
+				\midrule
+				0.9972&0.9746&0.9965&0.9970&0.9968&\textbf{0.9924}\\
+				
+				\bottomrule
+			\end{tabular}
+			\caption{F1 score of each split}
+		\end{center}
+	\end{table}
 	
 	\begin{center}
 		\begin{tabular}{ |c|c|c|c|c|c|  }
@@ -25,7 +38,8 @@ Another interesting task to consider when working with data sets containing info
 			\hline
 			1st run &2nd run &3rd run& 4th run & 5th run & avg\\
 			\hline
-			0.9972&0.9746&0.9965&0.9970&0.9968&\textbf{0.9924}\\
+			0.9972&0.9746&0.9965&0.9970&0.9968&\textbf{0.9924}\\
+
 			\hline
 		\end{tabular}
 	\end{center}
