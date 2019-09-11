@@ -112,12 +112,10 @@ if __name__ == "__main__":
     classifiers = []
     for label in range(n_labels):
         xgb_param = xgb_params[str(label)]
-        print("xgb", xgb_param)
         xgb_clf = xgb.XGBClassifier(**xgb_param)
 
         rf_param = rf_params[str(label)]
         rf_clf = xgb.XGBRFClassifier(**rf_param)
-        print("rf", rf_param)
 
         #svc_param = svc_params[str(label)]
         #svc_clf = LinearSVC(**svc_param)
@@ -125,23 +123,23 @@ if __name__ == "__main__":
 
         lr_param = lr_params[str(label)]
         lr_clf = LogisticRegression(**lr_param)
-        print()
 
         ada_clf = AdaBoostClassifier(n_estimators=50,
                                      learning_rate=0.9)
 
-        classifiers = [xgb_clf,
-                       rf_clf,
-                       #svc_clf,
-                       lr_clf,
-                       ada_clf]
-        ensemble_clf = XgbEnsembleClassifier(classifiers=classifiers,
+        internal_clfs = [xgb_clf,
+                         rf_clf,
+                         #svc_clf,
+                         lr_clf,
+                         ada_clf]
+        ensemble_clf = XgbEnsembleClassifier(classifiers=internal_clfs,
                                              n_splits=3,
                                              n_estimators=200,
                                              learning_rate=0.1,
                                              max_depth=5,
                                              gamma=1,
-                                             tree_method="gpu_hist")
+                                             tree_method="gpu_hist",
+                                             n_jobs=-1)
         classifiers.append(ensemble_clf)
 
     # add list of classifiers to flexible OneVsRestClassifier
@@ -152,16 +150,6 @@ if __name__ == "__main__":
         ('std_scaler', StandardScaler()),
         ('clf', ensemble_clf_ovr)
     ])
-
-    xgb_clf = xgb.XGBClassifier()
-    xgb_ovr = FlexOneVsRestClassifier(xgb_clf, n_estimators=n_labels)
-
-    ensemble_clf_pipeline = Pipeline([
-        ('imputer', SimpleImputer(strategy="mean")),
-        ('std_scaler', StandardScaler()),
-        ('clf', xgb_ovr)
-    ])
-
 
     """
     clfs = [svm_ovr_pipeline,
@@ -176,8 +164,8 @@ if __name__ == "__main__":
 
     ba_scorer = make_scorer(balanced_accuracy_score)
     random_state = 42
-    for clf in clfs:
-        print(clf)
+    for i, clf in enumerate(clfs):
+        print("Classifier", i)
         start = time.time()
         print(cv_strat_ba_score(clf, X, y, uuid_groups))
         strat_time = time.time()

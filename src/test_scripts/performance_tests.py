@@ -97,8 +97,8 @@ if __name__ == "__main__":
         ('imputer', SimpleImputer(strategy="mean")),
         ('std_scaler', StandardScaler()),
         ('clf', svm_ovr_clf)
-    ])# build classifiers with saved hyperparameters
-
+    ])
+    # build classifiers with saved hyperparameters
     xgb_params = load("params_separated_xgb.joblib")
     rf_params = load("params_separated_rf.joblib")
     svc_params = load("params_separated_svc.joblib")
@@ -122,18 +122,19 @@ if __name__ == "__main__":
         ada_clf = AdaBoostClassifier(n_estimators=50,
                                      learning_rate=0.9)
 
-        classifiers = [xgb_clf,
-                       rf_clf,
-                       svc_clf,
-                       lr_clf,
-                       ada_clf]
-        ensemble_clf = XgbEnsembleClassifier(classifiers=classifiers,
+        clfs_internal = [xgb_clf,
+                         rf_clf,
+                         svc_clf,
+                         lr_clf,
+                         ada_clf]
+        ensemble_clf = XgbEnsembleClassifier(classifiers=clfs_internal,
                                              n_splits=3,
                                              n_estimators=200,
                                              learning_rate=0.1,
                                              max_depth=5,
                                              gamma=1,
-                                             tree_method="gpu_hist")
+                                             tree_method="gpu_hist",
+                                             n_jobs=-1)
         classifiers.append(ensemble_clf)
 
     # add list of classifiers to flexible OneVsRestClassifier

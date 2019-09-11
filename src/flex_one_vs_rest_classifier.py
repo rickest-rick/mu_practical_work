@@ -1,9 +1,9 @@
 import numpy as np
 import os
+import warnings
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import StratifiedKFold, GroupKFold
-from sklearn.utils.testing import ignore_warnings
 from sklearn.exceptions import ConvergenceWarning
 from joblib import dump, load
 from copy import deepcopy
@@ -11,6 +11,8 @@ from bayes_opt import BayesianOptimization
 from threading import Thread
 
 from data_handling import convert_to_int, release_memory
+
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 
 class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
@@ -50,7 +52,6 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         self.feature_names = feature_names
         self.label_names = label_names
 
-    @ignore_warnings(category=ConvergenceWarning)
     def fit(self, X, y, pred_expansion=False, ignore_nan=True):
         """
         Fit the model according to the given training data.
@@ -131,7 +132,6 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         :return: params : mapping of string to any
             Parameter names mapped to their values.
         """
-        print(self.classifiers)
         param_dict = {}
         for label in range(len(self.classifiers)):
             param_dict[str(label)] = self.classifiers[str(label)].get_params(

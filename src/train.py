@@ -46,28 +46,24 @@ if __name__ == "__main__":
         rf_param = rf_params[str(label)]
         rf_clf = xgb.XGBRFClassifier(**rf_param)
 
-        svc_param = svc_params[str(label)]
-        svc_clf = LinearSVC(**svc_param)
-        svc_clf.set_params(tol=1e-2)
-
         lr_param = lr_params[str(label)]
         lr_clf = LogisticRegression(**lr_param)
 
         ada_clf = AdaBoostClassifier(n_estimators=50,
                                      learning_rate=0.9)
 
-        classifiers = [xgb_clf,
-                       rf_clf,
-                       svc_clf,
-                       lr_clf,
-                       ada_clf]
+        clfs_internal = [xgb_clf,
+                         rf_clf,
+                         lr_clf,
+                         ada_clf]
         ensemble_clf = XgbEnsembleClassifier(classifiers=classifiers,
                                              n_splits=3,
                                              n_estimators=200,
                                              learning_rate=0.1,
                                              max_depth=5,
                                              gamma=1,
-                                             tree_method="gpu_hist")
+                                             tree_method="gpu_hist",
+                                             n_jobs=-1)
         classifiers.append(ensemble_clf)
 
     # add list of classifiers to flexible OneVsRestClassifier
