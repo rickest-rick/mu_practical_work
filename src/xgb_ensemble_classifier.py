@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score
 from copy import deepcopy
 
 from data_handling import load_user_data, user_train_test_split, \
-    split_features_labels
+    split_features_labels, load_some_user_data
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
@@ -15,12 +15,17 @@ from sklearn.naive_bayes import GaussianNB
 from metrics import single_balanced_accuracy_score
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import AdaBoostClassifier, VotingClassifier
 
 
 class XgbEnsembleClassifier(BaseEstimator, ClassifierMixin):
+    """
+    TODO implement parallelized version for fit and predict
+    """
     def __init__(self, classifiers, n_splits=3, **kwargs):
         """
+        Model to train a stacked ensemble of classifiers whose results are
+        combined with an XGB classifier.
 
         :author: Joschka Strüber
         :param classifiers: A list of classifier models that support the scikit
@@ -174,8 +179,8 @@ if __name__ == "__main__":
                                                              random_state=42)
     # UUIDs for grouped split
     uuid_groups = X_train[:, 0]
-    y_train = y_train[:, 15]
-    y_test = y_test[:, 15]
+    y_train = y_train[:, 0]
+    y_test = y_test[:, 0]
 
     is_nan = np.isnan(y_train)
     X_train = X_train[~is_nan]
@@ -192,20 +197,19 @@ if __name__ == "__main__":
     X_train = preprocess_pipeline.fit_transform(X_train)
     X_test = preprocess_pipeline.transform(X_test)
 
-    gnb_clf = GaussianNB()
-    xgb_clf = xgb.XGBRFClassifier(max_depth=12,
-                                  n_estimators=200,
-                                  n_jobs=-1,
-                                  tree_method="gpu_hist")
+    rf_clf = xgb.XGBRFClassifier(max_depth=12,
+                                 n_estimators=200,
+                                 n_jobs=-1,
+                                 tree_method="gpu_hist")
     svc_clf = LinearSVC(tol=1e-2, max_iter=2000, C=0.1)
     ada_clf = AdaBoostClassifier(n_estimators=300, learning_rate=0.01)
     log_reg_clf = LogisticRegression(solver="lbfgs", C=0.1, max_iter=500)
-    rf_clf = xgb.XGBClassifier(n_estimators=300,
-                                 max_depth=7,
-                                 gamma=1,
-                                 learning_rate=0.2,
-                                 n_jobs=-1,
-                                 tree_method="gpu_hist")
+    xgb_clf = xgb.XGBClassifier(n_estimators=300,
+                                max_depth=7,
+                                gamma=1,
+                                learning_rate=0.2,
+                                n_jobs=-1,
+                                tree_method="gpu_hist")
 
     classifiers = [xgb_clf,
                    svc_clf,
@@ -215,14 +219,9 @@ if __name__ == "__main__":
     ensemble_clf = XgbEnsembleClassifier(classifiers=classifiers,
                                          n_splits=3,
                                          n_estimators=200,
-                                         learning_rate=0.01,
-                                         max_depth=4,
+                                         learning_rate=0.1,
+                                         max_depth=5,
                                          tree_method="gpu_hist")
-    ada_clf.fit(X_train, y_train)
-    y_pred = ada_clf.predict(X_test)
-    print("AdaBoost:", single_balanced_accuracy_score(y_test, y_pred))
-
-    ada_clf = AdaBoostClassifier(n_estimators=300, learning_rate=0.1)
     ada_clf.fit(X_train, y_train)
     y_pred = ada_clf.predict(X_test)
     print("AdaBoost:", single_balanced_accuracy_score(y_test, y_pred))
@@ -247,3 +246,16 @@ if __name__ == "__main__":
     ensemble_clf.fit(X_train, y_train)
     y_pred = ensemble_clf.predict(X_test)
     print("Ensemble:", single_balanced_accuracy_score(y_test, y_pred))
+
+    gnb_clf = GaussianNB()
+    voting_clf = VotingClassifier([("ada", ada_clf),
+                                   ("rf", rf_clf),
+                                   ("gnb", gnb_clf),
+                                   ("xgb", xgb_clf),
+                                   ("lr", log_reg_clf)],
+                                  voting="soft",
+                                  weights=[0.15, 0.25, 0.1, 0.3, 0.2],
+                                  n_jobs=-1)
+    voting_clf.fit(X_train, y_train)
+    y_pred = voting_clf.predict(X_test)
+    print("Voting:", single_balanced_accuracy_score(y_test, y_pred))

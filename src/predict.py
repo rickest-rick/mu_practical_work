@@ -23,5 +23,7 @@ if __name__ == "__main__":
     clf = load(classifier_path)
     y_pred = clf.predict(X)
 
+    print(clf["clf"].label_names)
+
     df = pd.DataFrame(y_pred, columns=clf.label_names)
     df.to_csv(output_path)

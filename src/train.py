@@ -5,6 +5,9 @@ import numpy as np
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
 from joblib import load, dump
 
 from flex_one_vs_rest_classifier import FlexOneVsRestClassifier
@@ -62,7 +65,8 @@ if __name__ == "__main__":
                                              n_splits=3,
                                              n_estimators=200,
                                              learning_rate=0.1,
-                                             max_depth=6,
+                                             max_depth=5,
+                                             gamma=1,
                                              tree_method="gpu_hist")
         classifiers.append(ensemble_clf)
 
@@ -71,6 +75,12 @@ if __name__ == "__main__":
                                   label_names=label_names,
                                   feature_names=attr_names)
 
+    clf_pipeline = Pipeline([
+        ('imputer', SimpleImputer(strategy="mean")),
+        ('std_scaler', StandardScaler()),
+        ('clf', clf)
+    ])
+
     # train and save classifier
-    clf.fit(X_train, y)
-    dump(clf, classifier_path)
+    clf_pipeline.fit(X_train, y)
+    dump(clf_pipeline, classifier_path)
