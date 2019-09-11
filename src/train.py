@@ -53,7 +53,7 @@ if __name__ == "__main__":
         lr_param = lr_params[str(label)]
         lr_clf = LogisticRegression(**lr_param)
 
-        ada_clf = AdaBoostClassifier(n_estimators=100,
+        ada_clf = AdaBoostClassifier(n_estimators=50,
                                      learning_rate=0.9)
 
         classifiers = [xgb_clf,

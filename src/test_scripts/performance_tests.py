@@ -9,11 +9,13 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GroupKFold, StratifiedKFold
 from sklearn.metrics import make_scorer
+from sklearn.ensemble import AdaBoostClassifier
 from joblib import load
 
 from data_handling import load_user_data, split_features_labels
 from metrics import balanced_accuracy_score
 from flex_one_vs_rest_classifier import FlexOneVsRestClassifier
+from xgb_ensemble_classifier import XgbEnsembleClassifier
 
 
 def cv_strat_ba_score(clf, X, y, groups, n_splits=5):
@@ -95,13 +97,63 @@ if __name__ == "__main__":
         ('imputer', SimpleImputer(strategy="mean")),
         ('std_scaler', StandardScaler()),
         ('clf', svm_ovr_clf)
+    ])# build classifiers with saved hyperparameters
+    xgb_params = load("params_separated_xgb.joblib")
+    rf_params = load("params_separated_rf.joblib")
+    svc_params = load("params_separated_svc.joblib")
+    lr_params = load("params_separated_lr.joblib")
+
+    classifiers = []
+    for label in range(y.shape[1]):
+        xgb_param = xgb_params[str(label)]
+        xgb_clf = xgb.XGBClassifier(**xgb_param)
+
+        rf_param = rf_params[str(label)]
+        rf_clf = xgb.XGBRFClassifier(**rf_param)
+
+        svc_param = svc_params[str(label)]
+        svc_clf = LinearSVC(**svc_param)
+        svc_clf.set_params(tol=1e-2)
+
+        lr_param = lr_params[str(label)]
+        lr_clf = LogisticRegression(**lr_param)
+
+        ada_clf = AdaBoostClassifier(n_estimators=50,
+                                     learning_rate=0.9)
+
+        classifiers = [xgb_clf,
+                       rf_clf,
+                       svc_clf,
+                       lr_clf,
+                       ada_clf]
+        ensemble_clf = XgbEnsembleClassifier(classifiers=classifiers,
+                                             n_splits=3,
+                                             n_estimators=200,
+                                             learning_rate=0.1,
+                                             max_depth=5,
+                                             gamma=1,
+                                             tree_method="gpu_hist")
+        classifiers.append(ensemble_clf)
+
+    # add list of classifiers to flexible OneVsRestClassifier
+    ensemble_clf = FlexOneVsRestClassifier(classifiers=classifiers)
+
+    ensemble_clf_pipeline = Pipeline([
+        ('imputer', SimpleImputer(strategy="mean")),
+        ('std_scaler', StandardScaler()),
+        ('clf', ensemble_clf)
     ])
 
+    """
     clfs = [svm_ovr_pipeline,
             gnb_ovr_pipeline,
             xgb_ovr_clf,
             rf_ovr_clf,
-            lr_ovr_pipeline]
+            lr_ovr_pipeline,
+            ensemble_clf_pipeline]
+    """
+
+    clfs = [ensemble_clf_pipeline]
 
     ba_scorer = make_scorer(balanced_accuracy_score)
     random_state = 42
