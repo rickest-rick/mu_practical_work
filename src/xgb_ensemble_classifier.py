@@ -29,7 +29,7 @@ class XgbEnsembleClassifier(BaseEstimator, ClassifierMixin):
         for i in range(len(classifiers)):
             self.classifiers.append(deepcopy(classifiers[i]))
         self.n_splits = n_splits
-        self.ensemble_classifier = xgb.XGBRFClassifier(**kwargs)
+        self.ensemble_classifier = xgb.XGBClassifier(**kwargs)
 
     def fit(self, X, y, random_state=None):
         """

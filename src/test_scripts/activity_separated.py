@@ -70,12 +70,9 @@ if __name__ == "__main__":
         class_weights = {0: 1,
                          1: neg_pos_ratio_train}
         params = {"class_weights": class_weights}
-        clf.classifiers[label].set_params(**params)
-        
-        # clf.classifiers[label].scale_pos_weight = sqrt(neg_pos_ratio_train)
+        clf.classifiers[str(label)].set_params(**params)
 
     # save the parameter bounds and a list of parameters that must be integers
-
     bounds = {"max_depth": (6, 8.5),
               "learning_rate": (0.01, 0.5),
               "gamma": (0, 10)}
@@ -93,10 +90,7 @@ if __name__ == "__main__":
     dump(clf.get_params(), "params_separated.joblib")
 
     params = load("params_separated.joblib")
-    new_params = dict()
-    for key in range(len(clf.classifiers)):
-        new_params[str(key)] = params[key]
-    clf.set_params(**new_params)
+    clf.set_params(**params)
 
     bounds = {"scale_pos_weight": (0.7, 1.4)}
 

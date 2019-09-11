@@ -4,7 +4,6 @@ import time
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import confusion_matrix
 from joblib import dump, load
 
 from data_handling import load_user_data, load_some_user_data, \

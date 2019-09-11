@@ -37,13 +37,13 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         :classifiers: [], a list of classifiers with a fit and predict method.
         """
         if classifiers is not None and clf is None and n_estimators is None:
-            self.classifiers = []
+            self.classifiers = {}
             for i in range(len(classifiers)):
-                self.classifiers.append(deepcopy(classifiers[i]))
+                self.classifiers[str(i)] = deepcopy(classifiers[i])
         elif clf is not None and n_estimators > 0:
-            self.classifiers = []
+            self.classifiers = {}
             for i in range(n_estimators):
-                self.classifiers.append(deepcopy(clf))
+                self.classifiers[str(i)] = deepcopy(clf)
         else:
             raise ValueError("Either choose a list of estimators or a single "
                              "estimator n_estimator times.")
@@ -93,7 +93,7 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
             self.fit_label(label, X_train, y_train)
             # augment training data set with prediction on labels seen so far
             if pred_expansion:
-                y_pred = self.classifiers[label].predict(X_train)
+                y_pred = self.classifiers[str(label)].predict(X_train)
                 np.append(X_train, y_pred)
         return self
 
@@ -116,7 +116,7 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
 
         y = []
         for label in range(n_labels):
-            y_pred = self.classifiers[label].predict(X_test)
+            y_pred = self.classifiers[str(label)].predict(X_test)
             if pred_expansion:
                 np.append(X_test, y_pred)
             y.append(y_pred)
@@ -131,9 +131,10 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         :return: params : mapping of string to any
             Parameter names mapped to their values.
         """
+        print(self.classifiers)
         param_dict = {}
         for label in range(len(self.classifiers)):
-            param_dict[str(label)] = self.classifiers[label].get_params(
+            param_dict[str(label)] = self.classifiers[str(label)].get_params(
                 deep=deep)
         return param_dict
 
@@ -146,7 +147,7 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         :return: self
         """
         for label in params:
-            self.classifiers[int(label)].set_params(**params[label])
+            self.classifiers[label].set_params(**params[label])
 
     def score(self, X, y, sample_weight=None):
         """
@@ -211,13 +212,13 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
                 params = convert_to_int(bayes_opt.max['params'], int_params)
             else:
                 params = bayes_opt.max['params']
-            self.classifiers[i].set_params(**params)
+            self.classifiers[str(i)].set_params(**params)
 
     def get_evaluate(self, label_index, X, y, metric, int_params, groups):
         def evaluate(**kwargs):
             if int_params is not None:
                 kwargs = convert_to_int(kwargs, int_params)
-            clf = deepcopy(self.classifiers[label_index])
+            clf = deepcopy(self.classifiers[str(label_index)])
             if groups is None:
                 kfold = StratifiedKFold(n_splits=3, random_state=42)
             else:
@@ -250,11 +251,11 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         :param y: A single set of target labels as numpy array.
         :return: None
         """
-        model = self.classifiers[label]
-        model.fit(X, y)
+        clf = self.classifiers[str(label)]
+        clf.fit(X, y)
 
-        model = release_memory(model)
-        self.classifiers[label] = model
+        clf = release_memory(clf)
+        self.classifiers[str(label)] = clf
 
     @staticmethod
     def fitting(clf, X, y, path):

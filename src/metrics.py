@@ -109,7 +109,7 @@ def single_balanced_accuracy_score(y_true, y_pred):
 
     conf_matrix = confusion_matrix(y_true, y_pred)
     # todo remove
-    print(conf_matrix)
+    # print(conf_matrix)
     if conf_matrix.shape == (2, 2):  # not all positive or negative
         true_neg = conf_matrix[0, 0]
         true_pos = conf_matrix[1, 1]
