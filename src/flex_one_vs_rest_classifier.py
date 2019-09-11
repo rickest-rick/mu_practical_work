@@ -1,7 +1,5 @@
 import numpy as np
-import shutil
 import os
-import gc
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.model_selection import StratifiedKFold, GroupKFold
@@ -12,7 +10,7 @@ from copy import deepcopy
 from bayes_opt import BayesianOptimization
 from threading import Thread
 
-from data_handling import convert_to_int
+from data_handling import convert_to_int, release_memory
 
 
 class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
@@ -255,7 +253,7 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         model = self.classifiers[label]
         model.fit(X, y)
 
-        model = self.release_memory(model)
+        model = release_memory(model)
         self.classifiers[label] = model
 
     @staticmethod
@@ -264,13 +262,3 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         dump(clf, path)
         del clf
 
-    @staticmethod
-    def release_memory(clf):
-        os.mkdir("tmp")
-        dump(clf, "tmp/model.joblib")
-        del clf
-        clf = load("tmp/model.joblib")
-        if os.path.exists("tmp") and os.path.isdir("tmp"):
-            shutil.rmtree("tmp")
-        gc.collect()
-        return clf
