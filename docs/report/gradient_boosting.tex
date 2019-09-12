@@ -13,12 +13,20 @@ Given a sample set $X= \{x_1, ..., x_n\} \subset \R^{m} $ of $n$ samples each wi
 $$\mathcal{L} = \sum_{i=1}^{n} l(y_i, \Phi(x)) + \sum_{k=1}^{K}\Omega(f_k) \text{,  where } \Omega(f_k) = \gamma T + \frac{1}{2}\lambda \norm{w}_2^2$$
 $l$ is the loss-function, a convex and several times differentiable function. $\Omega$ is a penalizing term in this context and monitors the structure of the tree within $\LL$. The choice of $\gamma$ influences the number of permissible leaves and $\lambda$ influences their weights. Thus $\Omega$ is a preventive measure against overfitting. Consequently, the model created with $\LL$ prefers gradient trees of simple shape.
 
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=\textwidth]{images/gradient_boosting.png}
+		\caption{Visualisation of the $t$-th iteration step: For a fixed tree $f_t$ its weights $w_i$ have to be optimized with respect to the already existing set of trees.}
+		\label{abb:gradient_boosting}
+	\end{center}		
+\end{figure}
 The actual gradient tree boosting takes place by iteratively adding new trees to the ensemble. In the $t$-th iteration step, the ensemble consists of the gradient trees $\{f_1, ... , f_{t-1}\}$ created in the previous steps. The goal is to select the new gradient tree $f_t$ so that it improves the current model the most. This is the case if and only if 
 \begin{equation}
 \LL^{(t)} = \sum_{i=1}^{n} l(y_i, \Phi(x_i)) + \sum_{k=1}^{K}\Omega(f_k)
 \label{eq:LL1}
 \end{equation}
 is minimized.
+
 Since the $\Omega(f_k)$ for the trees $f_1, ... f_{t-1}$ are already fixed, they play no role in the consideration. Further established are the first $t-1$ terms of the sum $\Phi(x_i) = f_1(x_i) + ... + f_{t-1}(x_i) + f_t(x_i)$. This sum is constant and is aggregated in the expression $\hat{y}^{t-1}$, because it represents the predicted outcome after the $t-1$-th iteration step of the ensemble.
 
 With this (\ref{eq:LL1}) can also be formulated as:
