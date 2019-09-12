@@ -24,7 +24,7 @@ def balanced_accuracy_score(y_true, y_pred, average="macro", zero_default=1):
         is_NaN = np.isnan(y_true)
         y_true = y_true[~is_NaN]
         y_pred = y_pred[~is_NaN]
-        conf_matrix = confusion_matrix(y_true, y_pred)
+        return single_balanced_accuracy_score(y_true, y_pred)
 
     if average == "micro":
         return balanced_accuracy_score_micro(y_true, y_pred, zero_default)
@@ -87,7 +87,7 @@ def balanced_accuracy_score_macro(y_true, y_pred):
         label_true = y_true[:, label_set]
         label_pred = y_pred[:, label_set]
 
-        if np.count_nonzero(~np.isnan(label_true)):  # all nan
+        if np.count_nonzero(~np.isnan(label_true)) == 0:  # all nan
             n_labels_nonempty -= 1
         else:
             balanced_accuracy = single_balanced_accuracy_score(label_true,

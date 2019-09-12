@@ -2,8 +2,6 @@ import tensorflow as tf
 
 from tensorflow import keras
 
-from gmc_model import get_coexist_counts
-
 
 class GmcDense(keras.layers.Dense):
     """
@@ -51,3 +49,25 @@ class GmcDense(keras.layers.Dense):
         omega = tf.negative(tf.divide(weighted_dot_sum, self.n_samples))
 
         return bce + self.alpha * omega
+    
+    
+class MCAlphaDropout(keras.layers.AlphaDropout):
+    """
+    Wrapper class that always enables training mode in an alpha dropout layer.
+    Used for Monte Carlo Dropout method
+    """
+    def call(self, inputs):
+        return super().call(inputs, training=True)
+    
+def get_coexist_counts(y):
+    """
+    Returns co-occurence matrix of y with itself as 2d tensor. NaN values are
+    treated as zeros.
+    :author: Joschka Strüber
+    :param y: Labels as 1d or 2d tensor.
+    :return:
+    """
+    y = y + keras.backend.epsilon()
+    is_not_nan = tf.math.logical_not(tf.math.is_nan(y))
+    y_clean = tf.where(is_not_nan, y, 0)
+    return tf.matmul(tf.transpose(y_clean), y_clean)
