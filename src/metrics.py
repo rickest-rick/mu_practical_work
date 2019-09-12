@@ -94,7 +94,10 @@ def balanced_accuracy_score_macro(y_true, y_pred):
                                                                label_pred)
             sum_balanced_accuracy += balanced_accuracy
     # micro average is average of all specificity and recall values
-    balanced_accuracy = sum_balanced_accuracy / n_labels_nonempty
+    if n_labels_nonempty != 0:
+        balanced_accuracy = sum_balanced_accuracy / n_labels_nonempty
+    else:
+        balanced_accuracy = 1
 
     return balanced_accuracy
 
