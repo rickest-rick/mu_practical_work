@@ -4,11 +4,11 @@ Logistic regression is another method for classification which utilizes the logi
 \sigma(a) = \frac{1}{1 + \exp(-a)}
 \end{equation}
 were $\Phi$ is a feature space. 
-For simplicity lets  assuming a two-class classification problem, than the logistic regression model is defined as shown in \ref{eq:logreg_model} and describes the probability of a feature to be in class $C_1$:
+For simplicity lets  assuming a two-class classification problem, than the logistic regression model is defined as shown in (\ref{eq:logreg_model}) and describes the probability of a feature to be in class $C_1$:
 \begin{equation} \label{eq:logreg_model}
 p(C_1|\Phi) = y(\Phi) = \sigma(w^\text{T}\Phi)
 \end{equation}
-Here $w$ is a set of parameters with the same dimension $M$ as the feature space $\Phi$, that needs to be optimized to best fit the data and $\sigma(\cdot)$ is the logistic sigmoid function \ref{eq:sigmoid}. The probability of the feature to be in the class $C_2$ is than trivially given as $p(C_2|\Phi) = 1 - p(C_1|\Phi)$. To determine the $M$ parameters of the logistic regression model, the derivative of the logistic sigmoid function can be used, which is conveniently expressed by the sigmoid function itself:
+Here $w$ is a set of parameters with the same dimension $M$ as the feature space $\Phi$, that needs to be optimized to best fit the data, and $\sigma(\cdot)$ is the logistic sigmoid function (\ref{eq:sigmoid}). The probability of the feature to be in the class $C_2$ is than trivially given as $p(C_2|\Phi) = 1 - p(C_1|\Phi)$. To determine the $M$ parameters of the logistic regression model, the derivative of the logistic sigmoid function can be used, which is conveniently expressed by the sigmoid function itself:
 \begin{equation} \label{eq:sigmoid_derived}
 \frac{\partial\sigma}{\partial a} = \sigma(1-\sigma)
 \end{equation}
@@ -21,12 +21,12 @@ The negative logarithm of (\ref{eq:likelihood_function}) defines an error functi
 \begin{equation} \label{eq:likelihood_function}
 E(w)=-\ln p(t|w) = - \sum_{n=1}^{N}t_n \ln y_n + (1-t_n) \ln (1-y_n)
 \end{equation}
-where $y_n=\sigma(a_n)$ and $a_n=w^\text{T}\Phi_n$. Using equation (\ref{eq:sigmoid_derived}) and taking the gradient with respect to $w$ we obtain
-\todo{test}
+where $y_n=\sigma(a_n)$ and $a_n=w^\text{T}\Phi_n$. Using equation (\ref{eq:sigmoid_derived}) and taking the gradient with respect to $w$ we obtain:
+
+\todo{hier passiert magie. Die ich nicht verstanden habe. OK so?}
+
 \begin{equation} \label{eq:likelihood_function}
-asdf
+\nabla E(w)=\sum_{n=1}^{N} (y_n-t_n)\Phi_n
 \end{equation}
-
-
-
-The advantage of the logistic regession is that it uses $M$ parameters to fit to a $M$-dimensional feature space and grows linear with the dimension of the feature space, in contrast to, e.g. fitted Gaussian class conditional densities using maximum likelihood which grows exponentially with the dimension $M$.
+This function can be used to fit the best parameters.
+The advantage of the logistic regression is that it uses $M$ parameters to fit to a $M$-dimensional feature space and grows linear with the dimension of the feature space, in contrast to, e.g. fitted Gaussian class conditional densities using maximum likelihood which grows exponentially with the dimension $M$.
