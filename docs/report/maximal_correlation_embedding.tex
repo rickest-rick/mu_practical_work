@@ -1,4 +1,4 @@
-\subsection{Maximal Correlation Embedding}
+\section{Maximal Correlation Embedding}
 
 One of the major challenges in activity recognition is that it is inherently a multi-label classification problem. However, most machine learning models, such as Support Vector Machines, Decision Trees and Logistic Regression, are only capable of providing a single output for a set of data. This forces us to treat a multi-label problem as a set of single-label problems with one individually trained classifier each, resulting in heavy computation expense and not taking the correlations between different activities into account.
 
@@ -6,7 +6,7 @@ Artificial neural networks do not have this drawback, because it is possible to 
 
 Li et al. \cite{Li19} have proposed a novel loss function based on the Generalized Maximal Correlation (GMC), which aims to maximize the total correlation between labels. We implemented this approach and evaluated it on the ExtraSensory dataset.
 
-\subsubsection{Generalized Maximal Correlation}
+\subsection{Generalized Maximal Correlation}
 
 The main idea of Li et al. \cite{li2019} consists in performing a label transformation by embedding the label vectors into lower-dimensional dense vectors. To do this, usually a network architecture is used, which is similar to that of autoencoders with hidden layers that have less neurons than the output layer. Li et al. call this approach \enquote{low rank label transformation}. They interpret the weights between the last hidden layer and the output layer as a set of embedding vectors for labels. If the sixth label stands for the activity \enquote(sleeping), the set of weights to the sixth output node is the embedding vector $v_6$.
 
@@ -39,7 +39,7 @@ This results in the following regularized gmc-loss with hyperparameter $\alpha$,
 	\operatorname{gmc-loss} = \operatorname{log-loss} + \alpha \cdot \Omega
 \end{equation}
 
-\subsubsection{Implementation and Results}
+\subsection{Implementation and Results}
 
 Li et al. evaluated their loss function on a neural network with two hidden layers, optimized by the Adam optimizer. They used ReLU as activation function for the hidden layers and batch normalization. The optimal value for the hyperparameter $\alpha$ was determined by a grid search. It is not specified which activation function they used for the output layer, but we expect it to be the sigmoid function, because the log-loss expects probabilities.
 

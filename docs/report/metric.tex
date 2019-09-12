@@ -1,0 +1,33 @@
+\begin{subsection}{Used Metric}
+		The metric proposed in the original papers by Vaizman et al.(\cite{Vaizman17}, \cite{Vaizman18}) is the so-called \emph{balanced accuracy} \cite{brodersen2010balanced}. For a binary classification problem, it is defined as
+		\begin{equation}
+			\begin{split}
+				\frac{1}{2} \left(\frac{TP}{P} + \frac{TN}{N}\right) & = \frac{1}{2} \left(\frac{TP}{TP + FN} + \frac{TN}{TN + FP}\right)\\
+				& = \frac{1}{2} \left(\text{sensitivity} + \text{specificity}\right).
+			\end{split}
+		\end{equation}
+		This metric is especially useful when dealing with classification tasks on highly imbalanced datasets. For example, if the dataset contains mostly positive samples, a trivial classifier which always predicts the positive class will reach a high-level accuracy and precision. However, since the specificity is nearly zero, the balanced accuracy will drop to chance (0.5). Since the ExtraSensory Dataset contains labels which are negative for most samples (there are only 200 positive samples for \emph{elevator}), this metric encodes much more information about the actual quality of the classifier than standard accuracy.
+		\begin{table}[H]
+			\begin{center} 
+				\begin{tabular}{c|c|c|}
+					& \multicolumn{2}{c|}{actual} \\
+					& +& -- \\
+					\midrule
+					prediction + & TP & FP \\
+					\midrule
+					prediction -- & FN & TN \\
+					\bottomrule
+				\end{tabular}
+			\end{center}
+			\caption{Confusion matrix for a binary classifier}
+		\end{table}
+		\paragraph{Balanced Accuracy with multi-label classification}
+		There are two different approaches for calculating the balanced accuracy for classification tasks with more than two classes. Named \emph{micro} and \emph{macro}, they handle the way of combining the values calculated for each class.
+		\begin{itemize}
+			\item \emph{micro} - With this strategy, all confusion matrices for each label are added up and then the balanced accuracy is calculated upon the cumulated matrix. However, labels with overall low appearance ratio (i.e. for many samples the label is missing) hardly contribute to the overall score. Since especially the \glqq small\grqq labels are difficult to learn in our data set, this method distorts the acutal quality of the classifier towards better values.
+			\item \emph{macro} - This strategy first calculates the balanced accuracy for all labels independently, and then combines those scores by calculating the mean. This ensures that the score of every label contributes equally to the overall score. Naturally, this is the combination method used in the original papers.
+		\end{itemize}
+		Since some labels do not appear very often, it can happen that for a particular label no positive (or negative) samples are contained in the test data set. This is problematic when trying to calculate the balanced accuracy for that label. To avoid division by zero, the balanced accuracy for this label is then set to 0.5 (chance level).
+		
+
+	\end{subsection}
