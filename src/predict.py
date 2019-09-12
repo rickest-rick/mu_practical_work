@@ -15,10 +15,12 @@ if __name__ == "__main__":
     data = load_user_data(data_path)
     data.reset_index(inplace=True)
     feature_names = data.columns
-    X = data.values
 
     # drop uuid column, the timestamps and the label source
-    X = np.delete(X, [0, 1, 2, X.shape[1] - 1], 1)
+    if "label_source" in data.columns:
+        data = data.drop(["label_source"], axis=1)
+    X = data.values
+    X = np.delete(X, [0, 1, 2], axis=1)
 
     clf = load(classifier_path)
     y_pred = clf.predict(X)
