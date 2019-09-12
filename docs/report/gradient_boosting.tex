@@ -1,9 +1,7 @@
 \subsection{Gradient Boosting}
 
 
-The following section is based on Chen, Guestrin (2016).
-
-Gradient boosting is about iteratively generating a set of gradient trees that solve a given classification problem as effectively as possible.
+The following section is based on \cite{Chen16}. Gradient boosting is about iteratively generating a set of gradient trees that solve a given classification problem as effectively as possible.
 
 Gradient trees are essentially decision trees, except that each leaf of the tree has a value whose weight is assigned to $w_i$. Consequently, a gradient tree with $T$ leaves and corresponding weights $(w_1, ... ,w_T)$ can be understood as a function $f: \R^m \to \R$ . Each data point $x \in \R^m$ is assigned the weight of the leaf corresponding to $x$ by $f$ via $f(x) = w_{q(x)}$. The function $q: \R^m \to T$ assigns a sample $x$ to the index number of the leaf belonging to $x$. Furthermore $I_j := \{ i \mid q^{-1}(j)=x_i \}$ contains the indices of those samples which refer to the leaf number $j$. The set of all gradient trees is called $\mathcal{F}$.
 
