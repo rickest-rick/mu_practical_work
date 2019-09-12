@@ -2,8 +2,6 @@ import sys
 import xgboost as xgb
 import numpy as np
 
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
@@ -49,13 +47,9 @@ if __name__ == "__main__":
         lr_param = lr_params[str(label)]
         lr_clf = LogisticRegression(**lr_param)
 
-        ada_clf = AdaBoostClassifier(n_estimators=50,
-                                     learning_rate=0.9)
-
         clfs_internal = [xgb_clf,
                          rf_clf,
-                         lr_clf,
-                         ada_clf]
+                         lr_clf]
         ensemble_clf = XgbEnsembleClassifier(classifiers=classifiers,
                                              n_splits=3,
                                              n_estimators=200,
