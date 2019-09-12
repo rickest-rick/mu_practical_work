@@ -2,13 +2,12 @@ import numpy as np
 import xgboost as xgb
 
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
+from sklearn.multiclass import OneVsRestClassifier
 from scipy.stats import reciprocal
 
 from data_handling import load_user_data, load_some_user_data, \
@@ -41,7 +40,6 @@ if __name__ == "__main__":
     X_train = preprocess_pipeline.fit_transform(X_train)
     X_test = preprocess_pipeline.transform(X_test)
 
-    """
     label_imputer = SimpleImputer(strategy="constant", fill_value=0.0)
     y_train = label_imputer.fit_transform(y_train)
 
@@ -64,7 +62,7 @@ if __name__ == "__main__":
 
     y_pred = random_search.predict(X_test)
     y_pred_bias = random_search.predict(X_train)
-    """
+
     n_estimators = y_train.shape[1]
     log_reg_clf = LogisticRegression(solver="lbfgs",
                                      C=0.1,

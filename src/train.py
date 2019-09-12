@@ -1,15 +1,12 @@
 import sys
 import xgboost as xgb
-import numpy as np
 import os
-import pandas as pd
 
 from joblib import load, dump
+from matplotlib import pyplot as plt
 
 from flex_one_vs_rest_classifier import FlexOneVsRestClassifier
 from data_handling import load_user_data, split_features_labels
-
-from matplotlib import pyplot as plt
 
 
 if __name__ == "__main__":

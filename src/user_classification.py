@@ -7,7 +7,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, confusion_matrix
 from sklearn.pipeline import Pipeline
-from joblib import dump, load
 
 from data_handling import load_user_data, split_features_labels
 
