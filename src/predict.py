@@ -19,8 +19,11 @@ if __name__ == "__main__":
     # drop uuid column, the timestamps and the label source
     if "label_source" in data.columns:
         data = data.drop(["label_source"], axis=1)
-    X = data.values
-    X = np.delete(X, [0, 1, 2], axis=1)
+
+    # drop uuid column, the timestamps and the label source
+    X = data.drop(['level_0',
+                   'level_1',
+                   'timestamp'], axis=1)
 
     clf = load(classifier_path)
     y_pred = clf.predict(X)
