@@ -37,7 +37,7 @@ The actual gradient tree boosting takes place by iteratively adding new trees to
 \LL^{(t)} = \sum_{i=1}^{n} l(y_i, \Phi(x_i)) + \sum_{k=1}^{K}\Omega(f_k)
 \label{eq:LL1}
 \end{equation}
-is minimized. Since the $\Omega(f_k)$ for the trees $f_1, ... f_{t-1}$ are already fixed, they play no role in the consideration. Further established are the first $t-1$ terms of the sum $\Phi(x_i) = f_1(x_i) + ... + f_{t-1}(x_i) + f_t(x_i)$. This sum is constant and is aggregated in the expression $\hat{y}^{t-1}$, because it represents the predicted outcome after the $t-1$-th iteration step of the ensemble.
+is minimized. Since the $\Omega(f_k)$ for the trees $f_1, ... f_{t-1}$\todo{caption oben} are already fixed, they play no role in the consideration. Furthermore, the first $t-1$ terms of the sum $\Phi(x_i) = f_1(x_i) + ... + f_{t-1}(x_i) + f_t(x_i)$ are already established in the $t$-th iteration. This sum is a constant and aggregated in the expression $\hat{y}^{t-1}$, since it represents the predicted outcome after the $t-1$-th iteration step of the ensemble.
 
 With this (\ref{eq:LL1}) can also be formulated as:
 \begin{equation}
@@ -45,14 +45,14 @@ With this (\ref{eq:LL1}) can also be formulated as:
 \label{eq:LL2}
 \end{equation}
 
-To separate the dependence of $l$ and $f_t$, the 1D-taylor series expansion is executed at the location $(y_i,\hat{y}^{(t-1)})$ on the function $l$ and only in the second coordinate. Although $l$ is a 2D function, changes in the context of $\LL$ only take place in one coordinate, which is why it is allowed to interpret it as a 1D function - like $l(y_i,x) = l_{y_i}(x)$. It results:
+To separate the dependency of $l$ and $f_t$, the 1D-taylor series expansion is executed at the location $(y_i,\hat{y}^{(t-1)})$ on the function $l$ and only in the second coordinate. Although $l$ is a 2D function, changes in the context of $\LL$ only take place in one coordinate, which is why it is allowed to interpret it as a 1D function - like $l(y_i,x) = l_{y_i}(x)$. It follows:
 \begin{equation}
 \label{eq:taylor}
 l_{y_i}(\hat{y}^{(t-1)} + f_k(x_i)) = l_{y_i}(\hat{y}^{(t-1)}) + l_{y_i}^{'}(\hat{y}^{(t-1)}) \cdot f_k(x_i)
 + \newline \frac{1}{2} l_{y_i}^{''}(\hat{y}^{(t-1)}) \cdot f_k(x_i)^2 + R_\text{taylor}
 \end{equation}
 
-For readability's sake we write $g_i = l_{y_i}^{'}(\hat{y}^{(t-1))}) ) = \frac{\partial l}{\partial \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$ and $h_i = l_{y_i}^{''}(\hat{y}^{(t-1)}) ) = \frac{\partial l}{\partial^2 \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$. The $g_i$ and $h_i$ are constants, because both $y_i$ and $\hat{y}^{(t-1))}$ are known in the current iteration step. If we apply the findings from equation (\ref{eq:taylor}) to $\LL^{(t)}$, we get the result:
+For readability's sake we write $g_i = l_{y_i}^{'}(\hat{y}^{(t-1))}) ) = \frac{\partial l}{\partial \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$ and $h_i = l_{y_i}^{''}(\hat{y}^{(t-1)}) ) = \frac{\partial l}{\partial^2 \hat{y}^{(t-1)}}(y_i,\hat{y}^{(t-1)})$. The $g_i$ and $h_i$ are constants, because both $y_i$ and $\hat{y}^{(t-1))}$ are known in the current iteration step. Applying the findings from equation (\ref{eq:taylor}) to $\LL^{(t)}$ yields:
 \begin{equation} \label{eq:shortL}
 \LL^{(t)} \approx \sum_{i=1}^{n} (l(y_i,\hat{y}^{(t-1)}) + g_if_t(x_i) + \frac{1}{2} h_i f_t(x_i)^2) + \Omega(f_t)
 \end{equation}
@@ -62,31 +62,31 @@ Since the constant terms $l(y_i,\hat{y}^{(t-1)})$ do not depend on $f_t$, they c
 \tilde{\LL}^{(t)} = \sum_{i=1}^{n}( g_if_t(x_i) + \frac{1}{2} h_i f_t(x_i)^2) + \Omega(f_t)
 \end{equation}
 
-This term can now be simplified by writing out $\Omega(f_t) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^{T} w_j^2$. For a given tree structure $q$ we get the different $I_j$ which can be used to change the summation order. For this, $f_t(x_i)$ is expressed as the corresponding weight $w_j$ of the new tree $f_t$. The rearrangement is done by sorting by the appearing $w_j$. Applied to (\ref{eq:LLeinfach}) this results in:
+This term can now be further simplified by writing out $\Omega(f_t) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^{T} w_j^2$. For a given tree structure $q$ we get the different $I_j$, which can be used to change the order of summation. For this, $f_t(x_i)$ is expressed as the corresponding weight $w_j$ of the new tree $f_t$. The rearrangement is done by sorting by the appearing $w_j$. Applied to (\ref{eq:LLeinfach}) this results in:
 \begin{equation} \label{eq:LL_umsortiert}
 \tilde{\LL}^{(t)} = \sum_{j=1}^T\left( (\sum_{i \in I_j} g_i) w_j + \frac{1}{2} (\sum_{i \in I_j} h_i + \lambda)w_j^2 \right) + \gamma T
 \end{equation}
 
-It should be noted that for this rearrangement and a concrete evaluation of the term of the above equation a \textit{fixed} tree structure $q$ must be provided. This means that the tree must already be fixed except for the weights of its leaves.
+It should be noted that for this rearrangement and a concrete evaluation of the equation above a \textit{fixed} tree structure $q$ must be provided. This means that the tree must already be finalized - except for the weights of its leaves.
 
-To find the optimized weights $w^*_j$ for this fixed structure of $f_t$, derive $\tilde{\LL}^{(t)}$ from equation (\ref{eq:LL_umsortiert}) in the direction of the corresponding $w_j$ and it yields:
+To find the optimal weights $w^*_j$ for this fixed structure of $f_t$, $\tilde{\LL}^{(t)}$ from equation (\ref{eq:LL_umsortiert}) is derived in the direction of the corresponding $w_j$ and it yields:
 \begin{equation} \label{eq:LL_ableitung}
 \frac{\partial \tilde{\LL}^{(t)}}{\partial w_j} = \sum_{i \in I_j} g_i + (\sum_{i \in I_j} h_i + \lambda)w_j
 \end{equation}
 
-By setting this equation to $0$ and solving it for $w_j$, the optimal $w^*_j$ is gained, which minimize $\tilde{\LL}^{(t)}$:
+By setting this equation to $0$ and solving it for $w_j$, the optimal $w^*_j$ are gained, which minimize $\tilde{\LL}^{(t)}$:
 \begin{equation} \label{eq:opt_w}
 w_j^* = - \frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}
 \end{equation}
 
-Using this optimal $w_j^*$ in (\ref{eq:LL_umsortiert}) results in the optimal value of $\tilde{\LL}^{(t)}$ for the tree structure $q$:
+Using these optimal $w_j^*$ in (\ref{eq:LL_umsortiert}) results in the optimal value of $\tilde{\LL}^{(t)}$ for the beforehand fixed tree structure $q$:
 \begin{equation} \label{eq:entropy}
 \tilde{\LL}^{(t)} (q) = - \frac{1}{2} \sum_{j=1}^{T} \frac{(\sum_{i \in I_j} g_i)^2}{\sum_{i \in I_j} h_i + \lambda} + \gamma T
 \end{equation}
 
 So it is possible to calculate for a given tree structure $q$ the most helpful weights of the new tree $f_t$ for the ensemble using (\ref{eq:opt_w}). Furthermore, such an (optimized) tree structure $q$ can be evaluated with (\ref{eq:entropy}), this rating is comparable to the entropy of decision trees. 
 
-In reality one would have to work through all possible tree structures, including the different feature-splits, the optimized $w^*_j$ and $\tilde{\LL}^{(t)} (q)$ and compare. Because this is hardly realizable, the new tree $f_t$ is constructed in the iteration step $t$ by a greedy algorithm. In this process, branches are added iteratively to the tree by splitting a leaf. Let $I_l, I_r$ be the sets of the index numbers assigned to the left or right leaf and $I = I_l \dot\cup I_r$ the index set of the former leaf. The resulting improvement of this split results after (\ref{eq:entropy}):
+In reality one would have to work through all possible tree structures, including the different feature-splits, calculate the optimized $w^*_j$ and $\tilde{\LL}^{(t)} (q)$ and compare. Because this is hardly realizable, the new tree $f_t$ is constructed in the iteration step $t$ by a greedy algorithm. In this process, branches are added iteratively to the tree by splitting leaves. Let $I_l, I_r$ be the sets of the index numbers assigned to the left or right leaf and $I = I_l \dot\cup I_r$ the index set of the former leaf. The resulting improvement of this split results after (\ref{eq:entropy}):
 \begin{equation} \label{eq:LRsplit}
 	\begin{split}
 		\tilde{\LL}_\text{split} &= \tilde{\LL}^{(t)} (q_\text{alt})-\tilde{\LL}^{(t)} (q_\text{neu})\\
