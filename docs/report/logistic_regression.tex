@@ -1,1 +1,13 @@
 \subsection{logistic regression}
+Assuming a two-class classification problem, the logistic regression model is defined as
+\begin{equation} \label{eq:logreg_model}
+p(C_1|\Phi) = y(\Phi) = \sigma(w^T\Phi)
+\end{equation}
+were $p(C_2|\Phi) = 1 - p(C_1|\Phi)$, $\sigma(\cdot)$ is the logistic sigmoid function. The advantage of the logistic regession is that it uses $M$ parameters to fit to a $M$-dimensional feature space and grows linear with the dimension of the feature space, in contrast to, e.g. fitted Gaussuan class conditional densities using maximum likelihood which grows exponentially with the dimension $M$.
+To determin the $M$ parameters of the logistic regression model, the derative of the logistic sigmoid function can be used.
+\begin{equation} \label{eq:sigmoid}
+\sigma(a) = \frac{1}{1 + \exp(-a)}
+\end{equation}
+\begin{equation} \label{eq:sigmoid_derived}
+\frac{\partial\sigma}{\partial a} = \sigma(1-\sigma)
+\end{equation}
