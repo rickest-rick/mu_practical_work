@@ -1,0 +1,49 @@
+\subsection{Maximal Correlation Embedding}
+
+One of the major challenges in activity recognition is that it is inherently a multi-label classification problem. However, most machine learning models, such as Support Vector Machines, Decision Trees and Logistic Regression, are only capable of providing a single output for a set of data. This forces us to treat a multi-label problem as a set of single-label problems with one individually trained classifier each, resulting in heavy computation expense and not taking taking the correlations between different activities into account.
+
+Artificial neural networks don't have this drawback, because it is possible to have an output layer with one neuron for every possible activity. Using the sigmoid function as last activation function, we can interprete the outputs as probabilities for all activities. Unfortunately, commonly used loss functions (e.g. crossentropy) don't take correlations between labels in account and are usually not meant to deal with missing entries. They also tend to optimize the accuracy, which is no useful measure in this case, due to the large class imbalances \cite{Vaizman17}. A trivial classifier, which marks every activity as absent, returns good accuracies but does no really solve the problem of activity recognition.
+
+Li et al. \cite{Li19} have proprosed a novel loss function based on the Generalized Maximal Correlation (GMC), which aims to maximize the total correlation between labels. We have implemented this approach and evaluated it on the ExtraSensory dataset.
+
+\subsubsection{Generalized Maximal Correlation}
+
+The main idea of Li et al. \cite{li2019} is to perform a label transformation by embedding the label vectors into lowerdimensional dense vectors. To do this, we usually use a network architecture, which is similar to that of autoencoders with hidden layers that have less neurons than the output layer. Li et al. call this approach \enquote{low rank label transformation}. They interprete the weights between the last hidden layer and the output layer as a set of embedding vectors for labels. If the sixth label stands for the activity \enquote(sleeping), the set of weights to the sixth output node is the embedding vector $v_6$.
+
+A lot of activities correlate highly with each other, e.g. if a person is sleeping he or she is usually also lying down. We want to train a classifier, that maximizes this correlation between labels that frequently occur at the same time. If we are able to find a measure of correlations like this, we can also use it as regularization to mitigate the negative effects of non-existent losses because of missing labels.
+
+Li et al. use the Generalized Maximal Correlation of Huang et al. \cite[Definition 2]{Huang2017} and transform it into a relaxed optimization problem where the constraints of the original GMC problem are interpreted as terms of an unconstrained optimization problem. Let $n$ be the number of labels and $m$ the number of samples, for example in a mini-batch. We interprete the labels as jointly distributed random variables $Y_{1\leq i \leq n}$ and the encoder network as a set of functions $g = (g_1, \dots, g_n)$.  
+
+\begin{equation}
+	\operatorname{maximize}\limits_{g_1, \dots, g_n} \mathbb{E}\left[\sum_{i\neq j} 
+	(g_i(Y_i)^T)(g_j(Y_j)) \right] - \frac{1}{2} \sum_{i=1}^{n} \mathbb{E}[||g_i(Y_i)||^2]
+\end{equation}
+
+Maximizing this set of functions is the same as minimizing the following regularization term:
+
+\begin{equation}
+	\Omega = - \frac{1}{m} \left(\sum_{i=1}^{n} \sum_{j \neq i}^{n} S_{i,j}\cdot v_i^T v_j - \frac{1}{2} \sum_{i=1}^{n} S_{i,i}\cdot ||v_i||^2 \right)
+\end{equation}
+
+The label embedding vectors are written as $v_{1\leq i \leq n}$. To ensure that labels, which frequently co-occur, are closer in the embedded space, we weight the unconstrained GMC with coexist counts $S_{i,j}$. We use $\Omega$ as a regularization term and add it to the masked log-loss. The mask is used to set the loss to zero, if the label is NaN. In other words, if label $j$ is missing for the $i$-th sample, one has $\operatorname{mask}_j^{(i)} = 0$, otherwise $1$.
+
+The log-loss is defined as the sum of the cross-entropy cost function for ground truth labels $y$ and predictions $\hat{y}$: $l(y, \hat{y}) = -(y \cdot \log(\hat{y}) + (1 - y) \cdot \log(1 - \hat{y}))$.
+
+\begin{equation}
+	\operatorname{log-loss} = \sum_{j=1}^{n}\sum_{i=1}^{m} \operatorname{mask}_j^{(i)} \cdot l(y_j^{(i)}, \hat{y}_j^{(i)})
+\end{equation}
+
+This results in the following regularized gmc-loss with hyperparameter $\alpha$, that determines the degree of regularization:
+
+\begin{equation}
+	\operatorname{gmc-loss} = \operatorname{log-loss} + \alpha \cdot \Omega
+\end{equation}
+
+\subsubsection{Implementation and Results}
+
+Li et al. evaluated their loss function on a neural network with two hidden layers, optimized by the Adam optimizer. They used ReLU as activation function for the hidden layers and batch normalization. The optimal value for the hyperparameter $\alpha$ was determined by a grid search. It is not specified which activation function they used for the output layer, but we expect it to be the sigmoid function, because the log-loss expects probabilities.
+
+They tested their classifier on a series of metrics with the balanced accuracy as the most important one. Using five-fold cross validation, they report an astounding balanced accuracy score of 0.834. This is an impressive result compared to the 0.773 of Vaizman et al. \cite{Vaizman18}.
+
+We implemented the gmc-loss with Tensorflow 2 and evaluated it on a neural network with two hidden layers similar to the one proprosed by Li. The Nadam optimizer was used for optimization \cite{Dozat2015} and we chose the self-normalizing activation function SELU with \enquote{Lecun normalized} weights in every hidden layer \cite{Klambauer17}. Tests were also done with Monte-Carlo Dropout and alpha dropout layers \cite{Gal2016}.
+
