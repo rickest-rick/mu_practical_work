@@ -1,12 +1,24 @@
-\subsection{Gradient Boosting}
+\subsection{Gradient Boosting}\label{subsec:grad_boost}
 
 
 The following section is based on \cite{Chen16} and \cite{Murphy}. Gradient boosting is about iteratively generating a set of gradient trees that solve a given classification problem as effectively as possible.
 
 Gradient trees are essentially decision trees, except that each leaf of the tree has a value whose weight is assigned to $w_i$. Consequently, a gradient tree with $T$ leaves and corresponding weights $(w_1, ... ,w_T)$ can be understood as a function $f: \R^m \to \R$ . Each data point $x \in \R^m$ is assigned the weight of the leaf corresponding to $x$ by $f$ via $f(x) = w_{q(x)}$. The function $q: \R^m \to T$ assigns a sample $x$ to the index number of the leaf belonging to $x$. Furthermore $I_j := \{ i \mid q^{-1}(j)=x_i \}$ contains the indices of those samples which refer to the leaf number $j$. The set of all gradient trees is called $\mathcal{F}$.
 
-A tree ensemble model $\{f_1, ... ,f_K \mid f_i \in \mathcal{F}\}$ consisting of $K$ gradient trees is not evaluated by voting, as known from decision trees, but by adding the function values of the sample $x$ of the single gradient trees in the ensemble function $\Phi = \sum f_k$. The predicted outcome $\hat{y}$ of a sample $x$ results from this:
+\begin{minipage}{.45\linewidth}
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=\linewidth]{images/gradient_trees_example.png}
+		\end{center}		
+	\end{figure}
+\end{minipage}
+\hfill
+\begin{minipage}{.5\linewidth}
+	A tree ensemble model $\{f_1, ... ,f_K \mid f_i \in \mathcal{F}\}$ consisting of $K$ gradient trees is not evaluated by voting, as known from decision trees, but by adding the function values of the sample $x$ of the single gradient trees in the ensemble function $\Phi = \sum f_k$. The predicted outcome $\hat{y}$ of a sample $x$ results from this:
+\end{minipage}
+
 $$\hat{y} = \Phi(x) = \sum_{k=1}^{K} f_k(x)$$
+
 Given a sample set $X= \{x_1, ..., x_n\} \subset \R^{m} $ of $n$ samples each with $m$ features and the corresponding ground truths $\{y_1, ... ,y_n\}$, the resulting regularization function is found in:	
 $$\mathcal{L} = \sum_{i=1}^{n} l(y_i, \Phi(x)) + \sum_{k=1}^{K}\Omega(f_k) \text{,  where } \Omega(f_k) = \gamma T + \frac{1}{2}\lambda \norm{w}_2^2$$
 $l$ is the loss-function, a convex and several times differentiable function. $\Omega$ is a penalizing term in this context and monitors the structure of the tree within $\LL$. The choice of $\gamma$ influences the number of permissible leaves and $\lambda$ influences their weights. Thus $\Omega$ is a preventive measure against overfitting. Consequently, the model created with $\LL$ prefers gradient trees of simple shape.

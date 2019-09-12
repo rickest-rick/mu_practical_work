@@ -25,11 +25,30 @@
 		\paragraph{Balanced Accuracy with multi-label classification}
 		There are two different approaches for calculating the balanced accuracy for classification tasks with more than two classes. Named \emph{micro} and \emph{macro}, they handle the way of combining the values calculated for each class.
 		\begin{itemize}
-			\item \emph{micro} - With this strategy, all confusion matrices for each label are added up and then the balanced accuracy is calcuclated upon the cumulated matrix. However, labels with overall low appearance ratio (i.e. for many samples the label is missing) hardly contribute to the overall score. Since especially the \glqq small\grqq labels are difficult to learn in our data set, this method distorts the acutal quality of the classifier towards better values.
+			\item \emph{micro} - With this strategy, all confusion matrices for each label are added up and then the balanced accuracy is calculated upon the cumulated matrix. However, labels with overall low appearance ratio (i.e. for many samples the label is missing) hardly contribute to the overall score. Since especially the \glqq small\grqq labels are difficult to learn in our data set, this method distorts the acutal quality of the classifier towards better values.
 			\item \emph{macro} - This strategy first calculates the balanced accuracy for all labels independently, and then combines those scores by calculating the mean. This ensures that the score of every label contributes equally to the overall score. Naturally, this is the combination method used in the original papers.
 		\end{itemize}
 		Since some labels do not appear very often, it can happen that for a particular label no positive (or negative) samples are contained in the test data set. This is problematic when trying to calculate the balanced accuracy for that label. To avoid division by zero, the balanced accuracy for this label is then set to 0.5 (chance level).
 		
 
 	\end{subsection}
+
+Using traditional machine learning classifiers, such as Gradient Boosted Trees, Logistic Regression and Random Forest, forced us to train one model for every kind of activity, resulting in 51 classifiers. Each of those decides in a one-versus-rest decision if an activity is present or not. 
+First approaches with Scikit-Learn's \texttt{OneVsRestClassifier} were not successful, because this class only expects a single classifier as input, forcing us to use the same set of hyperparameters for all 51 individual problems. This restriction proved to be problematic, because the optimal values of hyperparaters vary a lot depending on the kind of input data, particularly if large class imbalances are present.
+
+Another problem is the XGBoost classifier with \texttt{gpu\_hist} tree method, which proved to be the most successful individual model. It uses a very efficient approximate histogram evaluation on the GPU to find the best splits in the boosting algorithm. With help of this method we can train large ensembles of trees in a matter of minutes instead of hours on the CPU. Unfortunately, XGBoost does not release the allocated memory as good as it should, causing out-of-memory errors when using the OneVsRestClassifier.
+This encouraged us to implement our own kind of one-vs-rest classifier that offers, as the name implies, greater flexibility. 
+
+\subsection{FlexOneVsRestClassifier}
+
+The \texttt{FlexOneVsRestClassifier} is a classifier with Scikit-Learn syntax that wraps a set of individual single-label classifiers and allows to use them for multi-label classification. The constructor either expects a single classifier, which is copied for every kind of label, or a dictionary of classifiers. These do not even have to be of the same kind, but can be a mixture of different models. This allows us for example to predict the activity \enquote{lying down} with an XGBoost classifier and the activity \enquote{elevator}, that has a much larger class imbalance, with Logistic Regression.
+
+The most sophisticated method of the FlexOneVsRestClassifier is its \texttt{tune\_hyperparam} method that can be used to tune the hyperparameters of the individual classifiers. It expects a dataset with labels, a number of starting points and iterations and a set of hyperparameters with bounds to optimize (for example \texttt{max\_depth}:(6, 12) allows trees with a maximum depth between six and twelve). When we start the process, the aforementioned \enquote{Bayesian Optimization} library is used to optimize the given hyperparameters (\href{https://github.com/fmfn/BayesianOptimization}{github.com/fmfn/BayesianOptimization}). 
+
+\subsection{Ensemble Classifier}
+
+The best way for the efficient and easy usage of stacking is to encapsulate the base classifiers and meta classifier in a wrapper class. This allows us to reuse the tedious code that is necessary for the cross validaton split and building the prediction sets with our level one classifiers. Mlxtend's \texttt{StackingCVClassifier} is such an implementation, that offers a variety of additional functions (\href{http://rasbt.github.io/mlxtend/user_guide/classifier/StackingCVClassifier/}{github.com/rasbt/StackingCVClassifier}). One can for example use the predicted probabilities instead of predictions of the base classifiers for a more nuanced prediction set. We can also specify which cross validation strategy to use (e.g. stratified or grouped) and if we not only want to use the prediction set to train the meta classifier, but the original training data as well.
+
+In the beginning, their implementation seemed not applicable for our use case, because we had the same problems as before with non-released memory on the GPU. For this reason, we reimplemented a simpler version of this class, \texttt{XgbEnsembleClassifier}, that offers essentially the same functionality. Its main drawback is the lack of parallelization. After optimizing the memory freeing capabilities of \texttt{FlexOneVsRest}, we were fortunately able to use the more efficient \texttt{StackingCVClassifier} instead of our own implementation.
+
 \end{section}
