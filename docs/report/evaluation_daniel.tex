@@ -53,6 +53,28 @@
 	The second possible source of the accuracy loss is an issue with the dataset itself. The reason is the highly unbalanced representations of true and false example for many labels as already discussed in the dataset introduction. One example is the elevator label with just 200 positive, but 70996 negative labels. The quotient of negative to positive value counts is almost 355. While this is the worst case example there many labels with a instance weighting above 50. Thus drastically increases the influence of the training process of these underrepresented positive and also some negative labels. If the few labels do not, and most likely will not, provide a sufficient representation of the labels a representative model can not be trained which can not provide a good classification for those labels. In addition the model is trained to an increasing false positive or false negative rate, because the tolerance towards those representatives is pushed.
 	To prevent this over boosting we tested regulating the used weights of the instance weighting by reducing the growth rate. This was done by applying the square root function. In fact the regularization did reduce the accuracy loss by about 3 percent points, but still an consistent decrease in balanced accuracy was observed. This theory could not be proven or disproved by us due to limited research time and remains an interesting challenge for future research. Furthermore this problem can not be the only influence, since Vaizman et al. performed very similar experiments with the same dataset and directly contradicted our findings.
 	
+	
+\begin{subsection}{Interpretability}
+	
+	One of the tasks for the project was to highlight the influence of the individual features on the classification result for the resulting final classifier.
+	
+	The library XGBoost, which was used to construct our final classifier, provides an answer to the question with the method \texttt{xgboost.plot\_importance}. In Fig. \ref{abb:feature_importance} we show an example of the output for the label 'at\_a\_bar'. It shows the F-score (frequency) for the features that were used most frequently as split features in the gradient trees involved.
+	  
+	
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=.8\textwidth]{images/feature_importance.png}
+			\caption{Shown are the 15 most frequent features which were involved assignment of the 'at\_a\_bar'}
+			\label{abb:feature_importance}
+		\end{center}		
+	\end{figure}
+
+    We have have to keep in mind: The usage-frequency of split-features is only \textit{somewhat} related to their importance, since the anti-overfitting measures limit the amount of total split and 'bad' splits are never included in the constructed trees. Then again the 'true' importance to the classification comes from the information gained by the splits, which is given by equation \ref{eq:LRsplit}. More frequent split-features have more $\LL_\text{split}$-values, but this fact does not indicate that the sum of those $\LL_\text{split}$-values is big. For example, there might be a binary feature like gender with a very high gain-value, but due to its structure it can only be used once and therefore has a low frequency-score.
+    
+    Therefore, statements derived from \texttt{xgboost.plot\_importance} are only conditionally meaningful.
+
+\end{subsection}	
+	
 	\begin{subsection}{Future Directions}
 		One promising direction of future work could focus on establishing a greater and more effictive ensemble classification architecture. Due to rather restrictive limits in computational power, we could not test architectures with more than a few classifiers, but we assume that adding a greater amount of different and diverse classifiers could improve the results of an ensemble classification. In order to utilize provided computational power as much as possible, we would focus on GPU-supporting algorithms only. \par
 		Another interesting aspect of our current stacking architecture is the way data is split in the cross validation for the first-level classifier. Currently, a stratified split is used, although we train to optimize on grouped splits. Changing the cross validation to grouped splits could improve the overall classification results. \par
