@@ -28,7 +28,7 @@
 			\item \emph{micro} - With this strategy, all confusion matrices for each label are added up and then the balanced accuracy is calcuclated upon the cumulated matrix. However, labels with overall low appearance ratio (i.e. for many samples the label is missing) hardly contribute to the overall score. Since especially the \glqq small\grqq labels are difficult to learn in our data set, this method distorts the acutal quality of the classifier towards better values.
 			\item \emph{macro} - This strategy first calculates the balanced accuracy for all labels independently, and then combines those scores by calculating the mean. This ensures that the score of every label contributes equally to the overall score. Naturally, this is the combination method used in the original papers.
 		\end{itemize}
-		Since some labels do not appear very often, it can happen that for a particular label no positive (or negative) samples are contained in the test data set. This is problematic when trying to calculate the balanced accuracy for that label. To avoid division by zero, the sensitivity (or specificity respectively) for this label is then set to 0.5 (chance level).
+		Since some labels do not appear very often, it can happen that for a particular label no positive (or negative) samples are contained in the test data set. This is problematic when trying to calculate the balanced accuracy for that label. To avoid division by zero, the balanced accuracy for this label is then set to 0.5 (chance level).
 		
 
 	\end{subsection}
