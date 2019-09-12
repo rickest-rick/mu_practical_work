@@ -1,9 +1,11 @@
 \subsection{Gradient Boosting}\label{subsec:grad_boost}
 
 
-The following section is based on \cite{Chen16} and \cite{Murphy}. Gradient boosting is about iteratively generating a set of gradient trees that solve a given classification problem as effectively as possible.
+The following section is based on \cite{Chen16} and \cite{Murphy}. 
 
-Gradient trees are essentially decision trees, except that each leaf of the tree has a value whose weight is assigned to $w_i$. Consequently, a gradient tree with $T$ leaves and corresponding weights $(w_1, ... ,w_T)$ can be understood as a function $f: \R^m \to \R$ . Each data point $x \in \R^m$ is assigned the weight of the leaf corresponding to $x$ by $f$ via $f(x) = w_{q(x)}$. The function $q: \R^m \to T$ assigns a sample $x$ to the index number of the leaf belonging to $x$. Furthermore $I_j := \{ i \mid q^{-1}(j)=x_i \}$ contains the indices of those samples which refer to the leaf number $j$. The set of all gradient trees is called $\mathcal{F}$.
+Gradient boosting is about iteratively generating a set of gradient trees that solve a given classification problem as effectively as possible.
+
+Gradient trees are essentially decision trees, except that each leaf of the tree  has a value (weight) $w_i \in \R$ assigned to it. Consequently, a gradient tree with $T$ leaves and corresponding weights $\{w_1, ... ,w_T\}$ can be understood as a function $f: \R^m \to \R$ . Each data point $x \in \R^m$ is assigned the weight of the leaf corresponding to $x$ by $f$ via $f(x) = w_{q(x)}$. The function $q: \R^m \to T$ assigns a sample $x$ to the index number of the leaf belonging to $x$. Furthermore $I_j := \{ i \mid x_i \in q^{-1}(j) \}$ contains the indices of those samples which refer to the leaf number $j$. The set of all gradient trees is called $\mathcal{F}$. \todo{holprig?}
 
 \begin{minipage}{.45\linewidth}
 	\begin{figure}[H]
@@ -35,9 +37,7 @@ The actual gradient tree boosting takes place by iteratively adding new trees to
 \LL^{(t)} = \sum_{i=1}^{n} l(y_i, \Phi(x_i)) + \sum_{k=1}^{K}\Omega(f_k)
 \label{eq:LL1}
 \end{equation}
-is minimized.
-
-Since the $\Omega(f_k)$ for the trees $f_1, ... f_{t-1}$ are already fixed, they play no role in the consideration. Further established are the first $t-1$ terms of the sum $\Phi(x_i) = f_1(x_i) + ... + f_{t-1}(x_i) + f_t(x_i)$. This sum is constant and is aggregated in the expression $\hat{y}^{t-1}$, because it represents the predicted outcome after the $t-1$-th iteration step of the ensemble.
+is minimized. Since the $\Omega(f_k)$ for the trees $f_1, ... f_{t-1}$ are already fixed, they play no role in the consideration. Further established are the first $t-1$ terms of the sum $\Phi(x_i) = f_1(x_i) + ... + f_{t-1}(x_i) + f_t(x_i)$. This sum is constant and is aggregated in the expression $\hat{y}^{t-1}$, because it represents the predicted outcome after the $t-1$-th iteration step of the ensemble.
 
 With this (\ref{eq:LL1}) can also be formulated as:
 \begin{equation}
