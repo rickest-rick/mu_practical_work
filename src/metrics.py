@@ -3,14 +3,14 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 
 
-def balanced_accuracy_score(y_true, y_pred, average="micro", zero_default=1):
+def balanced_accuracy_score(y_true, y_pred, average="macro", zero_default=1):
     """
     Compute the balanced accuracy for a binary multilabel classification. The BA
     is computed as (Recall + Specifity) / 2. NaN values are ignored.
     :author: Daniel Beckmann, Joschka Strüber
     :param test_labels: The true labels as a 2d array.
     :param preds: Predicted labels by a classifier as a 2d array.
-    :param average: str, "micro" (default) or "macro"
+    :param average: str, "macro" (default) or "micro"
         "micro" -> compute the global recall and specificity by incorporating
             the sum of all confusion matrices for every label
         "macro" -> compute the global recall and specificty as the mean of the
@@ -76,8 +76,6 @@ def balanced_accuracy_score_micro(y_true, y_pred, zero_default=0.5):
         recall = float(true_pos) / pos
     else:
         recall = zero_default
-    print("Neg: {}, True Neg: {}".format(neg, true_neg))
-    print("Pos: {}, True Pos: {}".format(pos, true_pos))
     return (recall + specificity) / 2
 
 
@@ -89,25 +87,29 @@ def balanced_accuracy_score_macro(y_true, y_pred):
         label_true = y_true[:, label_set]
         label_pred = y_pred[:, label_set]
 
-        # remove NaN values
-        is_NaN = np.isnan(label_true)
-        label_true = label_true[~is_NaN]
-        label_pred = label_pred[~is_NaN]
-
-        conf_matrix = confusion_matrix(label_true, label_pred)
-        if conf_matrix.shape == (0, 0):  # empty confusion matrix
+        if np.count_nonzero(~np.isnan(label_true)):  # all nan
             n_labels_nonempty -= 1
         else:
             balanced_accuracy = single_balanced_accuracy_score(label_true,
                                                                label_pred)
             sum_balanced_accuracy += balanced_accuracy
     # micro average is average of all specificity and recall values
-    balanced_accuracy = sum_balanced_accuracy / n_labels_nonempty
+    if n_labels_nonempty != 0:
+        balanced_accuracy = sum_balanced_accuracy / n_labels_nonempty
+    else:
+        balanced_accuracy = 1
 
     return balanced_accuracy
 
 
 def single_balanced_accuracy_score(y_true, y_pred):
+    # remove NaN values
+    is_nan = np.isnan(y_true)
+    y_true = y_true[~is_nan]
+    y_pred = y_pred[~is_nan]
+    if y_true.size == 0:
+        return 1
+
     conf_matrix = confusion_matrix(y_true, y_pred)
     if conf_matrix.shape == (2, 2):  # not all positive or negative
         true_neg = conf_matrix[0, 0]

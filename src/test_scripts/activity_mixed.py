@@ -4,7 +4,6 @@ import time
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import confusion_matrix
 from joblib import dump, load
 
 from data_handling import load_user_data, load_some_user_data, \
@@ -59,14 +58,10 @@ if __name__ == "__main__":
               "subsample": (0.5, 1)}
     int_params = ["max_depth"]
 
-    def ba(y_true, y_pred):
-        conf_matrix = confusion_matrix(y_true, y_pred)
-        return single_balanced_accuracy_score(conf_matrix)
-
     clf.tune_hyperparams(X=X_train,
                          y=y_train,
                          bounds=params,
-                         metric=ba,
+                         metric=single_balanced_accuracy_score,
                          init_points=10,
                          n_iter=25,
                          int_params=int_params)

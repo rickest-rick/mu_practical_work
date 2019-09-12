@@ -259,9 +259,6 @@ data/
 env/
 src/tmp/
 
-# trained models
-*.joblib
-
 # plots
 src/*.png
 

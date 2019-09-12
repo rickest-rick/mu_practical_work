@@ -2,9 +2,10 @@ import sys
 import xgboost as xgb
 import numpy as np
 
+from joblib import load, dump
+
 from flex_one_vs_rest_classifier import FlexOneVsRestClassifier
 from data_handling import load_user_data, split_features_labels
-from joblib import dump
 
 
 if __name__ == "__main__":
@@ -25,12 +26,14 @@ if __name__ == "__main__":
     X_train = np.delete(X, [0, 1, 2, X.shape[1] - 1], 1)
 
     # build classifiers with saved hyperparameters
-    # todo
-    xgb_clf = xgb.XGBClassifier(objective="binary:logistic",
-                                n_jobs=-1,
-                                tree_method="gpu_hist")
-    clf = FlexOneVsRestClassifier(clf=xgb_clf,
-                                  n_estimators=y.shape[1])
+    xgb_params = load("params_separated_xgb.joblib")
+
+    # add list of classifiers to flexible OneVsRestClassifier
+    clf = FlexOneVsRestClassifier(clf=xgb.XGBClassifier(),
+                                  n_estimators=y.shape[1],
+                                  label_names=label_names,
+                                  feature_names=attr_names)
+    clf.set_params(**xgb_params)
 
     # train and save classifier
     clf.fit(X_train, y)
