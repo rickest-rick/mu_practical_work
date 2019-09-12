@@ -29,9 +29,8 @@
 			\item \emph{macro} - This strategy first calculates the balanced accuracy for all labels independently, and then combines those scores by calculating the mean. This ensures that the score of every label contributes equally to the overall score. Naturally, this is the combination method used in the original papers.
 		\end{itemize}
 		Since some labels do not appear very often, it can happen that for a particular label no positive (or negative) samples are contained in the test data set. This is problematic when trying to calculate the balanced accuracy for that label. To avoid division by zero, the balanced accuracy for this label is then set to 0.5 (chance level).
-		
-
 	\end{subsection}
+
 
 Using traditional machine learning classifiers, such as Gradient Boosted Trees, Logistic Regression and Random Forest, forced us to train one model for every kind of activity, resulting in 51 classifiers. Each of those decides in a one-versus-rest decision if an activity is present or not. 
 First approaches with Scikit-Learn's \texttt{OneVsRestClassifier} were not successful, because this class only expects a single classifier as input, forcing us to use the same set of hyperparameters for all 51 individual problems. This restriction proved to be problematic, because the optimal values of hyperparaters vary a lot depending on the kind of input data, particularly if large class imbalances are present.
@@ -50,5 +49,7 @@ The most sophisticated method of the FlexOneVsRestClassifier is its \texttt{tune
 The best way for the efficient and easy usage of stacking is to encapsulate the base classifiers and meta classifier in a wrapper class. This allows us to reuse the tedious code that is necessary for the cross validaton split and building the prediction sets with our level one classifiers. Mlxtend's \texttt{StackingCVClassifier} is such an implementation, that offers a variety of additional functions (\href{http://rasbt.github.io/mlxtend/user_guide/classifier/StackingCVClassifier/}{github.com/rasbt/StackingCVClassifier}). One can for example use the predicted probabilities instead of predictions of the base classifiers for a more nuanced prediction set. We can also specify which cross validation strategy to use (e.g. stratified or grouped) and if we not only want to use the prediction set to train the meta classifier, but the original training data as well.
 
 In the beginning, their implementation seemed not applicable for our use case, because we had the same problems as before with non-released memory on the GPU. For this reason, we reimplemented a simpler version of this class, \texttt{XgbEnsembleClassifier}, that offers essentially the same functionality. Its main drawback is the lack of parallelization. After optimizing the memory freeing capabilities of \texttt{FlexOneVsRest}, we were fortunately able to use the more efficient \texttt{StackingCVClassifier} instead of our own implementation.
+
+We tested several base classifiers, such as gradient boosted trees, support vector machines, AdaBoost, random forest, naive Bayes and Logistic Regression. An XGBoost gradient boosted tree was our choice for the meta classifier.
 
 \end{section}
