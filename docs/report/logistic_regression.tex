@@ -29,12 +29,11 @@ The negative logarithm applied to (\ref{eq:likelihood_function}) results in an e
 \begin{equation} \label{eq:likelihood_function}
 E(w)=-\ln p(t|w) = - \sum_{n=1}^{N}t_n \ln y_n + (1-t_n) \ln (1-y_n)
 \end{equation}
-where $y_n=\sigma(a_n)$. Using equation (\ref{eq:sigmoid_derived}) and taking the gradient with respect to $w$ we obtain:
-
-\todo{hier passiert magie. Die ich nicht verstanden habe. OK so?}
-
+where $y_n=\sigma(w^\text{T}x_n)$. Using equation (\ref{eq:sigmoid_derived}) and taking the gradient with respect to $w$ by using chain and sum rule of derivation we obtain:
 \begin{equation} \label{eq:lin_reg_gradient}
-\nabla E(w)=\sum_{n=1}^{N} (y_n-t_n)\Phi_n
+\begin{split}
+\nabla E(w) &= - \sum_{n=1}^{N} \left( t_n \frac{1}{y_n} y_n(1-y_n)x_n + (1-t_n)\frac{1}{1-y_n}(-y_n)(1-y_n)x_n \right)\\ &=\sum_{n=1}^{N} (y_n-t_n)x_n
+\end{split}
 \end{equation}
 This function can be used to fit the best parameters.
-The advantage of the logistic regression is that it uses $M$ parameters to fit to a $M$-dimensional feature space and grows linear with the dimension of the feature space, in contrast to, e.g. fitted Gaussian class conditional densities using maximum likelihood which grows exponentially with the dimension $M$. \cite{Bishop}
+The advantage of the logistic regression is that it uses $M$ parameters to fit to a $M$-dimensional feature space and grows linear with the dimension of the feature space, in contrast to, e.g. fitted Gaussian class conditional densities using maximum likelihood which grows exponentially with the dimension $M$. It should be noted, that this whole procedure is also applicable if a nonlinear transformation $\Phi$ to another feature space (of higher dimension) is applied to the data set $X$. In this case, all $x_n$ only have to be replaced by $\Phi_n = \Phi(x_n)$. \cite{Bishop}
