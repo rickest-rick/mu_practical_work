@@ -17,6 +17,4 @@ Compared to Bagging and Boosting the indivual classifiers are not assigned a fix
 	\end{center}		
 \end{figure}	
 
-In our case we used XGBoost, a naive bayes classifier, a random-forest classifier and a linear regression classificator as first-level classifiers and XGBoost as the second-level classificator. As shown in Fig. \ref{abb:stacking}, the first-level classifiers were trained with the principle of Cross Validation, this Stacking technique is also called Cross Validation Stacking, in which the data set was divided by three, resulting in three prediction sets. On these prediction sets, supplemented by the original labels, the training of the second-level classifier took place.
-
-Die Ergänzung des \textcolor{red}{Cross-Validation} Aspekts gegenüber der 
+In our case we used XGBoost, a naive bayes classifier, a random-forest classifier and a linear regression classificator as first-level classifiers and XGBoost as the second-level classificator. As shown in Fig. \ref{abb:stacking}, the first-level classifiers were trained with the principle of Cross Validation, this Stacking technique is also called Cross Validation Stacking, in which the data set was divided by three, resulting in three prediction sets. On these prediction sets, supplemented by the original labels, the training of the second-level classifier took place. \todo{Cross Validation Grund hinzufügen}
