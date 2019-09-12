@@ -1,47 +1,34 @@
 \section{User Classification}\label{sec:user_classification}
-Another interesting task to consider when working with data sets containing information about human context is the classification and identification of specific users. Given a set of samples from the data set, the goal is to identify the user that produced these samples. Naturally, this task becomes trivial if any user-specific data such as id's for identification or absolute position coordinates is contained in the data set. Thus, we removed all user-specific data from the set before starting the task.
+Another interesting task to consider when working with datasets containing information about human context is the classification and identification of specific users. Given a set of samples from the dataset, the goal is to identify the user that produced these samples. Naturally, this task becomes trivial if any user-specific data such as id's for identification or absolute position coordinates is contained in the dataset. Thus, we removed all user-specific data from the dataset before starting the task.
 
-\begin{subsection}{Data set manipulation}
-	The original data set does contain some information which is user-specific. Primarily, each sample contains an UUID which is used to identify the user who reported this sample. Of course, this and other user-specific features needs to be removed in order to obtain a meaningful data set and task to solve on it. We decided to remove the following features from the original data set:
+\begin{subsection}{Dataset Manipulation}
+	The original dataset does contain some information which is user-specific. Primarily, each sample contains an UUID which is used to identify the user related to this sample. Of course, this and other user-specific features needs to be removed in order to obtain a meaningful dataset for user classification. We decided to remove the following features from the original dataset:
 	\begin{itemize}
-		\item \textbf{UUID} - This id identifies the user who reported this sample. Technically, this id is not part of the original data set, which consists of separate files for each user. However, in order to obtain one big matrix with all samples from all users, we introduced this column. This enables us to create train-test-splits which are grouped by users for the main classification task.
+		\item \textbf{UUID} - This id identifies the user who reported this sample. Technically, this id is not part of the original dataset, which consists of separate files for each user. However, in order to obtain one big matrix with all samples from all users, we introduced this column. This enables us to create train-test-splits which are grouped by users for the main classification task.
 		\item \textbf{timestamp} - The exact time when the sample was created. Since not all users reported samples over the same period of time, this might give a hint regarding the associated user.
-		\item \textbf{label source} - This indicates how this feature was reported by the user. The app that was used to collect the data has several ways of reporting acitivities which are encoded in this feature.
+		\item \textbf{label source} - This indicates how this feature was reported by the user. The app used to collect the data has several ways of reporting activities which are encoded in this feature.
 	\end{itemize}
-	For this problem, we also disgarded the label columns, although this information might be actually useful to solve the task. As an example, maybe only one of the reporting users does like to sing and thus all samples with a positive \emph{singing} label could be easily assigned to this particular user. Despite that, the actual usage of this classifier would be very limited, since in order to be able to identify a user, it would be necessary to know about activities he or she was involved in. Naturally, if this information is available, the identity of the considered person should also be known.
+	We also discarded the label columns, because they provide meta data actively provided by a user, while our goal was to detect the user only on automatically detected sensor data. As an example, maybe only one of the reporting users does like to sing and thus all samples with a positive \emph{singing} label could be easily assigned to this particular user. Despite that, the actual usage of this classifier would be very limited, since in order to be able to identify a user, it would be necessary to know about activities he or she was involved in. Naturally, if this information is available, the identity of the considered person should also be known.
 \end{subsection}
 \begin{subsection}{Architecture}
-	To solve the user classification problem, we first trained a random forest with a default set of hyperparameters. This produced remarkable results. With this basic configuration, we reached a F1-score of about $0.97$. We then decided to explore the limits of reachable classification accuracy. We replaced the random forest with the established XGB-Classifier, which we also use as the base classifier in our activity recognition task and did a randomized hyperparameter search with cross validation. The implementation we used is provided by Scikit-Learn\footnote{\href{https://scikit-learn.org/stable/}{https://scikit-learn.org}}. The found hyperparameters are embedded in the implementation we provide.
+	To solve the user classification problem, we first trained a random forest with a default set of hyperparameters. This produced remarkable results. With this basic configuration, we reached a F1-score of about $0.97$. We then attempted to find the upper limits of classification accuracy. We replaced the random forest with the established XGB-Classifier, which we also use as the base classifier in our activity recognition task and did a randomized hyperparameter search with cross validation. The implementation we used is provided by Scikit-Learn\footnote{\href{https://scikit-learn.org/stable/}{https://scikit-learn.org}}. The found hyperparameters are embedded in the implementation we provide.
 
 \end{subsection}
 
 \begin{subsection}{Experimental Results}
-	The following table illustrates the results of a 5-fold cross validation on the XGB-Classifier with the found hyperparameters:
+	The following table illustrates the results of a 5-fold cross validation on the XGB-Classifier with the best found hyperparameters:
 	\begin{table}[H]
 		\begin{center}
+			\caption{F1 score of each split}
 			\begin{tabular}{ c|c|c|c|c|c  }
 				\toprule
 				1st run &2nd run &3rd run& 4th run & 5th run & avg\\
 				\midrule
 				0.9972&0.9746&0.9965&0.9970&0.9968&\textbf{0.9924}\\
-				
 				\bottomrule
 			\end{tabular}
-			\caption{F1 score of each split}
 		\end{center}
 	\end{table}
-	
-	\begin{center}
-		\begin{tabular}{ |c|c|c|c|c|c|  }
-			\hline
-			\multicolumn{6}{|c|}{F1 score of each split} \\
-			\hline
-			1st run &2nd run &3rd run& 4th run & 5th run & avg\\
-			\hline
-			0.9972&0.9746&0.9965&0.9970&0.9968&\textbf{0.9924}\\
 
-			\hline
-		\end{tabular}
-	\end{center}
-	Our classifier is able to identify a user with remarkable precision. If provided a whole batch (even of small size) of samples, the accuracy could propably be improved to nearly 100\%. However, we can only guess why the user classification can be done with such a high level of precision. From our standpoint, a classification with this many classes (60 users in total) should not at all be an easy classification problem. Maybe certain movement routines, which are captured by the used accelerometers, are very user-specific and are encoded within the provided features. We also thought that the high accuracy might have to do something with different hardware used in different types of smartphones. However, a large portion of users for example does use the same Apple products, so this could only be used to divide the users into smaller groups. 
+	Our classifier is able to identify a user with remarkable precision. If provided a whole batch (even of small size) of samples, the accuracy could probably be improved to nearly 100\%. However, we can only guess why the user classification can be done with such a high level of precision. From our standpoint, a classification with this many classes (60 users in total) should not at all be an easy classification problem. Maybe certain movement routines, which are captured by the used accelerometers, are very user-specific and are encoded within the provided features. We also thought that the high accuracy might have to do something with different hardware used in different types of smartphones. However, a large portion of users for example does use the same Apple products, so this could only be used to divide the users into smaller groups. 
 \end{subsection}

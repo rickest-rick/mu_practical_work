@@ -2,7 +2,7 @@
 
 According to the theory of gradient boosting, every implementation of gradient boosting has to deal with the problem of finding a 'good' tree structure $q$ for each to-be-added tree.
 
-Compared to other tree boosting systems like scikit-learn, XGBoost supports the exact greedy algorithm, approximate global and local algorithms of split-finding which means that we had the option using all three, is a fitting situation should arise. Furthermore XGBoost includes several additional measures against overfitting and strategies considering sparse datasets.\todo{XGBoost paper hier zitieren} All this led to our decision to use XGBoost.
+Compared to other tree boosting systems like Scikit-Learn, XGBoost supports the exact greedy algorithm, approximate global and local algorithms of split-finding which means that we had the option of using and testing all three without having to install different libraries. Furthermore XGBoost includes several additional measures against overfitting and strategies considering sparse datasets \cite{Chen16}. All this led to our decision to use XGBoost.
 
 \subsubsection{XGBoost: Sparsity-Awareness}
 
@@ -13,7 +13,7 @@ To deal with missing entries, XGBoost assigns a default branch to each tree node
 This is an obvious improvement over the procedure of simply setting all missing values to a certain, fixed value in advance.
 
 \subsubsection{XGBoost: Greedy and Approximate Algorithm for Split-Finding}
-The greedy algorithm for split-finding iterates over all possible splits of a current leaf, evaluating equation (\ref{eq:LRsplit}) and picking the split with the best result (if any). As mentioned above this process is not very efficient. The solution given by XGBoost consists in two different approximate algorithms: the local and the global one.
+The greedy algorithm for split-finding iterates over all possible splits of a current leaf, evaluating equation (\ref{eq:LRsplit}) and picking the split with the best result (if any). As mentioned above, this process is not very efficient. The solution given by XGBoost consists in two different approximate algorithms: the local and the global one.
 
 \newcommand{\rnk}{\operatorname{rank}}
 At the center of both algorithms resides the idea that not all feature-values should be tested as possible feature-splits. Instead, the algorithms look for a set of representatives on the basis of which the continuous features are divided into buckets. This is achieved as follows: For the feature vector $x_i$, $x_i,k$ denotes the value of the $k$-th feature, and $h_i$ and $g_i$ indicate the values corresponding to $x_i$ introduced in the equation (\ref{eq:shortL}).
@@ -33,7 +33,7 @@ For a fixed $\epsilon$, the representatives of the $k$-th feature $\{r_{k,1}, ..
 
 This means that the representatives $r_{i,k}$ decompose the feature-values $x_{i,k}$ of the $k$-th feature in such a way that there is approximately the same weight (a weight smaller than $\epsilon$) between two adjacent representatives.
 
-A good choice of $\epsilon$ is crucial for the resulting performance, since it controls the finding of representatives. In the further process, the resulting intervals between representatives are used, which can mean a big leap in efficiency regarding the greedy method.
+A good choice of $\epsilon$ is crucial for the resulting performance, since it controls the finding of representatives. From here on, the resulting intervals between representatives are used, which can lead to a big leap in efficiency regarding the greedy method.
 
 The difference between the global and local variant of the algorithm resides in the fact that in the global version the candidates are created only once - at the beginning of the construction of the tree - , in the local version these are determined again after each iteration with consideration to the feature choices made.
 
