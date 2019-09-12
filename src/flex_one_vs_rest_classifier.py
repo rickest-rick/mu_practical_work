@@ -83,7 +83,6 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         # train a classifier for every set of labels in y
         for label in range(n_labels):
             y_train = y[:, label]
-
             # ignore features for which no prediction is available
             if ignore_nan:
                 X_train = X
@@ -147,7 +146,8 @@ class FlexOneVsRestClassifier(BaseEstimator, ClassifierMixin):
         :return: self
         """
         for label in params:
-            self.classifiers[label].set_params(**params[label])
+            clf = self.classifiers[label]
+            clf.set_params(**params[label])
 
     def score(self, X, y, sample_weight=None):
         """
