@@ -148,28 +148,28 @@ if __name__ == "__main__":
         ('clf', ensemble_clf_ovr)
     ])
 
-    clfs = [svm_ovr_pipeline,
-            gnb_ovr_pipeline,
-            xgb_ovr_clf,
-            rf_ovr_clf,
-            lr_ovr_pipeline,
+    clfs = [#svm_ovr_pipeline,
+            #gnb_ovr_pipeline,
+            #xgb_ovr_clf,
+            #rf_ovr_clf,
+            #lr_ovr_pipeline,
             ensemble_clf_pipeline]
-    clf_names = ["SVM",
-                 "Naive Bayes",
-                 "XGB",
-                 "Random Forest",
-                 "Logistic Regression",
+    clf_names = [#"SVM",
+                 #"Naive Bayes",
+                 #"XGB",
+                 #"Random Forest",
+                 #"Logistic Regression",
                  "Ensemble"]
 
     ba_scorer = make_scorer(balanced_accuracy_score)
     random_state = 42
     for clf, label in zip(clfs, clf_names):
         print(label)
-        start = time.time()
-        print(cv_strat_ba_score(clf, X, y, uuid_groups, n_splits=5,
-                                random_state=42))
+        #start = time.time()
+        #print(cv_strat_ba_score(clf, X, y, uuid_groups, n_splits=5,
+        #                        random_state=42))
         strat_time = time.time()
-        print("Time Stratified: ", str(timedelta(seconds=strat_time - start)))
+        #print("Time Stratified: ", str(timedelta(seconds=strat_time - start)))
         print(cv_grouped_ba_score(clf, X, y, uuid_groups, n_splits=5))
         grouped_time = time.time()
         print("Grouped Time: ", str(timedelta(seconds=grouped_time - strat_time)))

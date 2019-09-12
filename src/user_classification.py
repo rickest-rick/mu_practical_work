@@ -57,11 +57,8 @@ if __name__ == '__main__':
     fig = plt.gcf()
     fig.set_size_inches(80, 8)
     plt.show()
-    fig.savefig("user_class_model.png")
 
-    dump(clf, "user_class_xgb.joblib")
     preds = clf.predict(X_test)
-
     score_f1 = f1_score(y_test, preds, average="weighted")
     print("F1 score: ", score_f1)
     print(confusion_matrix(y_test, preds))

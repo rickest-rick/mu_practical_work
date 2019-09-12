@@ -1,5 +1,6 @@
 import xgboost as xgb
 import numpy as np
+import time
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
@@ -11,14 +12,15 @@ from sklearn.model_selection import GroupKFold, StratifiedKFold
 from sklearn.metrics import make_scorer
 from sklearn.ensemble import AdaBoostClassifier
 from joblib import load
+from datetime import timedelta
+from mlxtend.classifier import StackingCVClassifier
 
 from data_handling import load_user_data, split_features_labels
 from metrics import balanced_accuracy_score
 from flex_one_vs_rest_classifier import FlexOneVsRestClassifier
-from xgb_ensemble_classifier import XgbEnsembleClassifier
 
 
-def cv_strat_ba_score(clf, X, y, groups, n_splits=5):
+def cv_strat_ba_score(clf, X, y, groups, n_splits=5, random_state=None):
     sum_ba = 0.
     strat_kfold = StratifiedKFold(n_splits=n_splits, shuffle=True,
                                   random_state=random_state)
@@ -60,7 +62,9 @@ if __name__ == "__main__":
     X = np.delete(X, [0, 1, 2, X.shape[1] - 1], 1)
     X = np.delete(X, [0, 1, 2, X.shape[1] - 1], 1)
 
+
     n_labels = y.shape[1]
+
     gnb_clf = GaussianNB()
     gnb_ovr_clf = FlexOneVsRestClassifier(clf=gnb_clf, n_estimators=n_labels)
     gnb_ovr_pipeline = Pipeline([
@@ -71,18 +75,18 @@ if __name__ == "__main__":
 
     xgb_clf = xgb.XGBClassifier()
     xgb_ovr_clf = FlexOneVsRestClassifier(clf=xgb_clf, n_estimators=n_labels)
-    param_dict = load("params_separated_xgb.joblib")
-    xgb_ovr_clf.set_params(**param_dict)
+    xgb_params = load("params_separated_xgb.joblib")
+    xgb_ovr_clf.set_params(**xgb_params)
 
     rf_clf = xgb.XGBRFClassifier()
     rf_ovr_clf = FlexOneVsRestClassifier(clf=rf_clf, n_estimators=n_labels)
-    param_dict = load("params_separated_rf.joblib")
-    rf_ovr_clf.set_params(**param_dict)
+    rf_params = load("params_separated_rf.joblib")
+    rf_ovr_clf.set_params(**rf_params)
 
     lr_clf = LogisticRegression()
     lr_ovr_clf = FlexOneVsRestClassifier(clf=lr_clf, n_estimators=n_labels)
-    param_dict = load("params_separated_lr.joblib")
-    lr_ovr_clf.set_params(**param_dict)
+    lr_params = load("params_separated_lr.joblib")
+    lr_ovr_clf.set_params(**lr_params)
     lr_ovr_pipeline = Pipeline([
         ('imputer', SimpleImputer(strategy="mean")),
         ('std_scaler', StandardScaler()),
@@ -91,19 +95,15 @@ if __name__ == "__main__":
 
     svm_clf = LinearSVC()
     svm_ovr_clf = FlexOneVsRestClassifier(clf=svm_clf, n_estimators=n_labels)
-    param_dict = load("params_separated_svc.joblib")
-    svm_ovr_clf.set_params(**param_dict)
+    svc_params = load("params_separated_svc.joblib")
+    svm_ovr_clf.set_params(**svc_params)
     svm_ovr_pipeline = Pipeline([
         ('imputer', SimpleImputer(strategy="mean")),
         ('std_scaler', StandardScaler()),
         ('clf', svm_ovr_clf)
     ])
-    # build classifiers with saved hyperparameters
-    xgb_params = load("params_separated_xgb.joblib")
-    rf_params = load("params_separated_rf.joblib")
-    svc_params = load("params_separated_svc.joblib")
-    lr_params = load("params_separated_lr.joblib")
 
+    # build base classifiers with saved hyperparameters
     classifiers = []
     for label in range(n_labels):
         xgb_param = xgb_params[str(label)]
@@ -122,44 +122,54 @@ if __name__ == "__main__":
         ada_clf = AdaBoostClassifier(n_estimators=50,
                                      learning_rate=0.9)
 
-        clfs_internal = [xgb_clf,
+        internal_clfs = [xgb_clf,
                          rf_clf,
-                         svc_clf,
-                         lr_clf,
-                         ada_clf]
-        ensemble_clf = XgbEnsembleClassifier(classifiers=clfs_internal,
-                                             n_splits=3,
-                                             n_estimators=200,
-                                             learning_rate=0.1,
-                                             max_depth=5,
-                                             gamma=1,
-                                             tree_method="gpu_hist",
-                                             n_jobs=-1)
+                         lr_clf]
+        meta_clf = xgb.XGBClassifier(n_estimators=200,
+                                     learning_rate=0.1,
+                                     max_depth=5,
+                                     gamma=1,
+                                     n_jobs=-1,
+                                     tree_method="gpu_hist")
+        ensemble_clf = StackingCVClassifier(classifiers=internal_clfs,
+                                            meta_classifier=meta_clf,
+                                            use_probas=True,
+                                            drop_last_proba=True,
+                                            random_state=42,
+                                            n_jobs=-1)
         classifiers.append(ensemble_clf)
 
     # add list of classifiers to flexible OneVsRestClassifier
-    ensemble_clf = FlexOneVsRestClassifier(classifiers=classifiers)
+    ensemble_clf_ovr = FlexOneVsRestClassifier(classifiers=classifiers)
 
     ensemble_clf_pipeline = Pipeline([
         ('imputer', SimpleImputer(strategy="mean")),
         ('std_scaler', StandardScaler()),
-        ('clf', ensemble_clf)
+        ('clf', ensemble_clf_ovr)
     ])
 
-    """
     clfs = [svm_ovr_pipeline,
             gnb_ovr_pipeline,
             xgb_ovr_clf,
             rf_ovr_clf,
             lr_ovr_pipeline,
             ensemble_clf_pipeline]
-    """
-
-    clfs = [ensemble_clf_pipeline]
+    clf_names = ["SVM",
+                 "Naive Bayes",
+                 "XGB",
+                 "Random Forest",
+                 "Logistic Regression",
+                 "Ensemble"]
 
     ba_scorer = make_scorer(balanced_accuracy_score)
     random_state = 42
-    for clf in clfs:
-        print(clf)
-        print(cv_strat_ba_score(clf, X, y, uuid_groups))
-        print(cv_grouped_ba_score(clf, X, y, uuid_groups))
+    for clf, label in zip(clfs, clf_names):
+        print(label)
+        start = time.time()
+        print(cv_strat_ba_score(clf, X, y, uuid_groups, n_splits=5,
+                                random_state=42))
+        strat_time = time.time()
+        print("Time Stratified: ", str(timedelta(seconds=strat_time - start)))
+        print(cv_grouped_ba_score(clf, X, y, uuid_groups, n_splits=5))
+        grouped_time = time.time()
+        print("Grouped Time: ", str(timedelta(seconds=grouped_time - strat_time)))
