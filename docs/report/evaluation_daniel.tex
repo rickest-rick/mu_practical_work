@@ -1,0 +1,40 @@
+\begin{section}{Evaluation Daniel}
+	\begin{subsection}{Reproduction and Baseline}
+		In order to be able to compare our efforts to the results produced by the original paper, we first tried to recreate the classifier used by Vaizman et al. in their first paper. They used logistic regression \ref{subsec:lr} as a baseline and reached a balanced accuracy of $0.718$ with instance-weighting and $0.598$ without \cite{Vaizman18}. Our method reaches an accuracy of \textbf{0.656} without instance-weighting (see REFERENZ INSTANCE WEIGHTING for more details on instance weighting). There might be various reasons why our implementation performed better than the original. Differences in the implementation of the algorithm in different libraries may be one of those possible reasons, as well as optimized hyper parameters. We used Bayesian Optimization (see \ref{subsec:bayes_opt}) to search for mentioned hyperparameters. 
+		We expanded our baseline by some more classical methods, including an Naive-Bayes-Classifier with gaussian distribution for every feature. The results were slightly better than chance, with a balanced accuracy of $0.555$. This indicates that the underlying assumption for Naive Bayes about the independence and normal distribution of each feature (see \ref{subsec:naive_bayes}) most likely does not hold. \par
+		Before focussing on tree ensemble methods, we first experimented with a Linear Support Vector Machine (short LinSVC (\emph{C} for Classifier)). We did a hyperparameter search with Bayesian Optimization, but the resulting balanced accuracy of $0.636$ falls short of the results obtained by logistic regression. In addition to that, the implementation provided by Scikit-Learn does not support GPU's, resulting in very long training time. \par
+	\end{subsection}
+
+	\begin{subsection}{Random Forest and XGBoost}
+		In a first attempt, we decided to have a look at the classic Random Forest ensemble method (see \ref{subsec:random_forests}). Analogous to our baseline algorithms, we tried to improve the results using Bayesian Optimization. With this, we were almost able to reproduce our results obtained by logistic regression, achieving a balanced accuracy of $0.650$. We then decided to use a more sophisticated tree ensemble method, namely Gradient Tree Boosting (see \ref{subsec:grad_boost}). Its two most used implementations, XGBoost (see \ref{subsec:xgb}) and LightGBM\footnote{\href{https://github.com/microsoft/LightGBM}{github.com/microsoft/LightGBM}} became widely recognized over the past years for their successes in many machine learning competitions \cite{Chen16}. \par
+		Although our results are not remarkable, we were able to improve the classification accuracy achieved by logistic regression and Random Forests using XGBoost. After tuning the hyperparameters, again using Bayesian Optimization, the final balanced accuracy was $0.672$.  The following table summarizes our achieved scores, including the results for our Ensemble Classification approach (see \ref{subsec:stacking}). All scores are calculated using 5-fold cross validation.
+		\begin{table}[H]
+			\begin{center} 
+				\begin{tabular}{r|c|c}
+					\toprule
+					& Stratified & Grouped \\
+					\midrule
+					Logistic Regression & 0.809 & 0.656 \\
+					Naive Bayes & 0.567 & 0.555 \\
+					LinSVC & 0.78 & 0.636 \\
+					Random Forest & 0.954 & 0.650 \\
+					\textbf{XGBoost} & \textbf{0.958} & \textbf{0.672} \\
+					\midrule
+					Ensemble & 0.941 & \\
+					\bottomrule
+				\end{tabular}
+			\end{center}
+			\caption{Summary of classification results on the ExtraSensory Dataset. All values refer to balanced accuracy. Scores under \glqq Grouped\grqq{} refer to training with separated users (as done in the original paper). See \ref{subsec:stratified} for more information about results under \glqq Stratified\grqq.}
+		\end{table}
+	\end{subsection}
+
+	\begin{subsection}{TITEL}\label{subsec:stratified}
+		Following the original paper, the dataset is split into training and test subsets such that each user is contained entirely within one of the two subsets. That means that each trained classifier is tested on samples provided by users it has never seen before. We refer to this method of splitting as \glqq grouped\grqq{}. The orthogonal approach is to split the samples of each user evenly between the training and test set. More precisely, if for example 80\% of the entire data set is used to train, 80\% of the samples of \emph{each} user is contained within the training set, the other 20\% in the test set. We refer to this splitting method as \glqq stratified\grqq{}. \par
+		Using a stratified split instead of the original grouped one, we are able to produce substantially better classification results throughout all used classifiers. The only exception is the Naive Bayes classifier, which only improved very slightly, reaching a balanced accuracy of $0.567$. \par
+		A valid reason for this improvement - or rather why classification with a grouped split is such a difficult task - can be found by looking at the results of our user classification (see \ref{sec:user_classification}). We are able to identify the correct user for a given sample over 99\% of the time. This indicates that each user is somewhat unique and distinguishable in terms of samples he or she provides. This implies that on the other hand it is very difficult to gain good insight about some user's activities when he or she is unknown to the classifier. This assumption is also encouraged by the fact that our classification results in the main task were really good on the training samples. An average XGBoost classifier achieves a balanced accuracy of $0.98$ on its training dataset. 
+	\end{subsection}
+
+	\begin{subsection}\label{subsec:ensemble_eval}
+		In addition to only using
+	\end{subsection}
+\end{section}
