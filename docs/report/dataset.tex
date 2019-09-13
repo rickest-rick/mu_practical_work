@@ -5,12 +5,6 @@ The ExtraSensory dataset was collected in 2015 and 2016 by Yonatan Vaizman and K
 The users themselves assigned most of their data points to the respective activities. In the course of this they had the option to use predefined labels or create their own. The label represented various information about the location, the context and the activity of a user. Some examples are 'in class', 'singing', 'stairs (going up)', 'stairs (going down)', 'with friends' or 'talking'. In a preprocessing step these label were reduced to a set of 51 labels by combining similar labels.
 The final results contained 377,346 data points, which were described by one or more of the 51 final labels. This means for each data point exists a label vector of length 51. Each entry can contain the values 'true', 'false' or 'NaN', where 'NaN' represents missing information on this label.
 
-Figure \ref{abb:boxplot_label} visualizes the distribution of these values for each label as a box-plot diagram. Looking at the median for 'NaN', it can be seen that for most labels the majority of data points do not contain a value - which increases the difficulty of classification. This means that for many labels exists a large number of data points in the ExtraSensory data set which do not contain any information regarding the label.
-
-Furthermore, the figure shows that the median of labels with the value 'true' is just 5,153 meaning that in the median only 5,153 samples exist for a specific activity. Overall just very few labels are labeled as 'true' for more than 10\% of the data points. Consequently there are many label classes consisting of very few representatives. 
-
-Finally, it can be seen in figure \ref{abb:histogramm_data} that for all data points at least 44\% of the 51 labels are not evaluated and therefore 'NaN'. Thus, there are no data points that make statements about all labels at the same time, in summary the data is sparse in a variety of ways.
-
 \begin{figure}[H]
 	\begin{center}
 		\includegraphics[scale=.8]{images/boxplot_label.png}
@@ -18,6 +12,12 @@ Finally, it can be seen in figure \ref{abb:histogramm_data} that for all data po
 		\label{abb:boxplot_label}
 	\end{center}		
 \end{figure}
+
+Figure \ref{abb:boxplot_label} visualizes the distribution of these values for each label as a box-plot diagram. Looking at the median for 'NaN', it can be seen that for most labels the majority of data points do not contain a value - which increases the difficulty of classification. This means that for many labels exists a large number of data points in the ExtraSensory data set which do not contain any information regarding the label.
+
+Furthermore, the figure shows that the median of labels with the value 'true' is just 5,153 meaning that in the median only 5,153 samples exist for a specific activity. Overall just very few labels are labeled as 'true' for more than 10\% of the data points. Consequently there are many label classes consisting of very few representatives. 
+
+Finally, it can be seen in figure \ref{abb:histogramm_data} that for all data points at least 44\% of the 51 labels are not evaluated and therefore 'NaN'. Thus, there are no data points that make statements about all labels at the same time, in summary the data is sparse in a variety of ways.
 
 \begin{figure}[H]
 	\begin{center}
