@@ -11,6 +11,7 @@
 		We were able to improve the classification accuracy achieved by logistic regression and Random Forests using XGBoost slightly. After tuning the hyperparameters, again using Bayesian Optimization, the final balanced accuracy was $0.672$.  The following table summarizes our achieved scores, including the results for our Ensemble Classification approach (see chapter \ref{subsec:stacking}). All scores are calculated using 5-fold cross validation.
 		\begin{table}[H]
 			\begin{center} 
+				\caption{Summary of classification results on the ExtraSensory Dataset. All values refer to balanced accuracy. Scores under \glqq Grouped\grqq{} refer to training with separated users (as done in the original paper). See chapter \ref{subsec:stratified} for additional information about results under \glqq Stratified\grqq.}
 				\begin{tabular}{r|c|c}
 					\toprule
 					& Stratified & Grouped \\
@@ -25,7 +26,6 @@
 					\bottomrule
 				\end{tabular}
 			\end{center}
-			\caption{Summary of classification results on the ExtraSensory Dataset. All values refer to balanced accuracy. Scores under \glqq Grouped\grqq{} refer to training with separated users (as done in the original paper). See chapter \ref{subsec:stratified} for additional information about results under \glqq Stratified\grqq.}
 			\label{table:results}
 		\end{table}
 	\end{subsection}

@@ -86,11 +86,11 @@ Using these optimal $w_j^*$ in (\ref{eq:LL_umsortiert}) results in the optimal v
 
 For a given tree structure $q$, it is now possible to calculate the most helpful weights of the new tree $f_t$ for the ensemble using (\ref{eq:opt_w}). Furthermore, such an (optimized) tree structure $q$ can be evaluated with (\ref{eq:entropy}). The resulting value is comparable to the entropy of decision trees. 
 
-In reality one would have to work through all possible tree structures, including the different feature-splits, calculate the optimized $w^*_j$ and $\tilde{\LL}^{(t)} (q)$, and compare. Because this is hardly realizable, the new tree $f_t$ is constructed in the iteration step $t$ by a greedy algorithm. In this process, branches are added iteratively to the tree by splitting leaves. Let $I_l, I_r$ be the sets of the index numbers assigned to the left or right leaf and $I = I_l \dot\cup I_r$ the index set of the former leaf. The resulting improvement of this split results after (\ref{eq:entropy}):
+In reality one would have to work through all possible tree structures, including the different feature-splits, calculate the optimized $w^*_j$ and $\tilde{\LL}^{(t)} (q)$, and compare. Because this is hardly realizable, the new tree $f_t$ is constructed in the iteration step $t$ by a greedy algorithm. In this process, branches are added iteratively to the tree by splitting leaves. Let $I_l, I_r$ be the sets of the index numbers assigned to the left or right leaf and $I = I_l \dot\cup I_r$ the index set of the former leaf. The resulting improvement of this split results after evaluating (\ref{eq:entropy}) for the new and the old tree:
 \begin{equation} \label{eq:LRsplit}
 	\begin{split}
-		\tilde{\LL}_\text{split} &= \tilde{\LL}^{(t)} (q_\text{alt})-\tilde{\LL}^{(t)} (q_\text{neu})\\
-		&= \left( - \frac{1}{2} \sum_{j=1}^{T} \frac{(\sum\limits_{i \in I_{j, \text{alt}}} g_i)^2}{\sum\limits_{i \in I_{j, \text{neu}}} h_i + \lambda} + \gamma T \right)- \left( - \frac{1}{2} \sum_{j=1}^{T+1} \frac{(\sum\limits_{i \in I_{j, \text{neu}}} g_i)^2}{\sum\limits_{i \in I_{j, \text{neu}}} h_i + \lambda} + \gamma (T+1) \right)\\	
+		\tilde{\LL}_\text{split} &= \tilde{\LL}^{(t)} (q_\text{old})-\tilde{\LL}^{(t)} (q_\text{new})\\
+		&= \left( - \frac{1}{2} \sum_{j=1}^{T} \frac{(\sum\limits_{i \in I_{j, \text{old}}} g_i)^2}{\sum\limits_{i \in I_{j, \text{old}}} h_i + \lambda} + \gamma T \right)- \left( - \frac{1}{2} \sum_{j=1}^{T+1} \frac{(\sum\limits_{i \in I_{j, \text{new}}} g_i)^2}{\sum\limits_{i \in I_{j, \text{new}}} h_i + \lambda} + \gamma (T+1) \right)\\	
 		&= \frac{1}{2} \left( \frac{(\sum_{i \in I_l} g_i)^2}{\sum_{i \in I_l} h_i + \lambda} + \frac{(\sum_{i \in I_r} g_i)^2}{\sum_{i \in I_r} h_i + \lambda} - \frac{(\sum_{i \in I} g_i)^2}{\sum_{i \in I} h_i + \lambda} \right) - \gamma 
 	\end{split}
 \end{equation}
