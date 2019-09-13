@@ -84,3 +84,8 @@
 		
 	\end{subsection}
 \end{section}
+
+\begin{section}{Summary}
+	We evaluated several well-established classifiers on the ExtraSensory Dataset. We could show that classification on this dataset is not trivial, since basic algorithms like Naive Bayes do not really exceed chance level. With more sophisticated concepts like Gradient Tree Boosting and Stacked Ensemble Classifiers we are able to reproduce and even improve the original classification results when no instance weighting is used. When utilizing stratified train-test-splits, we achieve a remarkable classification accuracy of over $98$\%. In addition to that, we are able to solve the user classification problem with an accuracy of over $99.2$\%. \par
+	We additionally investigated basic algorithms for imputing missing labels, which is one of the big challenges associated with this dataset. Furthermore, we experimented with custom loss-functions for neural networks in order to model correlation between labels, which also can help with missing labels.
+\end{section}
