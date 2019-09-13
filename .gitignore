@@ -260,3 +260,11 @@ TSWLatexianTemp*
 # directories
 data/
 env/
+src/tmp/
+
+# plots
+src/*.png
+
+# misc
+*.directory
+
