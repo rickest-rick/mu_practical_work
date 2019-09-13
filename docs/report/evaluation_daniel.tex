@@ -62,8 +62,6 @@
 \begin{subsection}{Interpretability}
 	
 	One of the tasks for the project was to highlight the influence of the individual features on the classification result for the resulting final classifier.
-	
-	The library XGBoost, which was used to construct our final classifier, provides an answer to the question with the method \texttt{xgboost.plot\_importance}. In Fig. \ref{abb:feature_importance} we show an example of the output for the label 'at\_a\_bar'. It shows the F-score (frequency) for the features that were used most frequently as split features in the gradient trees involved.
 	  
 	
 	\begin{figure}[H]
@@ -74,6 +72,7 @@
 		\end{center}		
 	\end{figure}
 
+  	The library XGBoost, which was used to construct our final classifier, provides an answer to the question with the method \texttt{xgboost.plot\_importance}. In Fig. \ref{abb:feature_importance} we show an example of the output for the label 'at\_a\_bar'. It shows the F-score (frequency) for the features that were used most frequently as split features in the gradient trees involved.
     We have have to keep in mind: The usage-frequency of split-features is only \textit{somewhat} related to their importance, since the anti-overfitting measures limit the amount of total split and 'bad' splits are never included in the constructed trees. Then again the 'true' importance to the classification comes from the information gained by the splits, which is given by equation \ref{eq:LRsplit}. More frequent split-features have more $\LL_\text{split}$-values, but this fact does not indicate that the sum of those $\LL_\text{split}$-values is big. For example, there might be a binary feature like gender with a very high gain-value, but due to its structure it can only be used once and therefore has a low frequency-score.
     
     Therefore, statements derived from \texttt{xgboost.plot\_importance} are only conditionally meaningful.

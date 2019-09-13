@@ -9,8 +9,8 @@ One of the great challenges of the dataset is the large number of missing labels
 			\text{subject to } &\sum_{(i,j)\:\in\: \Omega} (X_{ij} - Z_{ij})^2 \leq \delta
 		\end{split}	
 	\end{equation}
-	Here $\Omega$ denotes the set of all indices for which $X$ contains values. The regularization parameter $\delta$ determines the maximum deviation of the generated matrix $Z$ from the original one by means of the sum-of-squares error. To calculate the values in $Z$, an SVD is performed and the new values for $Z$ are calculated with the help of this SVD and regard to the constraints to be optimized.\par
-	The original optimization problem (\ref{eq:low-rank-opt}) is considered in Soft Impute in a slightly modified form. The rank of the matrix $Z$ is replaced by the nuclear norm, which is defined as the sum of the singular values of a matrix \cite{mazumder2010spectral}.
+	Here $\Omega$ denotes the set of all indices for which $X$ contains values. The regularization parameter $\delta$ determines the maximum deviation of the generated matrix $Z$ from the original one by means of the sum-of-squares error. To calculate the values in $Z$, an SVD is performed and the new values for $Z$ are calculated with the help of this SVD and regard to the constraints to be optimized.\par \newpage
+	The original optimization problem (\ref{eq:low-rank-opt}) is considered in Soft Impute in a slightly modified form. The rank of the matrix $Z$ is replaced by the nuclear norm, which is defined as the sum of the singular values of a matrix \cite{mazumder2010spectral}.	
 	\begin{equation} \label{eq:low-rank-soft-opt}
 	\begin{split}
 	\text{minimize } & \| Z \|_* \\

@@ -11,12 +11,13 @@ Gradient trees are essentially decision trees, except that each leaf of the tree
 	\begin{figure}[H]
 		\begin{center}
 			\includegraphics[width=\linewidth]{images/gradient_trees_example.png}
+					\caption{A simple visualization of a gradient tree ensemble}
 		\end{center}		
 	\end{figure}
 \end{minipage}
 \hfill
 \begin{minipage}{.5\linewidth}
-	A tree ensemble model $\{f_1, ... ,f_K \mid f_i \in \mathcal{F}\}$ consisting of $K$ gradient trees is not evaluated by voting, as known from decision trees, but by adding the function values of the sample $x$ of the single gradient trees in the ensemble function $\Phi = \sum f_k$. The predicted outcome $\hat{y}$ of a sample $x$ results from this:
+	A tree ensemble model $\{f_1, ... ,f_K \mid f_i \in \mathcal{F}\}$ consisting of $K$ gradient trees is not evaluated by voting, as known from decision trees, but by adding the function values of the sample $x$ of the single gradient trees in the ensemble function $\Phi = \sum f_k$. The predicted outcome $\hat{y}$ of a sample $x$ therefore can be calculated by:
 \end{minipage}
 
 $$\hat{y} = \Phi(x) = \sum_{k=1}^{K} f_k(x)$$
