@@ -1,0 +1,27 @@
+\begin{section}{Implementation}
+
+
+
+Using traditional machine learning classifiers, such as Gradient Boosted Trees, Logistic Regression and Random Forest, forced us to train one model for every kind of activity, resulting in 51 classifiers. Each of those decides in a one-versus-rest decision if an activity is present or not. 
+First approaches with Scikit-Learn's \texttt{OneVsRestClassifier} were not successful, because this class only expects a single classifier as input, forcing us to use the same set of hyperparameters for all 51 individual problems. This restriction proved to be problematic, because the optimal values of hyperparaters vary a lot depending on the kind of input data, particularly if large class imbalances are present.
+
+Another problem occurs when using the XGBoost classifier with \texttt{gpu\_hist} tree method, which proved to be the most successful individual model. It uses a very efficient approximate histogram evaluation on the GPU to find the best splits in the boosting algorithm. With help of this method we can train large ensembles of trees in a matter of minutes instead of hours on the CPU. Unfortunately, XGBoost does not release the allocated memory as good as it should, causing out-of-memory errors when using the OneVsRestClassifier.
+This encouraged us to implement our own kind of one-vs-rest classifier that offers, as the name implies, greater flexibility. 
+
+\subsection{FlexOneVsRestClassifier}
+
+The \texttt{FlexOneVsRestClassifier} is a classifier with Scikit-Learn syntax that wraps a set of individual single-label classifiers and allows to use them for multi-label classification. The constructor either expects a single classifier, which is copied for every kind of label, or a dictionary of classifiers. These do not even have to be of the same kind, but can be a mixture of different models. This allows us for example to predict the activity \enquote{lying down} with an XGBoost classifier and the activity \enquote{elevator}, which has a much larger class imbalance, with Logistic Regression.
+
+The most sophisticated method of the FlexOneVsRestClassifier is its \texttt{tune\_hyperparam} method that can be used to tune the hyperparameters of the individual classifiers. It expects a dataset with labels, a number of starting points and iterations and a set of hyperparameters with bounds to optimize (for example \texttt{max\_depth}:(6, 12) allows trees with a maximum depth between six and twelve). When we start the process, the aforementioned \enquote{Bayesian Optimization} library is used to optimize the given hyperparameters (\href{https://github.com/fmfn/BayesianOptimization}{github.com/fmfn/BayesianOptimization}).
+
+In the \texttt{fit}-method of the class one can either choose to use all training data for every label or filter the features for missing labels. The first approach can be used, if we imputed missing features in a meaningful way, while the second approach allows us to omit the costly imputing step and only use labels that are known to be correct.
+
+\subsection{Ensemble Classifier}
+
+The best way for the efficient and easy usage of stacking is to encapsulate the base classifiers and meta classifier in a wrapper class. This allows us to reuse the tedious code that is necessary for the cross validaton split and building the prediction sets with our level one classifiers. Mlxtend's \texttt{StackingCVClassifier} is such an implementation that offers a variety of additional functions (\href{http://rasbt.github.io/mlxtend/user_guide/classifier/StackingCVClassifier/}{github.com/rasbt/StackingCVClassifier}). One can for example use the predicted probabilities instead of predictions of the base classifiers for a more nuanced prediction set. We can also specify which cross validation strategy to use (e.g. stratified or grouped) and if we not only want to use the prediction set to train the meta classifier, but the original training data as well.
+
+In the beginning, their implementation seemed not applicable for our use case, because we had the same problems as before with non-released memory on the GPU. For this reason, we reimplemented a simpler version of this class, \texttt{XgbEnsembleClassifier}, that offers essentially the same functionality. Its main drawback is the lack of parallelization. After optimizing the memory freeing capabilities of \texttt{FlexOneVsRest}, we were fortunately able to use the more efficient \texttt{StackingCVClassifier} instead of our own implementation.
+
+We tested several base classifiers, such as Gradient Boosted Trees, Support Vector Machines, AdaBoost, Random Forest, Naive Bayes and Logistic Regression. An XGBoost Gradient Boosted Tree was our choice for the meta classifier.
+
+\end{section}

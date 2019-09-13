@@ -1,0 +1,14 @@
+\subsection{Naive Bayes}\label{subsec:naive_bayes}
+The goal of every classification task is to estimate the probability for a class $y$ to be present when given a set of features. This probability is given by
+\begin{equation}
+	P(y|(x_1,\dots,x_n)).
+\end{equation}
+Under the \glqq naive\grqq assumption (this gave the name of this classification method) that all features $(x_1,\dots,x_n)$ are pair-wise conditionally independent, the probability for a class $y$ can be rewritten by applying Bayes' Theorem:
+\begin{equation}
+	P(y|(x_1,\dots,x_n)) = \frac{P(y)\Pi_{i=1}^{n} P(x_i|y)}{P(x_1,\dots,x_n)}.
+\end{equation}
+Since $P(y)$ can easily be estimated by calculating the relative appearance ratio in the data set and $P(x_1,\dots,x_n)$ is independent of class $y$, the only task left is to estimate the distribution $P(x_i|y)$ for all features. One popular approach is to assume that the likelihood of each feature is Gaussian, that is
+\begin{equation}
+	P(x_i|y) = \frac{1}{\sqrt{2\pi \sigma_y^2}}\exp\left(-\frac{(x_i-\mu_y)^2}{2\sigma_y^2}\right).
+\end{equation}
+The mean $\mu_y$ and variance $\sigma_y^2$ is then calculated using maximum likelihood. (For details on how to do this, please refer to the Pattern Recognition course by Prof. Jiang \cite{Jiang})

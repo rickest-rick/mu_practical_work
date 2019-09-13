@@ -1,0 +1,127 @@
+\documentclass[a4paper,12pt]{scrartcl}
+
+
+\input{preamble_en}
+
+\begin{document}
+	
+	
+	\begin{singlespace}
+		\begin{titlepage}
+			\begin{center}
+				
+				\includegraphics[scale=0.6]{wwu}
+				
+				\large{\textbf{\textsf{Faculty of Mathematics and Computer Science}}\\ 
+					Summer Semester 2019} \\
+				\vspace{20mm}
+				\rule{.8\linewidth}{1pt}\\
+				\vspace{3mm}
+				\LARGE\textbf{\textsf{Behavioral Context Recognition In-The-Wild from Mobile Sensors}}\\
+				%\rule{.2\linewidth}{.5pt}\\
+				\rule{.8\linewidth}{1pt}\\
+				
+				\vfill
+			\end{center}
+			\begin{flushright}
+				\flushright
+				
+				\begin{large}
+					\singlespacing 		
+					\begin{tabular}{rl}
+						
+						Authors: & Daniel Beckmann \\ & Joschka Strüber \\& Tony Prange \\& Thomas Poschadel \\
+						\midrule
+						Lecturers: & Prof. Xiaoyi Jiang \\
+						& Sören Klemm \\
+						Class:& Pattern Recognition \\ & and Machine Learning \\
+						Submission deadline: & 13.09.2019
+						
+					\end{tabular}
+				\end{large}	
+			\end{flushright}
+			
+			\flushleft
+		\end{titlepage}
+		
+		\newpage  \tableofcontents\enlargethispage{1cm} \thispagestyle{empty} \vspace{15mm}
+		
+		
+	\end{singlespace}
+
+\newpage 
+\setcounter{page}{1}
+
+
+\input{introduction}
+\input{dataset}
+
+\input{metric}
+
+\input{state_of_the_art}
+
+\section{Applied Theory}
+
+\input{logistic_regression}
+\input{bayes}
+\input{random_forests}
+\input{gradient_boosting}
+\input{xgboost}
+\input{bayesian_optimization}
+\input{stacking}
+
+
+\input{implementation}
+
+\input{maximal_correlation_embedding}
+
+\input{missing_labels}
+
+\input{user_classification}
+
+\input{evaluation_daniel}
+%\input{evaluation_instance_weighting}
+%\input{tables}
+
+
+
+
+\newpage
+
+\printbibliography
+
+\addcontentsline{toc}{section}{References} 
+
+
+
+\newpage
+\ohead{\normalfont Declaration of Academic Integrity}
+
+\vspace*{1cm}
+\begin{center}
+	\Large \textbf{Declaration of Academic Integrity}\\
+	
+	\large \textbf{Anti-Plagiarism Statement}
+\end{center}
+\addcontentsline{toc}{section}{Declaration of Academic Integrity} 
+\normalsize
+\vspace{25mm}
+We hereby certify that we have written this work \grqq Behavioral Context Recognition In-The-Wild from Mobile Sensors\grqq{} independently, that we have not used any other sources and means than those indicated, and that the parts of the work taken from other works - including electronic media - have in any case been identified as borrowed, stating the source.\\
+
+
+\begin{center}
+	\rule{6cm}{.5pt} \hspace{3cm} \rule{6cm}{.5pt}
+\end{center}
+\vspace{1cm}
+\begin{center}
+	\rule{6cm}{.5pt} \hspace{3cm} \rule{6cm}{.5pt}
+\end{center}
+
+\vspace{3cm}
+	\begin{center}
+	\rule{6cm}{.5pt} \hspace{3cm} \rule{6cm}{0pt}
+\end{center}	
+\vspace{-5mm}
+\hspace*{25mm} Ort, Datum	
+
+\end{document}

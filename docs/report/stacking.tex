@@ -1,0 +1,19 @@
+\subsection{Stacking}\label{subsec:stacking}
+
+If one trains several classifiers in an ensemble, there are several options regarding the architecture of the ensemble and the combination of the individual classifiers' predictions.
+
+One way to combine the results of several classifiers is to use Stacked Generalization, also called Stacking. This means that the predictions of the individual classifiers, the so called first-level classifiers, are used by another classifier, the second-level or meta classifier, for the final prediction. 
+
+Essentially, in a first step, the data set $X = \{x_1, ... .x_n\}$ with associated labels $\{y_1, ... y_n\}$ is used to train the first-level classifiers $p_1, .. p_K$. Their results $\{(p_1(x_i), ... , p_K(x_i)) \mid x_i \in X\}$ form a new set that can be used as the feature set of the second-level classifier with the original labels $\{y_1, ... y_n\}$ as target (\href{https://books.google.de/books?id=nwQZCwAAQBAJ&lpg=PA500&dq=stacking+classifier+subsets&pg=PA499&redir_esc=y#v=onepage&q&f=false}{StackingCVClassifier}).
+The resulting second-level classifier learns, so to speak, how the predictions of the individual first-level classifiers should be weighted in certain situations in order to generate the best possible prediction based on the individual predictions. 
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=\textwidth]{images/stacking_diagram.png}
+		\caption{A Stacking Visualization}
+		\label{abb:stacking}
+	\end{center}		
+\end{figure}	
+
+\newpage
+Compared to Bagging and Boosting the individual classifiers are not assigned a fixed weight for the whole process, but their influence depending on different situation can vary. 
+In our case we used XGBoost, a naive bayes classifier, a random-forest classifier and a linear regression classifier as first-level classifiers and XGBoost as the second-level classifier. As shown in Fig. \ref{abb:stacking}, the first-level classifiers were trained with the principle of Cross Validation, this Stacking technique is also called Cross Validation Stacking, in which the data set was divided by three, resulting in three prediction sets. In this way, we essentially get a prediction set of the same size as the input, without losing data. If we trained the first-level classifiers on the whole dataset, we had no way to produce reliable prediction sets without overfitting. On these prediction sets the training of the second-level classifier takes place. 

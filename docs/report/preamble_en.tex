@@ -1,0 +1,75 @@
+% deutsche Silbentrennung
+\usepackage[english]{babel}
+\let\latinencoding\relax
+% eigene, zusätzliche Silbentrennung
+\usepackage{hyphsubst} %Manuelle Sil\-ben\-tren\-nung
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{verbatim} 
+\usepackage{hyperref}
+\usepackage[font={small,it}]{caption}
+\usepackage{bbm}
+  
+% Seitenränder
+\usepackage{geometry}
+\geometry{a4paper, top= 25mm, bottom=20mm, left = 25mm, right = 25mm, footskip= 1cm}
+\setlength\parindent{0pt}
+
+\usepackage{graphicx}
+%\includegraphics[width=0.5\textwidth]{images/img1} oder scale=1
+
+% Zeilenabstand (Unterscheidet sich evtl von den Standard 1.5)
+\usepackage{setspace}
+\linespread{1.5}
+
+\usepackage{fontspec}
+%\setmainfont{Times New Roman}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{wrapfig}
+%\usepackage{caption}
+
+\usepackage{cancel}
+\usepackage{csquotes}
+
+\usepackage{colortbl}
+\usepackage{xcolor}
+%\usepackage{hyperref}
+%\usepackage[all]{hypcap}
+\usepackage{float}
+
+\usepackage{pdfpages}
+\usepackage[headsepline]{scrpage2}
+\pagestyle{scrheadings}
+\clearscrheadfoot
+
+\ofoot{\pagemark}
+\ohead{\normalfont \headmark}
+
+%bibliography
+\usepackage[natbib,style=alphabetic,minnames=2,maxnames=2,uniquelist=false,backend=biber]{biblatex}
+\bibliography{bibliography}
+\setlength{\bibitemsep}{1.5em} 
+
+%notes
+\usepackage{todonotes} 
+
+\automark{section}
+\newcommand{\gr}{\grqq{}}
+\newcommand{\gl}{\glqq}
+\newcommand{\vs}{\vspace{3pt}}
+\newcommand{\red}{{ \color{red} Quelle}} 
+\newcommand{\LL}{\ensuremath{\mathcal{L}}}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+%\newcommand{\C}{\mathbb{C}}
+\newcommand{\F}{\mathbb{F}}
+
+\renewcaptionname{english}{\figurename}{\small{Fig.}}
+\renewcaptionname{english}{\tablename}{\small{Tab.}}
+\newcommand{\norm}[1]{\left\| #1 \right\|}
