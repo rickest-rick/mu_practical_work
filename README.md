@@ -7,6 +7,7 @@ All sourcecode that is part of our solution can be found in "/src", alongside a 
 Installing all packages in "src/requirements.txt" should be proficient to run our scripts. We use XGBoost with its effcient "gpu_hist" tree method, that runs on the GPU and needs CUDA 9 or 10. Luckily, GPU support should be installed automatically with "pip install xgboost". If this does not work for any reason, you have to adjust the tree method manually. Something like this should do the job:
 
 for key, xgb_clf in clf.items():
+
   xgb_clf.set_params(tree_method="hist")
   
 Plots of the feature importances for every individual problem can be found in the directory "/src/plots".
