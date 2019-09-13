@@ -38,6 +38,6 @@ A good choice of $\epsilon$ is crucial for the resulting performance, since it c
 
 The difference between the global and local variant of the algorithm resides in the fact that in the global version the candidates are created only once - at the beginning of the construction of the tree - , in the local version these are determined again after each iteration with consideration to the feature choices made.
 
-\subsubsection{XGBoost: Avoiding overfitting}
+\subsubsection{XGBoost: Avoiding Overfitting}
 Besides the term $\Omega$ XGBoost uses two main strategies to avoid overfitting: shrinkage and feature subsampling. With shrinkage, each tree, or more precisely its weights, is multiplied by a factor, which is taken into account when the ensemble is evaluated. Essentially there is the possibility to manipulate all previous trees, i.e. to add a factor to $\sum\limits_{k=1}^n f_k(x)$, or to add a factor to the new tree $f_t$. Both versions have the same effect by either shrinking the existing forest or increasing the size of the new tree. Similar to the learning rate in other contexts, shrinkage allows to vary the effect of future trees on the ensemble. Feature subsampling is the same strategy known from random forests.
 
